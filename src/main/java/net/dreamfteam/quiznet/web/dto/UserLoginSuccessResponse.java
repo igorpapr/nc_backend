@@ -25,12 +25,5 @@ public class UserLoginSuccessResponse {
       this.email = email;
       this.creationDate = creationDate;
    }
-
-   //   @Override
-//   public String toString() {
-//      return "UserLoginSuccessResponse{" +
-//              "success=" + success +
-//              ", token='" + token + '\'' +
-//              '}';
-//   }
+   
 }
