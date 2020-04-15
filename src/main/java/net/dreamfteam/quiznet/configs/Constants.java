@@ -15,7 +15,7 @@ public class Constants {
     public static final String HEADER_STRING = "Authorization";
     public static final long EXPIRATION_TIME = 300_000_000; //30 000 seconds
 
-    public static final String SERVER_NAME = "localhost";
+    public static final String SERVER_NAME = "qznetbc.herokuapp.com";
     public static final int SERVER_PORT = 8081;
 
     public static final String MY_EMAIL = "QuizNetFromUk";
@@ -25,7 +25,7 @@ public class Constants {
     public static final String REG_MAIL_SUBJECT = "Profile registration(QuizNet)";
     public static final String REG_MAIL_ARTICLE = "Your profile has been registered! Thank you!";
     public static final String REG_MAIL_MESSAGE = "To activate your profile visit next link: ";
-    public static final String REG_URL_ACTIVATE = "http://" + SERVER_NAME + ":" + SERVER_PORT + "/api/users/activate/";
+    public static final String REG_URL_ACTIVATE = "https://" + SERVER_NAME +"/api/users/activate/";
 
     //Achievement messages
     public static final String ACHIEVE_NOTIFIC_MAIL_SUBJECT = "New Achievement(GRAMPUS)";

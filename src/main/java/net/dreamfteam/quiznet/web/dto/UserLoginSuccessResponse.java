@@ -25,5 +25,5 @@ public class UserLoginSuccessResponse {
       this.email = email;
       this.creationDate = creationDate;
    }
-   
+
 }

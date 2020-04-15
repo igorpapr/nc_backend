@@ -20,7 +20,7 @@ public class UserValidator {
             "[a-zA-Z0-9_+&*-]+)*@" +
             "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
             "A-Z]{2,7}$";
-    private static final String REGEX_USERNAME = "^[a-zA-Z0-9_-]{3,20}$";
+    private static final String REGEX_USERNAME = "^[a-zA-Z0-9][a-zA-Z0-9-_]{2,18}$";
 
 
     public static void validate(User user) throws ValidationException {
