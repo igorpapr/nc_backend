@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Configuration
-public class LocaleResolverConfig extends AcceptHeaderLocaleResolver {
+public class LocaleResolverConfiguration extends AcceptHeaderLocaleResolver {
 
     @Override
     public Locale resolveLocale(HttpServletRequest request) {

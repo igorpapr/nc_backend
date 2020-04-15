@@ -6,8 +6,8 @@ import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.JWTLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.dto.LoginRequest;
+import net.dreamfteam.quiznet.web.dto.UserLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,18 @@ public class AuthorizationController {
     public ResponseEntity authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         LoginRequestValidator.validate(loginRequest);
-        return ResponseEntity.ok(new JWTLoginSuccessResponse(true, activationService.isUserActivated(loginRequest)));
+
+        User currentUser = userService.getByUsername(loginRequest.getUsername());
+
+        UserLoginSuccessResponse userLoginSuccessResponse = UserLoginSuccessResponse.builder()
+                .success(true)
+                .token(activationService.isUserActivated(loginRequest))
+                .username(currentUser.getUsername())
+                .email(currentUser.getEmail())
+                .creationDate(currentUser.getCreationDate()).build();
+
+
+        return ResponseEntity.ok(userLoginSuccessResponse);
     }
 
     @PostMapping(value = "/register")

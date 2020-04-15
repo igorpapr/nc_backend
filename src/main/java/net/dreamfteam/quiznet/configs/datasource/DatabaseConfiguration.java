@@ -33,16 +33,5 @@ public class DatabaseConfiguration {
 
         return dataSource;
     }
-//    @Bean
-//    public DataSource dataSource() {
-//        final HikariConfig config = new HikariConfig();
-//        config.setJdbcUrl(dbUrl);
-//        config.setUsername(dbUser);
-//        config.setPassword(dbPass);
-//        config.addDataSourceProperty("cachePrepStmts", "true");
-//        config.addDataSourceProperty("prepStmtCacheSize", "150");
-//        config.addDataSourceProperty("prepStmtCacheSqlLimit", "1000");
-//        final HikariDataSource hikariDataSource = new HikariDataSource(config);
-//        return hikariDataSource;
-//    }
+
 }

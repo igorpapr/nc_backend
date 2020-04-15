@@ -1,7 +1,6 @@
 package net.dreamfteam.quiznet.web.validators;
 
 
-
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import org.springframework.util.StringUtils;
@@ -17,16 +16,18 @@ public class UserValidator {
 
     //Regex
     private static final String REGEX_PASSWORD = "^(?=.*\\d).{4,28}$";
-    public static final String REGEX_EMAIL = "^[a-zA-Z0-9_+&*-]+(?:\\." +
+    private static final String REGEX_EMAIL = "^[a-zA-Z0-9_+&*-]+(?:\\." +
             "[a-zA-Z0-9_+&*-]+)*@" +
             "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
             "A-Z]{2,7}$";
+    private static final String REGEX_USERNAME = "^[a-zA-Z0-9_-]{3,20}$";
 
 
     public static void validate(User user) throws ValidationException {
         validateNotEmptyProperty(user.getUsername(), "username");
         validateNotEmptyProperty(user.getPassword(), "password");
         validateNotEmptyProperty(user.getEmail(), "email");
+        validateWithRegularExpression(user.getUsername(),REGEX_USERNAME,"username");
         validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
         validateWithRegularExpression(user.getEmail(), REGEX_EMAIL, "email");
     }

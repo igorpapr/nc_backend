@@ -34,7 +34,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
         jsr250Enabled = true,
         prePostEnabled = true
 )
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private JwtAuthenticationEntryPoint unauthorizedHandler;
     private JwtUserDetailsService jwtUserDetailsService;
@@ -42,8 +42,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public SecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtUserDetailsService jwtUserDetailsService,
-                          BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public SecurityConfiguration(JwtAuthenticationEntryPoint unauthorizedHandler, JwtUserDetailsService jwtUserDetailsService,
+                                 BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
