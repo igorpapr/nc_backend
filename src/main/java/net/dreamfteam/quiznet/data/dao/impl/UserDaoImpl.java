@@ -30,7 +30,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByHashedId(String hashedId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users where md5(id) = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE MD5(id::text) = ?",
                     new Object[]{hashedId},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
