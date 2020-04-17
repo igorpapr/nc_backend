@@ -12,7 +12,7 @@ public interface UserService {
 
     User getById(Long id);
 
-    User getByHashedId(String hashedId);
+    User getByActivationUrl(String hashedId);
 
     List<User> getAll();
 

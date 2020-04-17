@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.Date;
+
+import static javax.management.timer.Timer.ONE_DAY;
 
 @Service
 public class ActivationServiceImpl implements ActivationService {
@@ -26,20 +29,26 @@ public class ActivationServiceImpl implements ActivationService {
 
 
     @Override
-    public void activateUser(String hashedId) {
+    public void activateUser(String activationUrl) {
 
-        User user = userService.getByHashedId(hashedId);
+        User user = userService.getByActivationUrl(activationUrl);
 
         if (user == null) {
             throw new ValidationException("Not Found");
         }
 
-        if (user.isActivated()) {
+        if (user.isVerified()) {
             throw new ValidationException("User profile have been already activated");
         }
 
+        if (new Date().getTime()- user.getCreationDate().getTime() >= ONE_DAY) {
+            userService.deleteById(user.getId());
+            throw new ValidationException("Your activation link is expired. Create your account again");
+        }
+
+        user.setVerified(true);
         user.setActivated(true);
-        user.setCreationDate(Calendar.getInstance().getTime());
+
         userService.update(user);
     }
 

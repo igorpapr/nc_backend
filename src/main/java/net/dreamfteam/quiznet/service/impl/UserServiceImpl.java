@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -45,14 +46,18 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .password(bCryptPasswordEncoder.encode(newUser.getPassword()))
                 .email(newUser.getEmail())
+                .creationDate(Calendar.getInstance().getTime())
                 .username(newUser.getUsername())
+                .activationUrl(bCryptPasswordEncoder.encode(newUser.getUsername() + newUser.getEmail()))
                 .build();
 
         User dtoUser = userDao.save(user);
 
         mailService.sendMail(dtoUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + toMd5(Long.toString(dtoUser.getId())));
+                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + dtoUser.getActivationUrl());
 
+        newUser.setActivationUrl(dtoUser.getActivationUrl());
+        newUser.setCreationDate(dtoUser.getCreationDate());
         newUser.setId(dtoUser.getId());
         newUser.setEmail(user.getEmail());
         newUser.setPassword("******");
@@ -66,8 +71,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getByHashedId(String hashedId) {
-        return userDao.getByHashedId(hashedId);
+    public User getByActivationUrl(String activationUrl) {
+        return userDao.getByActivationUrl(activationUrl);
     }
 
     @Override
@@ -95,17 +100,5 @@ public class UserServiceImpl implements UserService {
         userDao.update(user);
     }
 
-    private String toMd5(String str) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.getMessage();
-        }
-        md.update(str.getBytes());
-        byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toLowerCase();
-
-    }
 }
 

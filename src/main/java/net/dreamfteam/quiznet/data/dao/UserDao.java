@@ -19,5 +19,5 @@ public interface UserDao {
 
     List<User> getAll();
 
-    User getByHashedId(String hashedId);
+    User getByActivationUrl(String activationUrl);
 }

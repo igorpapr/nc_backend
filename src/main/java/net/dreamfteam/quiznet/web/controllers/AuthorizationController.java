@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.websocket.server.PathParam;
 
 
 @RestController
@@ -55,12 +59,12 @@ public class AuthorizationController {
         return new ResponseEntity<>(userService.save(user), HttpStatus.CREATED);
     }
 
-    @GetMapping("/activate/{hashedId}")
-    public String activate(@PathVariable String hashedId) {
-        activationService.activateUser(hashedId);
-        return "<img style='width:100%' 'height:100%' 'text-align: center' src='https://cdn1.savepice.ru/uploads/2019/11/21/bcadc0172fce5e6a398bb4edcdf8bf7a-full.jpg'>";
+    @GetMapping("/activate")
+    public RedirectView activate(@PathParam("activationUrl") String activationUrl) {
+
+        activationService.activateUser(activationUrl);
+
+        return new RedirectView("https://quiz-app-nc.herokuapp.com/log-in");
     }
-
-
 }
 

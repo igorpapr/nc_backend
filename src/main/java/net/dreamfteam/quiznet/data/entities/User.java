@@ -20,8 +20,25 @@ public class User {
 
     private String username;
 
+    private Date creationDate;
+
+    private Date lastTimeOnline;
+
+    private String image;
+
+    private String aboutMe;
+
+    private String recoveryUrl;
+
+    private String activationUrl;
+
+    private Date recoverySentTime;
+
+    private boolean online;
+
     private boolean activated;
 
-    private Date creationDate;
+    private boolean verified;
+
 
 }

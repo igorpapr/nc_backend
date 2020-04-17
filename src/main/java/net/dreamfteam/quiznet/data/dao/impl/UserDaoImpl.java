@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 
+
 @Repository
 public class UserDaoImpl implements UserDao {
 
@@ -28,10 +29,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getByHashedId(String hashedId) {
+    public User getByActivationUrl(String activationUrl) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE MD5(id::text) = ?",
-                    new Object[]{hashedId},
+            return jdbcTemplate.queryForObject("SELECT * FROM users where activation_url = ?",
+                    new Object[]{activationUrl},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
             return null;
@@ -75,8 +76,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        jdbcTemplate.update("INSERT INTO users (username, email, password, activated) VALUES (?,?,?,?)",
-                user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated());
+        jdbcTemplate.update("INSERT INTO users (username, email, password, is_activated," +
+                        "is_verified, activation_url, date_acc_creation) VALUES (?,?,?,?,?,?,?)",
+                user.getUsername(), user.getEmail(), user.getPassword(),
+                user.isActivated(), user.isVerified(), user.getActivationUrl(), user.getCreationDate());
 
         return getByEmail(user.getEmail());
 
@@ -84,16 +87,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteById(Long id) {
-
+        jdbcTemplate.update("DELETE FROM users where id=?", id);
     }
 
 
     @Override
     public void update(User user) {
         jdbcTemplate.update("UPDATE users SET username = ?, email = ?," +
-                        "password= ?, activated = ?, creation_date = ? WHERE id = ?",
+                        "password= ?, is_activated = ?, is_verified = ? WHERE id = ?",
                 user.getUsername(), user.getEmail(), user.getPassword(),
-                user.isActivated(), user.getCreationDate(), user.getId());
+                user.isActivated(), user.isVerified(), user.getId());
 
     }
 }

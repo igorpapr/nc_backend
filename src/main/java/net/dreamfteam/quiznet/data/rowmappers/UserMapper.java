@@ -15,9 +15,12 @@ public class UserMapper implements RowMapper<User> {
                 .email(resultSet.getString("email"))
                 .password(resultSet.getString("password"))
                 .username(resultSet.getString("username"))
-                .activated(resultSet.getBoolean("activated"))
-                .creationDate(resultSet.getDate("creation_date"))
+                .activated(resultSet.getBoolean("is_activated"))
+                .verified(resultSet.getBoolean("is_verified"))
+                .creationDate(resultSet.getTimestamp("date_acc_creation"))
+                .activationUrl(resultSet.getString("activation_url"))
                 .build();
+
 
         return user;
     }

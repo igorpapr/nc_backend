@@ -25,7 +25,7 @@ public class Constants {
     public static final String REG_MAIL_SUBJECT = "Profile registration(QuizNet)";
     public static final String REG_MAIL_ARTICLE = "Your profile has been registered! Thank you!";
     public static final String REG_MAIL_MESSAGE = "To activate your profile visit next link: ";
-    public static final String REG_URL_ACTIVATE = "https://" + SERVER_NAME +"/api/users/activate/";
+    public static final String REG_URL_ACTIVATE = "http://" + SERVER_NAME  + "/api/users/activate?activationUrl=";
 
     //Achievement messages
     public static final String ACHIEVE_NOTIFIC_MAIL_SUBJECT = "New Achievement(GRAMPUS)";
