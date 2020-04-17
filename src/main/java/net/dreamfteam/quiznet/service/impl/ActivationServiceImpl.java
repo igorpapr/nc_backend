@@ -38,7 +38,7 @@ public class ActivationServiceImpl implements ActivationService {
         }
 
         if (user.isVerified()) {
-            throw new ValidationException("User profile have been already activated");
+            return;
         }
 
         if (new Date().getTime()- user.getCreationDate().getTime() >= ONE_DAY) {
@@ -51,6 +51,7 @@ public class ActivationServiceImpl implements ActivationService {
 
         userService.update(user);
     }
+
 
     @Override
     public String isUserActivated(LoginRequest loginRequest) {
