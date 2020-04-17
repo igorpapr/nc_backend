@@ -1,0 +1,151 @@
+package net.dreamfteam.quiznet.data.dao.impl;
+
+import net.dreamfteam.quiznet.data.dao.QuizDao;
+import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.rowmappers.QuestionMapper;
+import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
+import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
+@Repository
+public class QuizDaoImpl implements QuizDao {
+
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public QuizDaoImpl(JdbcTemplate jdbcTemplate) { this.jdbcTemplate = jdbcTemplate; }
+
+    @Override
+    public Quiz saveQuiz(Quiz quiz) {
+        jdbcTemplate.update(
+                "INSERT INTO quizzes (title, description, image_ref, ver_creation_datetime, " +
+                        "creator_id, activated, validated, language) VALUES (?,?,?,?,?,?,?,?)",
+                quiz.getTitle(), quiz.getDescription(), quiz.getImageRef(), quiz.getCreationDate(),
+                quiz.getCreatorId(), quiz.isActivated(), quiz.isValidated(), quiz.getLanguage());
+        return getUserQuizByTitle(quiz.getTitle(), quiz.getCreatorId());
+    }
+
+    @Override
+    public Quiz updateQuiz(DtoQuiz dtoQuiz) {
+        jdbcTemplate.update(
+                "UPDATE quizzes SET title = ?, description = ?, image_ref = ?, language = ? WHERE quiz_id = ?",
+                dtoQuiz.getNewTitle(), dtoQuiz.getNewDescription(), dtoQuiz.getNewImageRef(), dtoQuiz.getNewLanguage(), dtoQuiz.getQuizId());
+        System.out.println("Updated in db. Quiz id: " + dtoQuiz.getQuizId());
+        return getUserQuizByTitle(dtoQuiz.getTitle(), dtoQuiz.getCreatorId());
+    }
+
+    @Override
+    public Quiz getQuiz(DtoQuiz dtoQuiz) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM quizzes WHERE quiz_id = ?",
+                    new Object[]{dtoQuiz.getQuizId()},
+                    new QuizMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteQuizById(Long id) {
+        //TODO: DELETE QUIZ OPERATION
+    }
+
+    @Override
+    public Quiz getUserQuizByTitle(String title, long userId) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    "SELECT * FROM quizzes WHERE title = ? AND creator_id = ?",
+                    new Object[]{title, userId},
+                    new QuizMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public long saveQuestion(Question question) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+                new PreparedStatementCreator() {
+                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                        PreparedStatement ps = con.prepareStatement(
+                                "INSERT INTO questions (quiz_id, title, content, image, points, type_id) VALUES (?,?,?,?,?,?)",
+                                Statement.RETURN_GENERATED_KEYS);
+                        ps.setLong(1, question.getQuizId());
+                        ps.setString(2, question.getTitle());
+                        ps.setString(3, question.getContent());
+                        ps.setString(4, question.getImage());
+                        ps.setInt(5, question.getPoints());
+                        ps.setInt(6, question.getTypeId());
+                        return ps;
+                    }
+                }, keyHolder);
+        System.out.println("Question added in DB. Its ID in database is: " + keyHolder.getKeys().get("question_id"));
+        return (long) keyHolder.getKeys().get("question_id");
+    }
+
+    @Override
+    public void saveFirstTypeAns(Question question) {
+        //upd
+        for(int i = 0; i < question.getRightOptions().size(); i++) {
+            jdbcTemplate.update(
+                    "INSERT INTO options (content, is_correct, question_id) VALUES (?,?,?)",
+                    question.getRightOptions().get(i), true, question.getId());
+        }
+        for(int i = 0; i < question.getOtherOptions().size(); i++) {
+            jdbcTemplate.update(
+                    "INSERT INTO options (content, is_correct, question_id) VALUES (?,?,?)",
+                    question.getRightOptions().get(i), false, question.getId());
+        }
+        System.out.println("First type answers saved in db for question: " + question.toString());
+    }
+
+    @Override
+    public void saveSecondThirdTypeAns(Question question) {
+        jdbcTemplate.update(
+                "INSERT INTO one_val_options (value, question_id) VALUES (?,?)",
+                question.getRightOptions().get(0), question.getId());
+        System.out.println("Second/Third type answers saved in db for question: " + question.toString());
+    }
+
+    @Override
+    public void saveFourthTypeAns(Question question) {
+        for (int i = 0; i < question.getRightOptions().size(); i++) {
+            jdbcTemplate.update(
+                    "INSERT INTO seq_options (position, content, question_id) VALUES (?,?,?)",
+                    i+1, question.getRightOptions().get(i), question.getId());
+        }
+        System.out.println("Fourth type answers saved in db for question: " + question.toString());
+    }
+
+    @Override
+    public void deleteQuestion(Question question) {
+        jdbcTemplate.update("DELETE FROM questions WHERE question_id = ?", question.getId());
+    }
+
+    @Override
+    public List<Question> getQuestionList(Question question) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT * FROM questions WHERE quiz_id = ?",
+                    new Object[]{question.getQuizId()},
+                    new QuestionMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+}
