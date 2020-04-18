@@ -67,8 +67,6 @@ public class QuizDaoImpl implements QuizDao {
                 dtoQuiz.getNewTitle(), dtoQuiz.getNewDescription(), dtoQuiz.getNewImageRef(), dtoQuiz.getNewLanguage(), dtoQuiz.getQuizId());
         jdbcTemplate.update("DELETE FROM quizzes_tags WHERE quiz_id = ?", dtoQuiz.getQuizId());
         jdbcTemplate.update("DELETE FROM categs_quizzes WHERE quiz_id = ?", dtoQuiz.getQuizId());
-        System.out.println(dtoQuiz.getNewTagList());
-        System.out.println(dtoQuiz.getNewCategoryList());
         for(int i = 0; i < dtoQuiz.getNewTagList().size(); i++) {
             jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (?,?)",
                     dtoQuiz.getQuizId(), dtoQuiz.getNewTagList().get(i));
