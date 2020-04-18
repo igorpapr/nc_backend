@@ -45,6 +45,11 @@ public class QuizController {
         return new ResponseEntity<>(quizService.saveQuestion(question), HttpStatus.CREATED);
     }
 
+    @PostMapping("/edit/question")
+    public ResponseEntity<?> editQuestion(@RequestBody Question question) throws ValidationException {
+        return new ResponseEntity<>(quizService.updateQuestion(question), HttpStatus.OK);
+    }
+
     @DeleteMapping("/edit/question")
     public ResponseEntity<?> deleteQuestion(@RequestBody Question question) throws ValidationException {
         quizService.deleteQuestion(question);
