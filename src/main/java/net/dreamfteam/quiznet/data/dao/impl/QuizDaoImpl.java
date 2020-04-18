@@ -29,12 +29,35 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public Quiz saveQuiz(Quiz quiz) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
-                "INSERT INTO quizzes (title, description, image_ref, ver_creation_datetime, " +
-                        "creator_id, activated, validated, language) VALUES (?,?,?,?,?,?,?,?)",
-                quiz.getTitle(), quiz.getDescription(), quiz.getImageRef(), quiz.getCreationDate(),
-                quiz.getCreatorId(), quiz.isActivated(), quiz.isValidated(), quiz.getLanguage());
-        return getUserQuizByTitle(quiz.getTitle(), quiz.getCreatorId());
+                new PreparedStatementCreator() {
+                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                        PreparedStatement ps = con.prepareStatement(
+                                "INSERT INTO quizzes (title, description, image_ref, ver_creation_datetime, " +
+                                        "creator_id, activated, validated, language) VALUES (?,?,?,?,?,?,?,?)",
+                                Statement.RETURN_GENERATED_KEYS);
+                        ps.setString(1, quiz.getTitle());
+                        ps.setString(2, quiz.getDescription());
+                        ps.setString(3, quiz.getImageRef());
+                        ps.setDate(4, new java.sql.Date(quiz.getCreationDate().getTime()));
+                        ps.setLong(5, quiz.getCreatorId());
+                        ps.setBoolean(6, quiz.isActivated());
+                        ps.setBoolean(7, quiz.isValidated());
+                        ps.setString(8, quiz.getLanguage());
+                        return ps;
+                    }
+                }, keyHolder);
+        quiz.setId((Long) keyHolder.getKeys().get("quiz_id"));
+        for(int i = 0; i < quiz.getTagList().size(); i++) {
+            jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (?,?)",
+                    quiz.getId(), quiz.getTagList().get(i));
+        }
+        for(int i = 0; i < quiz.getCategoryList().size(); i++) {
+            jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (?,?)",
+                    quiz.getId(), quiz.getCategoryList().get(i));
+        }
+        return quiz;
     }
 
     @Override
@@ -42,6 +65,18 @@ public class QuizDaoImpl implements QuizDao {
         jdbcTemplate.update(
                 "UPDATE quizzes SET title = ?, description = ?, image_ref = ?, language = ? WHERE quiz_id = ?",
                 dtoQuiz.getNewTitle(), dtoQuiz.getNewDescription(), dtoQuiz.getNewImageRef(), dtoQuiz.getNewLanguage(), dtoQuiz.getQuizId());
+        jdbcTemplate.update("DELETE FROM quizzes_tags WHERE quiz_id = ?", dtoQuiz.getQuizId());
+        jdbcTemplate.update("DELETE FROM categs_quizzes WHERE quiz_id = ?", dtoQuiz.getQuizId());
+        System.out.println(dtoQuiz.getNewTagList());
+        System.out.println(dtoQuiz.getNewCategoryList());
+        for(int i = 0; i < dtoQuiz.getNewTagList().size(); i++) {
+            jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (?,?)",
+                    dtoQuiz.getQuizId(), dtoQuiz.getNewTagList().get(i));
+        }
+        for(int i = 0; i < dtoQuiz.getNewCategoryList().size(); i++) {
+            jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (?,?)",
+                    dtoQuiz.getQuizId(), dtoQuiz.getNewCategoryList().get(i));
+        }
         System.out.println("Updated in db. Quiz id: " + dtoQuiz.getQuizId());
         return getUserQuizByTitle(dtoQuiz.getTitle(), dtoQuiz.getCreatorId());
     }

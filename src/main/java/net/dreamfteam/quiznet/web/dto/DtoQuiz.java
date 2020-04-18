@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Builder
 @Getter
 @Setter
@@ -15,6 +17,8 @@ public class DtoQuiz {
     private String language;
     private String description;
     private String imageRef;
+    private List<Long> tagList; // IDs of linked tags
+    private List<Long> categoryList; // IDs of linked categories
 
     //For edit request
     private long quizId;
@@ -22,7 +26,10 @@ public class DtoQuiz {
     private String newDescription;
     private String newImageRef;
     private String newLanguage;
+    private List<Long> newTagList;
+    private List<Long> newCategoryList;
 
     //For getting quiz or mark as fav requests
     private long userId;
+
 }

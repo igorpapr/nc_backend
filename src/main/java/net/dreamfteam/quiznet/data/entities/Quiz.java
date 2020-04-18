@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.entities;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @ToString
@@ -32,6 +33,10 @@ public class Quiz {
     private String adminComment;
 
     private float rating;
+
+    private List<Long> tagList;
+
+    private List<Long> categoryList;
 
     private boolean isFavourite;
 

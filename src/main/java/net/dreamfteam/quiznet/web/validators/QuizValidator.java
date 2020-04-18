@@ -15,6 +15,9 @@ public class QuizValidator {
         isNotEmpty(quiz.getCreatorId(), "creator id");
         isNotEmpty(quiz.getLanguage(), "language");
         isNotEmpty(quiz.getDescription(), "description");
+        if(quiz.getTagList().size() == 0 || quiz.getCategoryList().size() == 0) {
+            throw new ValidationException(String.format(EMPTY_PROPERTY_EXCEPTION_MESSAGE, "category/tag"));
+        }
     }
 
     public static void validateForEdit(DtoQuiz quiz) {
