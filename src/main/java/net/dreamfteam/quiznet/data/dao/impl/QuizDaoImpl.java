@@ -5,19 +5,18 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.data.rowmappers.QuestionMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 @Repository
@@ -140,12 +139,43 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Question> getQuestionList(Question question) {
         try {
-            return jdbcTemplate.query(
+            List<Question> listQ = jdbcTemplate.query(
                     "SELECT * FROM questions WHERE quiz_id = ?",
                     new Object[]{question.getQuizId()},
                     new QuestionMapper());
+            for (int i = 0; i < listQ.size(); i++) {
+                listQ.set(i,loadAnswersForQuestion(listQ.get(i), i));
+            }
+            return listQ;
         } catch (EmptyResultDataAccessException e) {
             return null;
+        }
+    }
+
+    private Question loadAnswersForQuestion(Question question, int i) {
+        switch(question.getTypeId()) {
+            case (1):
+                question.setRightOptions(jdbcTemplate.queryForList(
+                        "SELECT content FROM options WHERE question_id = ? AND is_correct = true",
+                        new Object[]{question.getId()}, String.class));
+
+                question.setOtherOptions(jdbcTemplate.queryForList(
+                        "SELECT content FROM options WHERE question_id = ? AND is_correct = false",
+                        new Object[]{question.getId()},
+                        String.class));
+                return question;
+            case (2):
+            case (3):
+                question.setRightOptions(jdbcTemplate.queryForList(
+                        "SELECT value FROM one_val_options WHERE question_id = ?",
+                        new Object[]{question.getId()}, String.class));
+                return question;
+            case (4):
+                question.setRightOptions(jdbcTemplate.queryForList(
+                        "SELECT content FROM seq_options WHERE question_id = ? ORDER BY position;",
+                        new Object[]{question.getId()}, String.class));
+                return question;
+            default: return null;
         }
     }
 }
