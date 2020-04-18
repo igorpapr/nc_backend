@@ -55,4 +55,10 @@ public class QuizController {
     public ResponseEntity<?> getQuestionList(@RequestBody Question question) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuestionList(question), HttpStatus.OK);
     }
+
+    @PostMapping("/markasfavourite")
+    public ResponseEntity<?> setAsFavourite(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.markAsFavourite(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

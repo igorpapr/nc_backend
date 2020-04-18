@@ -22,4 +22,7 @@ public class DtoQuiz {
     private String newDescription;
     private String newImageRef;
     private String newLanguage;
+
+    //For getting quiz or mark as fav requests
+    private long userId;
 }

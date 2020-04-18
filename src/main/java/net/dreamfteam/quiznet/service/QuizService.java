@@ -15,6 +15,8 @@ public interface QuizService {
 
     Quiz getQuiz(DtoQuiz quiz);
 
+    void markAsFavourite(DtoQuiz quiz);
+
     Question saveQuestion(Question newQuestion);
 
     Question updateQuestion(Question newQuestion);

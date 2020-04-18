@@ -34,6 +34,7 @@ public class QuizServiceImpl implements QuizService {
                 .imageRef(newQuiz.getImageRef())
                 .validated(false)
                 .activated(false)
+                .isFavourite(false)
                 .build();
 
         quiz = quizDao.saveQuiz(quiz);
@@ -51,6 +52,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(DtoQuiz quiz) {
         return quizDao.getQuiz(quiz);
+    }
+
+    @Override
+    public void markAsFavourite(DtoQuiz quiz) {
+        quizDao.markAsFavourite(quiz);
     }
 
     @Override

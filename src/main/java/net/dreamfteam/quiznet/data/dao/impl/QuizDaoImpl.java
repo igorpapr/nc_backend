@@ -49,13 +49,27 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public Quiz getQuiz(DtoQuiz dtoQuiz) {
         try {
-            return jdbcTemplate.queryForObject(
+            Quiz quiz =  jdbcTemplate.queryForObject(
                     "SELECT * FROM quizzes WHERE quiz_id = ?",
                     new Object[]{dtoQuiz.getQuizId()},
                     new QuizMapper());
+            if(jdbcTemplate.queryForObject(
+                    "SELECT count(*) FROM favourite_quizzes WHERE user_id = ? AND quiz_id = ?",
+                    new Object[] {dtoQuiz.getUserId(), quiz.getId()}, Long.class) >= 1) {
+                quiz.setFavourite(true);
+            }
+            return quiz;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public void markAsFavourite(DtoQuiz dtoQuiz) {
+        jdbcTemplate.update(
+                "INSERT INTO favourite_quizzes (user_id, quiz_id) VALUES (?,?)",
+                dtoQuiz.getUserId(), dtoQuiz.getQuizId());
+        System.out.println("Quiz marked as favourite for user " + dtoQuiz.getUserId());
     }
 
     @Override
@@ -161,8 +175,7 @@ public class QuizDaoImpl implements QuizDao {
 
                 question.setOtherOptions(jdbcTemplate.queryForList(
                         "SELECT content FROM options WHERE question_id = ? AND is_correct = false",
-                        new Object[]{question.getId()},
-                        String.class));
+                        new Object[]{question.getId()}, String.class));
                 return question;
             case (2):
             case (3):

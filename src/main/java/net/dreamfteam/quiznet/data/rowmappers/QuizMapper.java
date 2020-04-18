@@ -22,6 +22,7 @@ public class QuizMapper implements RowMapper<Quiz> {
                 .language(rs.getString("language"))
                 .adminComment(rs.getString("admin_commentary"))
                 .rating(rs.getFloat("rating"))
+                .isFavourite(false)
                 .build();
 
         return quiz;

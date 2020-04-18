@@ -33,4 +33,6 @@ public class Quiz {
 
     private float rating;
 
+    private boolean isFavourite;
+
 }

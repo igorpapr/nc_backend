@@ -13,6 +13,8 @@ public interface QuizDao {
 
     Quiz getQuiz(DtoQuiz dtoQuiz);
 
+    void markAsFavourite(DtoQuiz dtoQuiz);
+
     void deleteQuizById(Long id);
 
     long saveQuestion(Question question);
