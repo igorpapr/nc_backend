@@ -11,7 +11,7 @@ public class AuthenticationFacade implements IAuthenticationFacade {
 
     // Take user from authentication
     @Override
-    public Long getUserId() {
+    public String  getUserId() {
         JwtUser jwtUser = (JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return jwtUser.getId();
     }

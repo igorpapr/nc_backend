@@ -9,8 +9,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Calendar;
 import java.util.List;
-
+import java.util.UUID;
 
 
 @Repository
@@ -63,10 +64,10 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getById(Long id) {
+    public User getById(String id) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = UUID(?)",
                     new Object[]{id},
                     new UserMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -76,27 +77,29 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        jdbcTemplate.update("INSERT INTO users (username, email, password, is_activated," +
-                        "is_verified, activation_url, date_acc_creation) VALUES (?,?,?,?,?,?,?)",
-                user.getUsername(), user.getEmail(), user.getPassword(),
-                user.isActivated(), user.isVerified(), user.getActivationUrl(), user.getCreationDate());
+        jdbcTemplate.update("INSERT INTO users (user_id, username, email, password, is_activated," +
+                        "is_verified, is_online, activation_url, date_acc_creation, last_time_online) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
+                user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate());
 
         return getByEmail(user.getEmail());
 
     }
 
     @Override
-    public void deleteById(Long id) {
-        jdbcTemplate.update("DELETE FROM users where id=?", id);
+    public void deleteById(String id) {
+        jdbcTemplate.update("DELETE FROM users where user_id = UUID(?)", id);
     }
 
 
     @Override
     public void update(User user) {
-        jdbcTemplate.update("UPDATE users SET username = ?, email = ?," +
-                        "password= ?, is_activated = ?, is_verified = ? WHERE id = ?",
-                user.getUsername(), user.getEmail(), user.getPassword(),
-                user.isActivated(), user.isVerified(), user.getId());
+        jdbcTemplate.update("UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
+                        "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?" +
+                        "WHERE user_id = UUID(?)",
+                user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
+                user.isOnline(), user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
+                user.getRecoverySentTime(), user.getId());
 
     }
 }

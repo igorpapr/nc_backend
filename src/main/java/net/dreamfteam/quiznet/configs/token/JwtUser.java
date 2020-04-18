@@ -22,7 +22,7 @@ import java.util.Collection;
 @Builder
 public class JwtUser implements UserDetails {
 
-    private long id;
+    private String id;
 
     private String username;
 
@@ -71,7 +71,7 @@ public class JwtUser implements UserDetails {
         return false;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 }

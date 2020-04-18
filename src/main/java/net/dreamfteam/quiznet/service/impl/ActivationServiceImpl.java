@@ -41,10 +41,10 @@ public class ActivationServiceImpl implements ActivationService {
             return;
         }
 
-        if (new Date().getTime()- user.getCreationDate().getTime() >= ONE_DAY) {
-            userService.deleteById(user.getId());
-            throw new ValidationException("Your activation link is expired. Create your account again");
-        }
+//        if (new Date().getTime()- user.getCreationDate().getTime() >= ONE_DAY) {
+//            userService.deleteById(user.getId());
+//            throw new ValidationException("Your activation link is expired. Create your account again");
+//        }
 
         user.setVerified(true);
         user.setActivated(true);
@@ -68,5 +68,6 @@ public class ActivationServiceImpl implements ActivationService {
 
         return tokenProvider.provideToken(user.getUsername());
     }
+
 
 }

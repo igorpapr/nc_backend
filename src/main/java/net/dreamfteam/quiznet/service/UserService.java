@@ -10,7 +10,7 @@ public interface UserService {
 
     User save(User user) throws ValidationException;
 
-    User getById(Long id);
+    User getById(String id);
 
     User getByActivationUrl(String hashedId);
 
@@ -20,7 +20,7 @@ public interface UserService {
 
     User getByEmail(String email);
 
-    void deleteById(Long id);
+    void deleteById(String id);
 
     void update(User user);
 

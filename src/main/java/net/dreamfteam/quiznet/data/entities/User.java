@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.entities;
 import lombok.*;
 
 import java.util.Date;
+import java.util.UUID;
 
 
 @Builder
@@ -12,7 +13,7 @@ import java.util.Date;
 @EqualsAndHashCode
 public class User {
 
-    private long id;
+    private String id;
 
     private String email;
 
@@ -39,6 +40,5 @@ public class User {
     private boolean activated;
 
     private boolean verified;
-
 
 }
