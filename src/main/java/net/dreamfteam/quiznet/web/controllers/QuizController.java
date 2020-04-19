@@ -35,7 +35,7 @@ public class QuizController {
     }
 
     @PostMapping("/get")
-    public ResponseEntity<?> getQuestionList(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    public ResponseEntity<?> getQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(dtoQuiz), HttpStatus.OK);
     }
 
@@ -47,6 +47,7 @@ public class QuizController {
 
     @PostMapping("/edit/question")
     public ResponseEntity<?> editQuestion(@RequestBody Question question) throws ValidationException {
+        QuizValidator.validateQuestion(question);
         return new ResponseEntity<>(quizService.updateQuestion(question), HttpStatus.OK);
     }
 
@@ -59,6 +60,16 @@ public class QuizController {
     @PostMapping("/getquestionlist")
     public ResponseEntity<?> getQuestionList(@RequestBody Question question) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuestionList(question), HttpStatus.OK);
+    }
+
+    @GetMapping("/gettaglist")
+    public ResponseEntity<?> getTagList() throws ValidationException {
+        return new ResponseEntity<>(quizService.getTagList(), HttpStatus.OK);
+    }
+
+    @GetMapping("/getcateglist")
+    public ResponseEntity<?> getCategoryList() throws ValidationException {
+        return new ResponseEntity<>(quizService.getCategoryList(), HttpStatus.OK);
     }
 
     @PostMapping("/markasfavourite")

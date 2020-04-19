@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class QuizDaoImpl implements QuizDao {
@@ -193,6 +194,30 @@ public class QuizDaoImpl implements QuizDao {
                 listQ.set(i,loadAnswersForQuestion(listQ.get(i), i));
             }
             return listQ;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Map<Long, String>> getTagList() {
+        try {
+            List listT = jdbcTemplate.queryForList(
+                    "SELECT tag_id, description FROM tags",
+                    new Object[]{});
+            return listT;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<List<Object>> getCategoryList() {
+        try {
+            List listT = jdbcTemplate.queryForList(
+                    "SELECT category_id, title, description, cat_image_ref FROM categories",
+                    new Object[]{});
+            return listT;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

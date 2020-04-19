@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QuizService {
 
@@ -24,4 +25,8 @@ public interface QuizService {
     void deleteQuestion(Question question);
 
     List<Question> getQuestionList(Question question);
+
+    List<Map<Long, String>> getTagList();
+
+    List<List<Object>> getCategoryList();
 }

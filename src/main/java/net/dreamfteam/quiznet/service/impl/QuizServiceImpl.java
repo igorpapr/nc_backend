@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class QuizServiceImpl implements QuizService {
@@ -97,6 +98,15 @@ public class QuizServiceImpl implements QuizService {
         return quizDao.getQuestionList(question);
     }
 
+    @Override
+    public List<Map<Long, String>> getTagList() {
+        return quizDao.getTagList();
+    }
+
+    @Override
+    public List<List<Object>> getCategoryList() {
+        return quizDao.getCategoryList();
+    }
 
     private void checkQuizUniqueness(DtoQuiz quiz) {
         if(quizDao.getUserQuizByTitle(quiz.getTitle(), quiz.getCreatorId()) != null) {
