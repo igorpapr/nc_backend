@@ -5,7 +5,6 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.data.rowmappers.QuestionMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
-import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,14 +48,16 @@ public class QuizDaoImpl implements QuizDao {
                     }
                 }, keyHolder);
         quiz.setId((Long) keyHolder.getKeys().get("quiz_id"));
-        for(int i = 0; i < quiz.getTagList().size(); i++) {
+        for(int i = 0; i < quiz.getTagIdList().size(); i++) {
             jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (?,?)",
-                    quiz.getId(), quiz.getTagList().get(i));
+                    quiz.getId(), quiz.getTagIdList().get(i));
         }
-        for(int i = 0; i < quiz.getCategoryList().size(); i++) {
+        for(int i = 0; i < quiz.getCategoryIdList().size(); i++) {
             jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (?,?)",
-                    quiz.getId(), quiz.getCategoryList().get(i));
+                    quiz.getId(), quiz.getCategoryIdList().get(i));
         }
+        quiz.setTagNameList(loadTagNameList(quiz.getId()));
+        quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
         return quiz;
     }
 
@@ -91,6 +92,8 @@ public class QuizDaoImpl implements QuizDao {
                     new Object[] {dtoQuiz.getUserId(), quiz.getId()}, Long.class) >= 1) {
                 quiz.setFavourite(true);
             }
+            quiz.setTagNameList(loadTagNameList(quiz.getId()));
+            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
             return quiz;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -247,5 +250,31 @@ public class QuizDaoImpl implements QuizDao {
                 return question;
             default: return null;
         }
+    }
+
+    private List<String> loadTagNameList(Long quizId) {
+               return jdbcTemplate.query(
+                        "SELECT t.description FROM tags t " +
+                                "INNER JOIN quizzes_tags qt ON t.tag_id = qt.tag_id WHERE quiz_id = ?",
+                        new Object[] {quizId},
+                        new RowMapper<String>() {
+                            @Override
+                            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                return rs.getString(1);
+                            }
+                        });
+    }
+
+    private List<String> loadCategoryNameList(Long quizId) {
+        return jdbcTemplate.query(
+                "SELECT c.title FROM categories c " +
+                        "INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id WHERE quiz_id = ?",
+                new Object[] {quizId},
+                new RowMapper<String>() {
+                    @Override
+                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        return rs.getString(1);
+                    }
+                });
     }
 }

@@ -36,8 +36,8 @@ public class QuizServiceImpl implements QuizService {
                 .validated(false)
                 .activated(false)
                 .isFavourite(false)
-                .tagList(newQuiz.getTagList())
-                .categoryList(newQuiz.getCategoryList())
+                .tagIdList(newQuiz.getTagList())
+                .categoryIdList(newQuiz.getCategoryList())
                 .build();
 
         quiz = quizDao.saveQuiz(quiz);

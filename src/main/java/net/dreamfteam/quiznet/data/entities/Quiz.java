@@ -34,9 +34,13 @@ public class Quiz {
 
     private float rating;
 
-    private List<Long> tagList;
+    private List<Long> tagIdList;
 
-    private List<Long> categoryList;
+    private List<Long> categoryIdList;
+
+    private List<String> tagNameList;
+
+    private List<String> categoryNameList;
 
     private boolean isFavourite;
 
