@@ -1,35 +1,34 @@
 package net.dreamfteam.quiznet.web.validators;
 
-
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.web.dto.DtoUserSignUp;
+import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoMail;
 import org.springframework.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UserValidator {
+public class RecoverDtoValidator {
 
-    //Messages
-    private static final String EMPTY_PROPERTY_EXCEPTION_MESSAGE = "User field parameter '%s' must be provided";
     private static final String REGEX_EXCEPTION_MESSAGE = "User field parameter '%s' must match these parameters: '%s'";
 
-    //Regex
-    private static final String REGEX_PASSWORD = "^(?=.*\\d).{4,28}$";
     private static final String REGEX_EMAIL = "^[a-zA-Z0-9_+&*-]+(?:\\." +
             "[a-zA-Z0-9_+&*-]+)*@" +
             "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
             "A-Z]{2,7}$";
-    private static final String REGEX_USERNAME = "^[a-zA-Z0-9][a-zA-Z0-9-_]{2,18}$";
 
+    private static final String REGEX_PASSWORD = "^(?=.*\\d).{4,28}$";
 
-    public static void validate(DtoUserSignUp user) throws ValidationException {
-        validateNotEmptyProperty(user.getUsername(), "username");
-        validateNotEmptyProperty(user.getPassword(), "password");
-        validateNotEmptyProperty(user.getEmail(), "email");
-        validateWithRegularExpression(user.getUsername(),REGEX_USERNAME,"username");
-        validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
+    private static final String EMPTY_PROPERTY_EXCEPTION_MESSAGE = "LoginRequest field parameter '%s' must be provided";
+
+    public static void validate(DtoMail user) throws ValidationException {
         validateWithRegularExpression(user.getEmail(), REGEX_EMAIL, "email");
+        validateNotEmptyProperty(user.getEmail(), "email");
+    }
+
+    public static void validate(DtoChangePassword user) throws ValidationException {
+        validateNotEmptyProperty(user.getPassword(), "password");
+        validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
     }
 
     private static void validateNotEmptyProperty(Object value, String propertyName) {

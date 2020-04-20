@@ -20,4 +20,6 @@ public interface UserDao {
     List<User> getAll();
 
     User getByActivationUrl(String activationUrl);
+
+    User getByRecoverUrl(String recoverUrl);
 }

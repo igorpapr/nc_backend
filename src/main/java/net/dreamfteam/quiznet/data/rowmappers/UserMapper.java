@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.rowmappers;
 
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
@@ -24,6 +25,7 @@ public class UserMapper implements RowMapper<User> {
                 .activationUrl(resultSet.getString("activation_url"))
                 .recoveryUrl(resultSet.getString("recovery_url"))
                 .recoverySentTime(resultSet.getTimestamp("recovery_sent_time"))
+                .role(Role.valueOf(resultSet.getString("role")))
                 .image(resultSet.getString("image"))
                 .build();
 

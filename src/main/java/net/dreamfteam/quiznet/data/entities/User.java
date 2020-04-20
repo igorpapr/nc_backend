@@ -41,4 +41,6 @@ public class User {
 
     private boolean verified;
 
+    private Role role;
+
 }

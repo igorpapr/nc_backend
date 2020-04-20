@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.configs.token;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,13 @@ public class JwtUser implements UserDetails {
 
     private String password;
 
-    // private Collection<? extends GrantedAuthority> authorities;
+    public Role getRole() {
+        return role;
+    }
+
+    private Role role;
+
+    private Collection<? extends GrantedAuthority> authorities;
 
     public String getEmail() {
         return email;

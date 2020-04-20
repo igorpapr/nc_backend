@@ -12,7 +12,9 @@ public interface UserService {
 
     User getById(String id);
 
-    User getByActivationUrl(String hashedId);
+    User getByActivationUrl(String activationUrl);
+
+    User getByRecoverUrl(String recoverUrl);
 
     List<User> getAll();
 

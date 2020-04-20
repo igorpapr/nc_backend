@@ -14,6 +14,7 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -61,6 +62,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    public void configure(WebSecurity webSecurity) {
+        webSecurity
+                .ignoring()
+                .antMatchers
+                        (Constants.SECUR_SIGN_UP_URLS,
+                                Constants.SECUR_LOG_IN_URLS,
+                                Constants.SECUR_ACTIVATION_URLS, //url for authorization
+                         Constants.SECUR_RECOVER_URLS
+                        );
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -72,7 +84,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)// without session
                 .and()
                 .authorizeRequests()
-                .antMatchers(Constants.SIGN_UP_URLS).permitAll() //all can get URLS
                 .anyRequest().authenticated()//other URLS only authenticated( with token)
                 .and()
                 .anonymous()

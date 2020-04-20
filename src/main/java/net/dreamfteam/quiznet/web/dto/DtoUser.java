@@ -1,22 +1,52 @@
 package net.dreamfteam.quiznet.web.dto;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import net.dreamfteam.quiznet.data.entities.Role;
+import net.dreamfteam.quiznet.data.entities.User;
+
+import java.util.Date;
 
 @Builder
+
 @Getter
 @Setter
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class DtoUser {
-
-    private Long userId;
-
-    private String username;
+    private String id;
 
     private String email;
 
-    private String password;
+    private String username;
 
+    private Date creationDate;
+
+    private Date lastTimeOnline;
+
+    private String image;
+
+    private String aboutMe;
+
+    private boolean online;
+
+    private boolean activated;
+
+    private boolean verified;
+
+    private Role role;
+
+    public static DtoUser fromUser(User user) {
+        return DtoUser.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .creationDate(user.getCreationDate())
+                .lastTimeOnline(user.getLastTimeOnline())
+                .image(user.getImage())
+                .aboutMe(user.getAboutMe())
+                .online(user.isOnline())
+                .activated(user.isActivated())
+                .verified(user.isVerified())
+                .role(user.getRole()).build();
+    }
 }

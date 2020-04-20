@@ -1,9 +1,9 @@
 package net.dreamfteam.quiznet.service.impl;
 
 
-
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
@@ -11,9 +11,6 @@ import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import javax.xml.bind.DatatypeConverter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -46,6 +43,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .password(bCryptPasswordEncoder.encode(newUser.getPassword()))
                 .email(newUser.getEmail())
+                .role(Role.ROLE_USER)
                 .creationDate(Calendar.getInstance().getTime())
                 .username(newUser.getUsername())
                 .activationUrl(bCryptPasswordEncoder.encode(newUser.getUsername() + newUser.getEmail()))
@@ -59,6 +57,7 @@ public class UserServiceImpl implements UserService {
         newUser.setActivationUrl(dtoUser.getActivationUrl());
         newUser.setCreationDate(dtoUser.getCreationDate());
         newUser.setId(dtoUser.getId());
+        newUser.setRole(dtoUser.getRole());
         newUser.setEmail(user.getEmail());
         newUser.setPassword("******");
 
@@ -73,6 +72,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getByActivationUrl(String activationUrl) {
         return userDao.getByActivationUrl(activationUrl);
+    }
+
+    @Override
+    public User getByRecoverUrl(String recoverUrl) {
+        return userDao.getByRecoverUrl(recoverUrl);
     }
 
     @Override

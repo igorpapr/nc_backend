@@ -9,7 +9,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,14 +25,27 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.queryForList("SELECT * FROM users", User.class);
+        return jdbcTemplate.queryForList("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n", User.class);
     }
 
     @Override
     public User getByActivationUrl(String activationUrl) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users where activation_url = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE activation_url = ?",
                     new Object[]{activationUrl},
+                    new UserMapper());
+        } catch (EmptyResultDataAccessException exception) {
+            return null;
+        }
+    }
+
+    @Override
+    public User getByRecoverUrl(String recoverUrl) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n " +
+                            "WHERE recovery_url = ?",
+                    new Object[]{recoverUrl},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
             return null;
@@ -43,7 +55,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByEmail(String email) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE email = ?",
                     new Object[]{email},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -55,7 +68,8 @@ public class UserDaoImpl implements UserDao {
     public User getByUsername(String username) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE username = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE username=?",
                     new Object[]{username},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -67,7 +81,8 @@ public class UserDaoImpl implements UserDao {
     public User getById(String id) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE user_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            " WHERE user_id = UUID(?)",
                     new Object[]{id},
                     new UserMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -78,9 +93,11 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User save(User user) {
         jdbcTemplate.update("INSERT INTO users (user_id, username, email, password, is_activated," +
-                        "is_verified, is_online, activation_url, date_acc_creation, last_time_online) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        "is_verified, is_online, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
-                user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate());
+                user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
+                user.getRole().ordinal() + 1
+        );
 
         return getByEmail(user.getEmail());
 
