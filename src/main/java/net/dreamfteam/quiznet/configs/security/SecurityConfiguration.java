@@ -65,12 +65,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity webSecurity) {
         webSecurity
                 .ignoring()
-                .antMatchers
-                        (Constants.SECUR_SIGN_UP_URLS,
-                                Constants.SECUR_LOG_IN_URLS,
-                                Constants.SECUR_ACTIVATION_URLS, //url for authorization
-                         Constants.SECUR_RECOVER_URLS
-                        );
+                .antMatchers(
+                        Constants.SECUR_SIGN_UP_URLS,
+                        Constants.SECUR_LOG_IN_URLS,
+                        Constants.SECUR_ACTIVATION_URLS, //url for authorization
+                        Constants.SECUR_RECOVER_URLS
+                );
     }
 
     @Override

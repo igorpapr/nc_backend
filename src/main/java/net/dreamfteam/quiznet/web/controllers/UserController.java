@@ -4,16 +4,15 @@ package net.dreamfteam.quiznet.web.controllers;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.User;
-import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoEditProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
-import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -47,7 +46,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @GetMapping("/{userId}")
     public ResponseEntity<DtoUser> getProfile(@PathVariable String userId) {
 
@@ -56,12 +54,21 @@ public class UserController {
         return new ResponseEntity<>(DtoUser.fromUser(user), HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<DtoUser>> getProfileByStr(@PathParam("key") String key) {
+
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+
+        List<User> users = userService.getBySubStr(key, currentUser.getRole(), currentUser.getId());
+
+        return new ResponseEntity<>(DtoUser.fromUser(users), HttpStatus.OK);
+    }
 
     @GetMapping
     public ResponseEntity<List<DtoUser>> getAllProfiles() {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-
-        return new ResponseEntity<>(DtoUser.fromUser(userService.getAll()), HttpStatus.OK);
+        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole(),currentUser.getId()));
+        return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 }

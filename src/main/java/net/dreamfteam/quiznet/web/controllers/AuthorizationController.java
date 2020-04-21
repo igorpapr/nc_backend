@@ -40,6 +40,8 @@ public class AuthorizationController {
 
         User currentUser = userService.getByUsername(loginRequest.getUsername());
 
+        userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
+
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
 
         successResponse.setSuccess(true);
@@ -59,9 +61,9 @@ public class AuthorizationController {
     }
 
     @GetMapping("/activation")
-    public RedirectView activate(@PathParam("key") String activationUrl) {
+    public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView("https://quiz-app-nc.herokuapp.com/log-in?message=" + activationService.activateUser(activationUrl));
+        return new RedirectView("https://quiz-app-nc.herokuapp.com/log-in?message=" + activationService.activateUser(key));
 
     }
 }

@@ -39,7 +39,6 @@ public class RecoveringController {
     @GetMapping("/confirm")
     public RedirectView activate(@PathParam("key") String key) {
 
-
         return new RedirectView("https://quiz-app-nc.herokuapp.com/recovery?message=" + recoveringService.confirmRecovery(key));
     }
 

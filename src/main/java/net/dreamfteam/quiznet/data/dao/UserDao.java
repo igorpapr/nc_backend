@@ -17,9 +17,15 @@ public interface UserDao {
 
     void update(User user);
 
-    List<User> getAll();
+    List<User> getAll(String currentUserId);
 
     User getByActivationUrl(String activationUrl);
 
     User getByRecoverUrl(String recoverUrl);
+
+    List<User> getAllByRoleUser(String currentUserId);
+
+    List<User> getBySubStr(String str, String currentUserId);
+
+    List<User> getBySubStrAndRoleUser(String str, String currentUserId);
 }

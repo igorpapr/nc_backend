@@ -17,9 +17,9 @@ public class ActivationServiceImpl implements ActivationService {
 
     private JwtTokenProvider tokenProvider;
     private UserService userService;
-    public static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please log in";
-    public static final String MESSAGE_LINK_EXPIRED = "Already activated. Please log in";
-    public static final String MESSAGE_ACTIVATED = "Successfully activated. Please log in";
+    private static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please log in";
+    private static final String MESSAGE_LINK_EXPIRED = "Already activated. Please log in";
+    private static final String MESSAGE_ACTIVATED = "Successfully activated. Please log in";
 
     @Autowired
     public ActivationServiceImpl(JwtTokenProvider tokenProvider, UserService userService) {
@@ -39,7 +39,6 @@ public class ActivationServiceImpl implements ActivationService {
 
         //return to log in with message that already activated
         if (user.isVerified()) {
-
             return MESSAGE_ALREADY_ACTIVATED;
         }
 

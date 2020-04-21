@@ -11,13 +11,14 @@ public class Constants {
     public static final String USER_URLS = "/api/profiles";
     public static final String TEST_URLS = "/api/test/**";
     public static final String RECOVER_URLS = "/api/recovery";
+    public static final String ADMIN_URLS = "/api/admins";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
     public static final String SECUR_ACTIVATION_URLS = "/api/activation";
     public static final String SECUR_LOG_IN_URLS = "/api/log-in";
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
-
+    public static final String SECUR_ADMIN_URLS = "/api/admins/**";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
@@ -36,6 +37,11 @@ public class Constants {
     public static final String REG_MAIL_ARTICLE = "Your profile has been registered! Thank you!";
     public static final String REG_MAIL_MESSAGE = "To activate your profile visit next link: ";
     public static final String REG_URL_ACTIVATE = "http://" + SERVER_NAME + "/api/activation?key=";
+
+    //Administration registration messages
+    public static final String REG_ADMIN_MAIL_SUBJECT = "Administrative profile registration(QuizNet)";
+    public static final String REG_ADMIN_MAIL_ARTICLE = "Your administrative profile has been registered! Thank you!";
+    public static final String REG_ADMIN_MAIL_MESSAGE = "To activate your administrative profile visit next link: ";
 
     //Recovering password messages
     public static final String RECOVER_MAIL_SUBJECT = "Reset password(QuizNet)";

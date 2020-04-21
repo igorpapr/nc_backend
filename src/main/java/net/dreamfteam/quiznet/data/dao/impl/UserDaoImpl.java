@@ -1,6 +1,5 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
-
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.rowmappers.UserMapper;
@@ -24,10 +23,12 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getAll() {
+    public List<User> getAll(String currentUserId) {
         return jdbcTemplate.query(
-                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n",
-                new UserMapper()
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "AND user_id <> UUID(?)",
+                new UserMapper(),
+                currentUserId
         );
     }
 
@@ -53,6 +54,36 @@ public class UserDaoImpl implements UserDao {
         } catch (EmptyResultDataAccessException exception) {
             return null;
         }
+    }
+
+    @Override
+    public List<User> getAllByRoleUser(String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE roles.role_id = 1 AND user_id <> UUID(?)",
+                new UserMapper(),
+                currentUserId
+        );
+    }
+
+    @Override
+    public List<User> getBySubStr(String str, String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE LOWER(username) LIKE LOWER(?) AND user_id <> UUID(?)",
+                new UserMapper(),
+                str + "%", currentUserId);
+    }
+
+    @Override
+    public List<User> getBySubStrAndRoleUser(String str, String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE LOWER(username) LIKE LOWER(?)" +
+                        "AND roles.role_id = 1 " +
+                        "AND user_id <> UUID(?)",
+                new UserMapper(),
+                str + "%", currentUserId);
     }
 
     @Override
@@ -110,7 +141,6 @@ public class UserDaoImpl implements UserDao {
     public void deleteById(String id) {
         jdbcTemplate.update("DELETE FROM users where user_id = UUID(?)", id);
     }
-
 
     @Override
     public void update(User user) {

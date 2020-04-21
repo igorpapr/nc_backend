@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.service;
 
 
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 
@@ -10,13 +11,15 @@ public interface UserService {
 
     User save(User user) throws ValidationException;
 
+    User saveAdmin(User user);
+
     User getById(String id);
 
     User getByActivationUrl(String activationUrl);
 
     User getByRecoverUrl(String recoverUrl);
 
-    List<User> getAll();
+    List<User> getAllByRole(Role role, String currentUserId);
 
     User getByUsername(String username);
 
@@ -26,5 +29,8 @@ public interface UserService {
 
     void update(User user);
 
+    void checkCorrectPassword(User user, String password);
+
+    List<User> getBySubStr(String substr, Role role, String currentUserId);
 
 }

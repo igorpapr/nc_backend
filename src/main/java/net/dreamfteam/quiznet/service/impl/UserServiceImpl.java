@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.service.impl;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.Role;
@@ -11,10 +12,11 @@ import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Calendar;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -58,6 +60,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User saveAdmin(User user) {
+
+        User newUser = User.builder()
+                .password(bCryptPasswordEncoder.encode(user.getPassword()))
+                .email(user.getEmail())
+                .role(user.getRole())
+                .creationDate(Calendar.getInstance().getTime())
+                .username(user.getUsername())
+                .activationUrl(bCryptPasswordEncoder.encode(user.getUsername() + user.getEmail()))
+                .build();
+
+        User savedUser = userDao.save(newUser);
+
+        mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
+                Constants.REG_ADMIN_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
+
+        return savedUser;
+    }
+
+    @Override
     public User getById(String id) {
         return userDao.getById(id);
     }
@@ -73,8 +95,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userDao.getAll();
+    public List<User> getAllByRole(Role role, String currentUserId) {
+        if (role.equals(Role.ROLE_USER)) {
+            return userDao.getAllByRoleUser(currentUserId);
+        } else return userDao.getAll(currentUserId);
     }
 
     @Override
@@ -97,5 +121,19 @@ public class UserServiceImpl implements UserService {
         userDao.update(user);
     }
 
+    @Override
+    public void checkCorrectPassword(User user, String password) {
+        boolean matches = bCryptPasswordEncoder.matches(password, user.getPassword());
+        if (!matches) {
+            throw new ValidationException("Not correct password");
+        }
+    }
+
+    @Override
+    public List<User> getBySubStr(String substr, Role role, String currentUserId) {
+        if (role.equals(Role.ROLE_USER)) {
+            return userDao.getBySubStrAndRoleUser(substr, currentUserId);
+        } else return userDao.getBySubStr(substr, currentUserId);
+    }
 }
 
