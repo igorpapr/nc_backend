@@ -19,6 +19,7 @@ public class QuizMapper implements RowMapper<Quiz> {
                 .creatorId(rs.getString("creator_id"))
                 .activated(rs.getBoolean("activated"))
                 .validated(rs.getBoolean("validated"))
+                .published(rs.getBoolean("published"))
                 .language(rs.getString("quiz_lang"))
                 .adminComment(rs.getString("admin_commentary"))
                 .rating(rs.getFloat("rating"))

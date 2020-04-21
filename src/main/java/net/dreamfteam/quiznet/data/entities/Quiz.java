@@ -28,6 +28,8 @@ public class Quiz {
 
     private boolean validated;
 
+    private boolean published;
+
     private String language;
 
     private String adminComment;

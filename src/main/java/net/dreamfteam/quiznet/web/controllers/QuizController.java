@@ -77,4 +77,10 @@ public class QuizController {
         quizService.markAsFavourite(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("/markaspublished")
+    public ResponseEntity<?> setAsPublished(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.markAsPublished(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

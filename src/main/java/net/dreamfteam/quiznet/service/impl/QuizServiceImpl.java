@@ -35,6 +35,7 @@ public class QuizServiceImpl implements QuizService {
                 .imageRef(newQuiz.getImageRef())
                 .validated(false)
                 .activated(false)
+                .published(false)
                 .isFavourite(false)
                 .tagIdList(newQuiz.getTagList())
                 .categoryIdList(newQuiz.getCategoryList())
@@ -60,6 +61,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public void markAsFavourite(DtoQuiz quiz) {
         quizDao.markAsFavourite(quiz);
+    }
+
+    @Override
+    public void markAsPublished(DtoQuiz quiz) {
+        quizDao.markAsPublished(quiz);
     }
 
     @Override

@@ -18,6 +18,8 @@ public interface QuizService {
 
     void markAsFavourite(DtoQuiz quiz);
 
+    void markAsPublished(DtoQuiz quiz);
+
     Question saveQuestion(Question newQuestion);
 
     Question updateQuestion(Question newQuestion);

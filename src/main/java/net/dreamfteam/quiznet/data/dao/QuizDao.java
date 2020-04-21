@@ -16,6 +16,8 @@ public interface QuizDao {
 
     void markAsFavourite(DtoQuiz dtoQuiz);
 
+    void markAsPublished(DtoQuiz dtoQuiz);
+
     void deleteQuizById(String id);
 
     String saveQuestion(Question question);

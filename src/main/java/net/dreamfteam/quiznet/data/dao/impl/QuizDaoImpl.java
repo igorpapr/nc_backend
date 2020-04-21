@@ -110,6 +110,14 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
+    public void markAsPublished(DtoQuiz dtoQuiz) {
+        jdbcTemplate.update(
+                "UPDATE quizzes SET published = true WHERE quiz_id = UUID(?)",
+                dtoQuiz.getQuizId());
+        System.out.println("Quiz marked as published");
+    }
+
+    @Override
     public void deleteQuizById(String id) {
         //TODO: DELETE QUIZ OPERATION
     }
