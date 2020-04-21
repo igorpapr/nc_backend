@@ -25,7 +25,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.queryForList("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n", User.class);
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n",
+                new UserMapper()
+        );
     }
 
     @Override

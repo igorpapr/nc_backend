@@ -1,29 +1,57 @@
 package net.dreamfteam.quiznet.web.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.context.annotation.Bean;
+import lombok.*;
+import net.dreamfteam.quiznet.data.entities.Role;
+import net.dreamfteam.quiznet.data.entities.User;
 
 import java.util.Date;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
 public class UserLoginSuccessResponse {
 
-   private boolean success;
-   private String token;
-   private String username;
-   private String email;
-   private Date creationDate;
+    private boolean success;
 
-   public UserLoginSuccessResponse(boolean success, String token, String username, String email, Date creationDate) {
-      this.success = success;
-      this.token = token;
-      this.username = username;
-      this.email = email;
-      this.creationDate = creationDate;
-   }
+    private String token;
+
+    private String id;
+
+    private String email;
+
+    private String username;
+
+    private Date creationDate;
+
+    private Date lastTimeOnline;
+
+    private String image;
+
+    private String aboutMe;
+
+    private boolean online;
+
+    private boolean activated;
+
+    private boolean verified;
+
+    private Role role;
+
+    public static UserLoginSuccessResponse fromUser(User user) {
+        return UserLoginSuccessResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .creationDate(user.getCreationDate())
+                .lastTimeOnline(user.getLastTimeOnline())
+                .image(user.getImage())
+                .aboutMe(user.getAboutMe())
+                .online(user.isOnline())
+                .activated(user.isActivated())
+                .verified(user.isVerified())
+                .role(user.getRole()).build();
+    }
 
 }

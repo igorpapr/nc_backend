@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class RecoverDtoValidator {
 
-    private static final String REGEX_EXCEPTION_MESSAGE = "User field parameter '%s' must match these parameters: '%s'";
+    private static final String REGEX_EXCEPTION_MESSAGE = "Field parameter '%s' must match these parameters: '%s'";
 
     private static final String REGEX_EMAIL = "^[a-zA-Z0-9_+&*-]+(?:\\." +
             "[a-zA-Z0-9_+&*-]+)*@" +
@@ -19,7 +19,7 @@ public class RecoverDtoValidator {
 
     private static final String REGEX_PASSWORD = "^(?=.*\\d).{4,28}$";
 
-    private static final String EMPTY_PROPERTY_EXCEPTION_MESSAGE = "LoginRequest field parameter '%s' must be provided";
+    private static final String EMPTY_PROPERTY_EXCEPTION_MESSAGE = "Field parameter '%s' must be provided";
 
     public static void validate(DtoMail user) throws ValidationException {
         validateWithRegularExpression(user.getEmail(), REGEX_EMAIL, "email");

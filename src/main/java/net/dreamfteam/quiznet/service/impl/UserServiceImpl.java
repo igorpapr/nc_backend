@@ -49,19 +49,12 @@ public class UserServiceImpl implements UserService {
                 .activationUrl(bCryptPasswordEncoder.encode(newUser.getUsername() + newUser.getEmail()))
                 .build();
 
-        User dtoUser = userDao.save(user);
+        User savedUser = userDao.save(user);
 
-        mailService.sendMail(dtoUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + dtoUser.getActivationUrl());
+        mailService.sendMail(savedUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
+                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
 
-        newUser.setActivationUrl(dtoUser.getActivationUrl());
-        newUser.setCreationDate(dtoUser.getCreationDate());
-        newUser.setId(dtoUser.getId());
-        newUser.setRole(dtoUser.getRole());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword("******");
-
-        return newUser;
+        return savedUser;
     }
 
     @Override

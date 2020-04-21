@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.web.validators;
 
 
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.web.dto.DtoEditProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUserSignUp;
 import org.springframework.util.StringUtils;
 
@@ -27,10 +28,11 @@ public class UserValidator {
         validateNotEmptyProperty(user.getUsername(), "username");
         validateNotEmptyProperty(user.getPassword(), "password");
         validateNotEmptyProperty(user.getEmail(), "email");
-        validateWithRegularExpression(user.getUsername(),REGEX_USERNAME,"username");
+        validateWithRegularExpression(user.getUsername(), REGEX_USERNAME, "username");
         validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
         validateWithRegularExpression(user.getEmail(), REGEX_EMAIL, "email");
     }
+
 
     private static void validateNotEmptyProperty(Object value, String propertyName) {
         if (value == null || StringUtils.isEmpty(value)) {

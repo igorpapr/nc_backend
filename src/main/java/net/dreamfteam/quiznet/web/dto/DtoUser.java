@@ -4,7 +4,9 @@ import lombok.*;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Builder
 
@@ -13,6 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DtoUser {
+
     private String id;
 
     private String email;
@@ -34,6 +37,12 @@ public class DtoUser {
     private boolean verified;
 
     private Role role;
+
+    public static List<DtoUser> fromUser(List<User> users) {
+        List<DtoUser> dtoUsers = new ArrayList<>();
+        users.forEach(user -> dtoUsers.add(DtoUser.fromUser(user)));
+        return dtoUsers;
+    }
 
     public static DtoUser fromUser(User user) {
         return DtoUser.builder()

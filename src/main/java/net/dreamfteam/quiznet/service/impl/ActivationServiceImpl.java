@@ -5,7 +5,6 @@ import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +17,9 @@ public class ActivationServiceImpl implements ActivationService {
 
     private JwtTokenProvider tokenProvider;
     private UserService userService;
-    public static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please log in" ;
-    public static final String MESSAGE_LINK_EXPIRED = "Already activated. Please log in" ;
-    public static final String MESSAGE_ACTIVATED = "Successfully activated. Please log in" ;
+    public static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please log in";
+    public static final String MESSAGE_LINK_EXPIRED = "Already activated. Please log in";
+    public static final String MESSAGE_ACTIVATED = "Successfully activated. Please log in";
 
     @Autowired
     public ActivationServiceImpl(JwtTokenProvider tokenProvider, UserService userService) {
@@ -60,9 +59,9 @@ public class ActivationServiceImpl implements ActivationService {
 
 
     @Override
-    public String isUserActivated(LoginRequest loginRequest) {
+    public String isUserActivated(String username) {
 
-        User user = userService.getByUsername(loginRequest.getUsername());
+        User user = userService.getByUsername(username);
 
         if (user == null) {
             throw new ValidationException("User with such username not found");
@@ -71,6 +70,9 @@ public class ActivationServiceImpl implements ActivationService {
         if (!user.isActivated()) {
             throw new ValidationException("Your profile is not activated");
         }
+
+        user.setOnline(true);
+        userService.update(user);
 
         return tokenProvider.provideToken(user.getUsername());
     }

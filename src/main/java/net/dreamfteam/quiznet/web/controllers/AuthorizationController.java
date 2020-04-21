@@ -5,10 +5,10 @@ import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.LoginRequest;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
-import net.dreamfteam.quiznet.web.dto.UserLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.dto.DtoUserSignUp;
+import net.dreamfteam.quiznet.web.dto.LoginRequest;
+import net.dreamfteam.quiznet.web.dto.UserLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +34,19 @@ public class AuthorizationController {
     }
 
     @PostMapping("/log-in")
-    public ResponseEntity authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<UserLoginSuccessResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         LoginRequestValidator.validate(loginRequest);
 
         User currentUser = userService.getByUsername(loginRequest.getUsername());
 
-        UserLoginSuccessResponse userLoginSuccessResponse = UserLoginSuccessResponse.builder()
-                .success(true)
-                .token(activationService.isUserActivated(loginRequest))
-                .username(currentUser.getUsername())
-                .email(currentUser.getEmail())
-                .creationDate(currentUser.getCreationDate()).build();
+        UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
 
-        return ResponseEntity.ok(userLoginSuccessResponse);
+        successResponse.setSuccess(true);
+        successResponse.setToken(activationService.isUserActivated(currentUser.getUsername()));
+        successResponse.setOnline(true);
+
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @PostMapping(value = "/sign-up")

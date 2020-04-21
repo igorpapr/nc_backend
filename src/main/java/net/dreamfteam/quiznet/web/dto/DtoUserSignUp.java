@@ -1,15 +1,14 @@
 package net.dreamfteam.quiznet.web.dto;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import net.dreamfteam.quiznet.data.entities.User;
 
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class DtoUserSignUp {
 
     private String username;

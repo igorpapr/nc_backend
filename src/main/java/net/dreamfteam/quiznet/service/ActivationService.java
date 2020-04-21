@@ -6,5 +6,5 @@ public interface ActivationService {
 
     String activateUser(String activationUrl);
 
-    String isUserActivated(LoginRequest loginRequest);
+    String isUserActivated(String username);
 }
