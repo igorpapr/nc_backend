@@ -26,7 +26,7 @@ public interface QuizService {
 
     List<Question> getQuestionList(Question question);
 
-    List<Map<Long, String>> getTagList();
+    List<Map<String, String>> getTagList();
 
     List<List<Object>> getCategoryList();
 }

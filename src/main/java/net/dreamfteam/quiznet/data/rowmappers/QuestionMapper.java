@@ -10,8 +10,8 @@ public class QuestionMapper implements RowMapper<Question> {
     @Override
     public Question mapRow(ResultSet rs, int rowNum) throws SQLException {
         Question question = Question.builder()
-                .id(rs.getLong("question_id"))
-                .quizId(rs.getLong("quiz_id"))
+                .id(rs.getString("question_id"))
+                .quizId(rs.getString("quiz_id"))
                 .title(rs.getString("title"))
                 .content(rs.getString("content"))
                 .image(rs.getString("image"))

@@ -11,15 +11,15 @@ public class QuizMapper implements RowMapper<Quiz> {
     @Override
     public Quiz mapRow(ResultSet rs, int rowNum) throws SQLException {
         Quiz quiz = Quiz.builder()
-                .id(rs.getLong("quiz_id"))
+                .id(rs.getString("quiz_id"))
                 .title(rs.getString("title"))
                 .description(rs.getString("description"))
                 .imageRef(rs.getString("image_ref"))
                 .creationDate(rs.getDate("ver_creation_datetime"))
-                .creatorId(rs.getLong("creator_id"))
+                .creatorId(rs.getString("creator_id"))
                 .activated(rs.getBoolean("activated"))
                 .validated(rs.getBoolean("validated"))
-                .language(rs.getString("language"))
+                .language(rs.getString("quiz_lang"))
                 .adminComment(rs.getString("admin_commentary"))
                 .rating(rs.getFloat("rating"))
                 .isFavourite(false)

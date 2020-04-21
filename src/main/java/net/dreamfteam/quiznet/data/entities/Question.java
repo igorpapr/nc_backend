@@ -11,9 +11,9 @@ import java.util.List;
 @EqualsAndHashCode
 public class Question {
 
-    private long id;
+    private String id;
 
-    private long quizId;
+    private String quizId;
 
     private String title;
 

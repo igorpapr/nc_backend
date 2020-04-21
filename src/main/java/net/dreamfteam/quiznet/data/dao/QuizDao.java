@@ -16,9 +16,9 @@ public interface QuizDao {
 
     void markAsFavourite(DtoQuiz dtoQuiz);
 
-    void deleteQuizById(Long id);
+    void deleteQuizById(String id);
 
-    long saveQuestion(Question question);
+    String saveQuestion(Question question);
 
     void saveFirstTypeAns(Question question);
 
@@ -30,9 +30,9 @@ public interface QuizDao {
 
     List<Question> getQuestionList(Question question);
 
-    List<Map<Long, String>> getTagList();
+    List<Map<String, String>> getTagList();
 
     List<List<Object>> getCategoryList();
 
-    Quiz getUserQuizByTitle(String title, long username);
+    Quiz getUserQuizByTitle(String title, String username);
 }

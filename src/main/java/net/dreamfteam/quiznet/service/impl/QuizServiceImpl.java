@@ -25,7 +25,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz saveQuiz(DtoQuiz newQuiz) throws ValidationException {
-        checkQuizUniqueness(newQuiz);
+        checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
         Quiz quiz = Quiz.builder()
                 .title(newQuiz.getTitle())
                 .creationDate(Calendar.getInstance().getTime())
@@ -48,7 +48,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz updateQuiz(DtoQuiz quiz) {
-        checkQuizUniqueness(quiz);
+        checkQuizUniqueness(quiz.getNewTitle(), quiz.getCreatorId());
         return quizDao.updateQuiz(quiz);
     }
 
@@ -99,7 +99,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<Map<Long, String>> getTagList() {
+    public List<Map<String, String>> getTagList() {
         return quizDao.getTagList();
     }
 
@@ -108,8 +108,8 @@ public class QuizServiceImpl implements QuizService {
         return quizDao.getCategoryList();
     }
 
-    private void checkQuizUniqueness(DtoQuiz quiz) {
-        if(quizDao.getUserQuizByTitle(quiz.getTitle(), quiz.getCreatorId()) != null) {
+    private void checkQuizUniqueness(String title, String creatorId) {
+        if(quizDao.getUserQuizByTitle(title, creatorId) != null) {
             throw new ValidationException("Quiz with current name already exist for this user");
         }
     }

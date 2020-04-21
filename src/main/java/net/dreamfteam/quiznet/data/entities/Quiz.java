@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode
 public class Quiz {
 
-    private long id;
+    private String id;
 
     private String title;
 
@@ -22,7 +22,7 @@ public class Quiz {
 
     private Date creationDate;
 
-    private long creatorId;
+    private String creatorId;
 
     private boolean activated;
 
@@ -34,9 +34,9 @@ public class Quiz {
 
     private float rating;
 
-    private List<Long> tagIdList;
+    private List<String> tagIdList;
 
-    private List<Long> categoryIdList;
+    private List<String> categoryIdList;
 
     private List<String> tagNameList;
 
