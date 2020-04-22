@@ -163,7 +163,7 @@ public class QuizDaoImpl implements QuizDao {
             jdbcTemplate.update("INSERT INTO options (content, is_correct, question_id) VALUES (?,?,UUID(?))", question.getRightOptions().get(i), true, question.getId());
         }
         for (int i = 0; i < question.getOtherOptions().size(); i++) {
-            jdbcTemplate.update("INSERT INTO options (content, is_correct, question_id) VALUES (?,?,UUID(?))", question.getRightOptions().get(i), false, question.getId());
+            jdbcTemplate.update("INSERT INTO options (content, is_correct, question_id) VALUES (?,?,UUID(?))", question.getOtherOptions().get(i), false, question.getId());
         }
         System.out.println("First type answers saved in db for question: " + question.toString());
     }
