@@ -4,6 +4,7 @@ package net.dreamfteam.quiznet.web.controllers;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoEditProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
@@ -46,10 +47,19 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<DtoUser> getProfile(@PathVariable String userId) {
+    @GetMapping("/{userName}")
+    public ResponseEntity<DtoUser> getProfile(@PathVariable String userName) {
 
-        User user = userService.getById(userId);
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+        User user = userService.getByUsername(userName);
+
+        if (user == null) {
+            throw new ValidationException("Not found");
+        }
+
+        if (currentUser.getRole().ordinal() < user.getRole().ordinal()) {
+            throw new ValidationException("You dont have such capabilities");
+        }
 
         return new ResponseEntity<>(DtoUser.fromUser(user), HttpStatus.OK);
     }
@@ -68,7 +78,7 @@ public class UserController {
     public ResponseEntity<List<DtoUser>> getAllProfiles() {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole(),currentUser.getId()));
+        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole(), currentUser.getId()));
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 }
