@@ -35,7 +35,7 @@ public class QuizDaoImpl implements QuizDao {
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                         PreparedStatement ps = con.prepareStatement(
                                 "INSERT INTO quizzes (title, description, image_ref, " +
-                                        "creator_id, activated, validated, quiz_lang, ver_creation_datetime, rating) VALUES (?,?,?,?,?,?,?,current_timestamp, ?)",
+                                        "creator_id, activated, validated, quiz_lang, ver_creation_datetime, rating, published) VALUES (?,?,?,?,?,?,?,current_timestamp,?,?)",
                                 Statement.RETURN_GENERATED_KEYS);
                         ps.setString(1, quiz.getTitle());
                         ps.setString(2, quiz.getDescription());
@@ -45,6 +45,7 @@ public class QuizDaoImpl implements QuizDao {
                         ps.setBoolean(6, quiz.isValidated());
                         ps.setString(7, quiz.getLanguage());
                         ps.setInt(8,0);
+                        ps.setBoolean(9, quiz.isPublished());
                         return ps;
                     }
                 }, keyHolder);
