@@ -69,8 +69,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz getQuiz(DtoQuiz quiz) {
-        return quizDao.getQuiz(quiz);
+    public Quiz getQuiz(String quizId, String userId) {
+        return quizDao.getQuiz(quizId, userId);
     }
 
     @Override
@@ -115,8 +115,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<Question> getQuestionList(Question question) {
-        return quizDao.getQuestionList(question);
+    public List<Question> getQuestionList(String quizId) {
+        return quizDao.getQuestionList(quizId);
     }
 
     @Override

@@ -74,15 +74,15 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz getQuiz(DtoQuiz dtoQuiz) {
+    public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz =  jdbcTemplate.queryForObject(
                     "SELECT * FROM quizzes WHERE quiz_id = UUID(?)",
-                    new Object[]{dtoQuiz.getQuizId()},
+                    new Object[]{quizId},
                     new QuizMapper());
             if(jdbcTemplate.queryForObject(
                     "SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)",
-                    new Object[] {dtoQuiz.getUserId(), quiz.getId()}, Long.class) >= 1) {
+                    new Object[] {userId, quiz.getId()}, Long.class) >= 1) {
                 quiz.setFavourite(true);
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
@@ -188,11 +188,11 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<Question> getQuestionList(Question question) {
+    public List<Question> getQuestionList(String quizId) {
         try {
             List<Question> listQ = jdbcTemplate.query(
                     "SELECT * FROM questions WHERE quiz_id = UUID(?)",
-                    new Object[]{question.getQuizId()},
+                    new Object[]{quizId},
                     new QuestionMapper());
             for (int i = 0; i < listQ.size(); i++) {
                 listQ.set(i,loadAnswersForQuestion(listQ.get(i), i));
