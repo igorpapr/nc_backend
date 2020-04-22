@@ -48,9 +48,24 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz updateQuiz(DtoQuiz quiz) {
-        checkQuizUniqueness(quiz.getNewTitle(), quiz.getCreatorId());
-        return quizDao.updateQuiz(quiz);
+    public Quiz updateQuiz(DtoQuiz dtoQuiz) {
+        checkQuizUniqueness(dtoQuiz.getNewTitle(), dtoQuiz.getCreatorId());
+        Quiz quiz = Quiz.builder()
+                .title(dtoQuiz.getNewTitle())
+                .creationDate(Calendar.getInstance().getTime())
+                .creatorId(dtoQuiz.getCreatorId())
+                .language(dtoQuiz.getNewLanguage())
+                .description(dtoQuiz.getNewDescription())
+                .imageRef(dtoQuiz.getNewImageRef())
+                .validated(false)
+                .activated(false)
+                .published(false)
+                .isFavourite(false)
+                .tagIdList(dtoQuiz.getNewTagList())
+                .categoryIdList(dtoQuiz.getNewCategoryList())
+                .build();
+
+        return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override

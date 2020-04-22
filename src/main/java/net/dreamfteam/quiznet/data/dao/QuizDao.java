@@ -10,7 +10,7 @@ import java.util.Map;
 public interface QuizDao {
     Quiz saveQuiz(Quiz quiz);
 
-    Quiz updateQuiz(DtoQuiz dtoQuiz);
+    Quiz updateQuiz(Quiz quiz, String quizId);
 
     Quiz getQuiz(DtoQuiz dtoQuiz);
 

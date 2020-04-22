@@ -64,23 +64,13 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz updateQuiz(DtoQuiz dtoQuiz) {
+    public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
+        quiz = saveQuiz(quiz);
         jdbcTemplate.update(
-                "UPDATE quizzes SET title = ?, description = ?, image_ref = ?, quiz_lang = ? WHERE quiz_id = UUID(?)",
-                dtoQuiz.getNewTitle(), dtoQuiz.getNewDescription(), dtoQuiz.getNewImageRef(), dtoQuiz.getNewLanguage(), dtoQuiz.getQuizId());
-        jdbcTemplate.update("DELETE FROM quizzes_tags WHERE quiz_id = UUID(?)", dtoQuiz.getQuizId());
-        jdbcTemplate.update("DELETE FROM categs_quizzes WHERE quiz_id = UUID(?)", dtoQuiz.getQuizId());
-        for(int i = 0; i < dtoQuiz.getNewTagList().size(); i++) {
-            jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (UUID(?),UUID(?))",
-                    dtoQuiz.getQuizId(), dtoQuiz.getNewTagList().get(i));
-        }
-        for(int i = 0; i < dtoQuiz.getNewCategoryList().size(); i++) {
-            jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (UUID(?),UUID(?))",
-                    dtoQuiz.getQuizId(), dtoQuiz.getNewCategoryList().get(i));
-        }
-        setQuizEditTime(dtoQuiz);
-        System.out.println("Updated in db. Quiz id: " + dtoQuiz.getQuizId());
-        return getUserQuizByTitle(dtoQuiz.getTitle(), dtoQuiz.getCreatorId());
+                "INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)",
+                oldQuizId, quiz.getId());
+        System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
+        return quiz;
     }
 
     @Override
@@ -287,18 +277,5 @@ public class QuizDaoImpl implements QuizDao {
                         return rs.getString(1);
                     }
                 });
-    }
-
-    private void setQuizEditTime(DtoQuiz dtoQuiz) {
-        if(jdbcTemplate.queryForObject(
-                "SELECT count(*) FROM quizzes_edit WHERE new_ver_id = UUID(?)",
-                new Object[] {dtoQuiz.getQuizId()}, Long.class) >= 1) {
-            jdbcTemplate.update(
-                    "UPDATE quizzes_edit SET prev_ver_id = UUID(?), new_ver_id = UUID(?), edit_datetime = current_timestamp WHERE new_ver_id = UUID(?)",
-                    dtoQuiz.getQuizId(), dtoQuiz.getQuizId(), dtoQuiz.getQuizId());
-        } else {
-            jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)",
-                    dtoQuiz.getQuizId(), dtoQuiz.getQuizId());
-        }
     }
 }
