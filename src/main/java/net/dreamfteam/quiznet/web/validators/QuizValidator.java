@@ -25,8 +25,6 @@ public class QuizValidator {
         isNotEmpty(quiz.getNewLanguage(), "new language");
         isNotEmpty(quiz.getNewDescription(), "new description");
         isNotEmpty(quiz.getQuizId(), "quiz id");
-
-        isNotEmpty(quiz.getTitle(), "title");
         isNotEmpty(quiz.getCreatorId(), "creator id");
     }
 
