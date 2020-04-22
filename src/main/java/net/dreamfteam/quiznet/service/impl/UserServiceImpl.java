@@ -1,9 +1,10 @@
 package net.dreamfteam.quiznet.service.impl;
 
 
-
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
@@ -11,12 +12,11 @@ import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import javax.xml.bind.DatatypeConverter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import java.util.Calendar;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -45,34 +45,60 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .password(bCryptPasswordEncoder.encode(newUser.getPassword()))
                 .email(newUser.getEmail())
+                .role(Role.ROLE_USER)
+                .creationDate(Calendar.getInstance().getTime())
                 .username(newUser.getUsername())
+                .activationUrl(bCryptPasswordEncoder.encode(newUser.getUsername() + newUser.getEmail()))
                 .build();
 
-        User dtoUser = userDao.save(user);
+        User savedUser = userDao.save(user);
 
-        mailService.sendMail(dtoUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + toMd5(Long.toString(dtoUser.getId())));
+        mailService.sendMail(savedUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
+                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
 
-        newUser.setId(dtoUser.getId());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword("******");
-
-        return newUser;
+        return savedUser;
     }
 
     @Override
-    public User getById(Long id) {
+    public User saveAdmin(User user) {
+
+        User newUser = User.builder()
+                .password(bCryptPasswordEncoder.encode(user.getPassword()))
+                .email(user.getEmail())
+                .role(user.getRole())
+                .creationDate(Calendar.getInstance().getTime())
+                .username(user.getUsername())
+                .activationUrl(bCryptPasswordEncoder.encode(user.getUsername() + user.getEmail()))
+                .build();
+
+        User savedUser = userDao.save(newUser);
+
+        mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
+                Constants.REG_ADMIN_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
+
+        return savedUser;
+    }
+
+    @Override
+    public User getById(String id) {
         return userDao.getById(id);
     }
 
     @Override
-    public User getByHashedId(String hashedId) {
-        return userDao.getByHashedId(hashedId);
+    public User getByActivationUrl(String activationUrl) {
+        return userDao.getByActivationUrl(activationUrl);
     }
 
     @Override
-    public List<User> getAll() {
-        return userDao.getAll();
+    public User getByRecoverUrl(String recoverUrl) {
+        return userDao.getByRecoverUrl(recoverUrl);
+    }
+
+    @Override
+    public List<User> getAllByRole(Role role, String currentUserId) {
+        if (role.equals(Role.ROLE_USER)) {
+            return userDao.getAllByRoleUser(currentUserId);
+        } else return userDao.getAll(currentUserId);
     }
 
     @Override
@@ -86,7 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         userDao.deleteById(id);
     }
 
@@ -95,17 +121,19 @@ public class UserServiceImpl implements UserService {
         userDao.update(user);
     }
 
-    private String toMd5(String str) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.getMessage();
+    @Override
+    public void checkCorrectPassword(User user, String password) {
+        boolean matches = bCryptPasswordEncoder.matches(password, user.getPassword());
+        if (!matches) {
+            throw new ValidationException("Not correct password");
         }
-        md.update(str.getBytes());
-        byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toLowerCase();
+    }
 
+    @Override
+    public List<User> getBySubStr(String substr, Role role, String currentUserId) {
+        if (role.equals(Role.ROLE_USER)) {
+            return userDao.getBySubStrAndRoleUser(substr, currentUserId);
+        } else return userDao.getBySubStr(substr, currentUserId);
     }
 }
 

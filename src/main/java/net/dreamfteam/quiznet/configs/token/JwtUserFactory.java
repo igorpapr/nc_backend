@@ -1,7 +1,13 @@
 package net.dreamfteam.quiznet.configs.token;
 
 
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of Factory Method for class {@link JwtUser}.
@@ -17,13 +23,16 @@ public class JwtUserFactory {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .role(user.getRole())
+                .authorities(mapToGrantedAuthorities(user.getRole()))
                 .password(user.getPassword())
                 .build();
 
     }
 
-//
-//    private static List<GrantedAuthority> mapToGrantedAuthorities(List<Role> userRoles){
-//
-//    }
+    private static List<GrantedAuthority> mapToGrantedAuthorities(Role role) {
+        List<GrantedAuthority> roles = new ArrayList<>();
+        roles.add(new SimpleGrantedAuthority(role.name()));
+        return roles;
+    }
 }

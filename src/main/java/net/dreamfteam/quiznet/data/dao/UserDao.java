@@ -9,15 +9,23 @@ public interface UserDao {
 
     User getByUsername(String username);
 
-    User getById(Long id);
+    User getById(String id);
 
     User save(User user);
 
-    void deleteById(Long id);
+    void deleteById(String id);
 
     void update(User user);
 
-    List<User> getAll();
+    List<User> getAll(String currentUserId);
 
-    User getByHashedId(String hashedId);
+    User getByActivationUrl(String activationUrl);
+
+    User getByRecoverUrl(String recoverUrl);
+
+    List<User> getAllByRoleUser(String currentUserId);
+
+    List<User> getBySubStr(String str, String currentUserId);
+
+    List<User> getBySubStrAndRoleUser(String str, String currentUserId);
 }
