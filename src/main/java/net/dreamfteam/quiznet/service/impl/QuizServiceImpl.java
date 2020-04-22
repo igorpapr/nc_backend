@@ -126,6 +126,11 @@ public class QuizServiceImpl implements QuizService {
         return quizDao.getCategoryList();
     }
 
+    @Override
+    public List<Quiz> getUserQuizList(String userId) {
+        return quizDao.getUserQuizList(userId);
+    }
+
     private void checkQuizUniqueness(String title, String creatorId) {
         if (quizDao.getUserQuizByTitle(title, creatorId) != null) {
             throw new ValidationException("Quiz with current name already exist for this user");

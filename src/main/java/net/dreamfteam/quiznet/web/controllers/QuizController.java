@@ -39,6 +39,11 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
     }
 
+    @GetMapping("/getuserquizlist")
+    public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
+    }
+
     @PostMapping("/create/question")
     public ResponseEntity<?> createQuestion(@RequestBody Question question) throws ValidationException {
         QuizValidator.validateQuestion(question);

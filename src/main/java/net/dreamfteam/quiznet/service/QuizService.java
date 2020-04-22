@@ -35,4 +35,6 @@ public interface QuizService {
     List<Map<String, String>> getTagList();
 
     List<List<Object>> getCategoryList();
+
+    List<Quiz> getUserQuizList(String userId);
 }

@@ -214,6 +214,18 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
+    @Override
+    public List<Quiz> getUserQuizList(String userId) {
+        try {
+            return jdbcTemplate.query(
+                    "SELECT * FROM quizzes WHERE creator_id = UUID(?)",
+                    new Object[]{userId},
+                    new QuizMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
     private Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):

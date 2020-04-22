@@ -38,5 +38,7 @@ public interface QuizDao {
 
     List<List<Object>> getCategoryList();
 
+    List<Quiz> getUserQuizList(String userId);
+
     Quiz getUserQuizByTitle(String title, String username);
 }
