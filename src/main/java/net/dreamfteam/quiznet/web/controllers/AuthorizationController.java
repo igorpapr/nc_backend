@@ -63,7 +63,7 @@ public class AuthorizationController {
     @GetMapping("/activation")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView("https://quiz-app-nc.herokuapp.com/log-in?message=" + activationService.activateUser(key));
+        return new RedirectView(Constants.ACTIVATION_REDIRECT_URL + activationService.activateUser(key));
 
     }
 }

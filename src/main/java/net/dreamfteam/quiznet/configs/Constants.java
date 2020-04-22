@@ -20,6 +20,11 @@ public class Constants {
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
     public static final String SECUR_ADMIN_URLS = "/api/admins/**";
 
+    //Redirection URLS
+    public static final String RECOVER_REDIRECT_URL = "https://quiz-app-nc.herokuapp.com/recovery?message=";
+    public static final String ACTIVATION_REDIRECT_URL = "https://quiz-app-nc.herokuapp.com/log-in?message=";
+
+
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
     public static final String TOKEN_PREFIX = "Bearer ";

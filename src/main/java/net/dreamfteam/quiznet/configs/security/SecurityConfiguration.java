@@ -68,7 +68,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         Constants.SECUR_SIGN_UP_URLS,
                         Constants.SECUR_LOG_IN_URLS,
-                        Constants.SECUR_ACTIVATION_URLS, //url for authorization
+                        Constants.SECUR_ACTIVATION_URLS,
                         Constants.SECUR_RECOVER_URLS
                 );
     }
