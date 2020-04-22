@@ -14,7 +14,7 @@ public interface QuizService {
 
     Quiz updateQuiz(DtoQuiz quiz);
 
-    Quiz getQuiz(DtoQuiz quiz);
+    Quiz getQuiz(String quizId, String userId);
 
     void markAsFavourite(DtoQuiz quiz);
 
@@ -30,7 +30,7 @@ public interface QuizService {
 
     void deleteQuestion(Question question);
 
-    List<Question> getQuestionList(Question question);
+    List<Question> getQuestionList(String quizId);
 
     List<Map<String, String>> getTagList();
 

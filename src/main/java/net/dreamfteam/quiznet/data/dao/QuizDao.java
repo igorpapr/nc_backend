@@ -10,9 +10,9 @@ import java.util.Map;
 public interface QuizDao {
     Quiz saveQuiz(Quiz quiz);
 
-    Quiz updateQuiz(DtoQuiz dtoQuiz);
+    Quiz updateQuiz(Quiz quiz, String quizId);
 
-    Quiz getQuiz(DtoQuiz dtoQuiz);
+    Quiz getQuiz(String quizId, String userId);
 
     void markAsFavourite(DtoQuiz dtoQuiz);
 
@@ -32,7 +32,7 @@ public interface QuizDao {
 
     void deleteQuestion(Question question);
 
-    List<Question> getQuestionList(Question question);
+    List<Question> getQuestionList(String quizId);
 
     List<Map<String, String>> getTagList();
 
