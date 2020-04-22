@@ -34,6 +34,12 @@ public class QuizController {
         return new ResponseEntity<>(quizService.updateQuiz(dtoQuiz), HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteQuestion(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.deleteQuizById(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("/get")
     public ResponseEntity<?> getQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(dtoQuiz), HttpStatus.OK);
@@ -51,7 +57,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.updateQuestion(question), HttpStatus.OK);
     }
 
-    @DeleteMapping("/edit/question")
+    @DeleteMapping("/delete/question")
     public ResponseEntity<?> deleteQuestion(@RequestBody Question question) throws ValidationException {
         quizService.deleteQuestion(question);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -81,6 +87,18 @@ public class QuizController {
     @PostMapping("/markaspublished")
     public ResponseEntity<?> setAsPublished(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         quizService.markAsPublished(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/deactivate")
+    public ResponseEntity<?> deactivateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.deactivateQuiz(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.deactivateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

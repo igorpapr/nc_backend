@@ -20,6 +20,10 @@ public interface QuizService {
 
     void markAsPublished(DtoQuiz quiz);
 
+    void deleteQuizById(DtoQuiz dtoQuiz);
+
+    void deactivateQuiz(DtoQuiz dtoQuiz);
+
     Question saveQuestion(Question newQuestion);
 
     Question updateQuestion(Question newQuestion);

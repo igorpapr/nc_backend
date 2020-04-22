@@ -18,7 +18,9 @@ public interface QuizDao {
 
     void markAsPublished(DtoQuiz dtoQuiz);
 
-    void deleteQuizById(String id);
+    void deleteQuizById(DtoQuiz dtoQuiz);
+
+    void deactivateQuiz(DtoQuiz dtoQuiz);
 
     String saveQuestion(Question question);
 
