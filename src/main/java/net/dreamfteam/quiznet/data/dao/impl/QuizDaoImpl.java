@@ -77,6 +77,7 @@ public class QuizDaoImpl implements QuizDao {
             jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (UUID(?),UUID(?))",
                     dtoQuiz.getQuizId(), dtoQuiz.getNewCategoryList().get(i));
         }
+        setQuizEditTime(dtoQuiz);
         System.out.println("Updated in db. Quiz id: " + dtoQuiz.getQuizId());
         return getUserQuizByTitle(dtoQuiz.getTitle(), dtoQuiz.getCreatorId());
     }
@@ -285,5 +286,18 @@ public class QuizDaoImpl implements QuizDao {
                         return rs.getString(1);
                     }
                 });
+    }
+
+    private void setQuizEditTime(DtoQuiz dtoQuiz) {
+        if(jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM quizzes_edit WHERE new_ver_id = UUID(?)",
+                new Object[] {dtoQuiz.getQuizId()}, Long.class) >= 1) {
+            jdbcTemplate.update(
+                    "UPDATE quizzes_edit SET prev_ver_id = UUID(?), new_ver_id = UUID(?), edit_datetime = current_timestamp WHERE new_ver_id = UUID(?)",
+                    dtoQuiz.getQuizId(), dtoQuiz.getQuizId(), dtoQuiz.getQuizId());
+        } else {
+            jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)",
+                    dtoQuiz.getQuizId(), dtoQuiz.getQuizId());
+        }
     }
 }
