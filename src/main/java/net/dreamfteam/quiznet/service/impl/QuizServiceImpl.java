@@ -8,6 +8,7 @@ import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.List;
@@ -37,20 +38,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz updateQuiz(DtoQuiz dtoQuiz) {
         checkQuizUniqueness(dtoQuiz.getNewTitle(), dtoQuiz.getCreatorId());
-        Quiz quiz = Quiz.builder()
-                .title(dtoQuiz.getNewTitle())
-                .creationDate(Calendar.getInstance().getTime())
-                .creatorId(dtoQuiz.getCreatorId())
-                .language(dtoQuiz.getNewLanguage())
-                .description(dtoQuiz.getNewDescription())
-                .imageRef(dtoQuiz.getNewImageRef())
-                .validated(false)
-                .activated(false)
-                .published(false)
-                .isFavourite(false)
-                .tagIdList(dtoQuiz.getNewTagList())
-                .categoryIdList(dtoQuiz.getNewCategoryList())
-                .build();
+        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(dtoQuiz.getCreatorId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
 
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
@@ -71,8 +59,13 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public void validateQuiz(DtoQuiz quiz) {
+        quizDao.validateQuiz(quiz);
+    }
+
+    @Override
     public void deleteQuizById(DtoQuiz dtoQuiz) {
-        quizDao.deleteQuizById(dtoQuiz);
+        quizDao.deleteQuizById(dtoQuiz.getQuizId());
     }
 
     @Override

@@ -18,7 +18,7 @@ public interface QuizDao {
 
     void markAsPublished(DtoQuiz dtoQuiz);
 
-    void deleteQuizById(DtoQuiz dtoQuiz);
+    void deleteQuizById(String id);
 
     void deactivateQuiz(DtoQuiz dtoQuiz);
 
@@ -41,4 +41,7 @@ public interface QuizDao {
     List<Quiz> getUserQuizList(String userId);
 
     Quiz getUserQuizByTitle(String title, String username);
+
+    void validateQuiz(DtoQuiz dtoQuiz);
+
 }

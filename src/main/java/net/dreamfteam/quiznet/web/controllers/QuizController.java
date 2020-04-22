@@ -39,6 +39,12 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        quizService.deleteQuizById(dtoQuiz);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/getuserquizlist")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
@@ -97,7 +103,7 @@ public class QuizController {
 
     @PostMapping("/validate")
     public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
-        quizService.deactivateQuiz(dtoQuiz);
+        quizService.validateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

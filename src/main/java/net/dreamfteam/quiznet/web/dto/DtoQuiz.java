@@ -29,4 +29,8 @@ public class DtoQuiz {
     //For getting quiz or mark as fav requests
     private String userId;
 
+    //For validating quiz
+    private String adminCommentary;
+    private boolean validated;
+
 }

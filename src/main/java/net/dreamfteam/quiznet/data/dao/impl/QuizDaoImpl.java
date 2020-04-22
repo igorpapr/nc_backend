@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.*;
 import java.util.List;
@@ -32,25 +33,21 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public Quiz saveQuiz(Quiz quiz) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-                new PreparedStatementCreator() {
-                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                        PreparedStatement ps = con.prepareStatement(
-                                "INSERT INTO quizzes (title, description, image_ref, " +
-                                        "creator_id, activated, validated, quiz_lang, ver_creation_datetime, rating, published) VALUES (?,?,?,?,?,?,?,current_timestamp,?,?)",
-                                Statement.RETURN_GENERATED_KEYS);
-                        ps.setString(1, quiz.getTitle());
-                        ps.setString(2, quiz.getDescription());
-                        ps.setString(3, quiz.getImageRef());
-                        ps.setObject(4, java.util.UUID.fromString(quiz.getCreatorId()));
-                        ps.setBoolean(5, quiz.isActivated());
-                        ps.setBoolean(6, quiz.isValidated());
-                        ps.setString(7, quiz.getLanguage());
-                        ps.setInt(8,0);
-                        ps.setBoolean(9, quiz.isPublished());
-                        return ps;
-                    }
-                }, keyHolder);
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement("INSERT INTO quizzes (title, description, image_ref, " + "creator_id, activated, validated, quiz_lang, ver_creation_datetime, rating, published) VALUES (?,?,?,?,?,?,?,current_timestamp,?,?)", Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, quiz.getTitle());
+                ps.setString(2, quiz.getDescription());
+                ps.setString(3, quiz.getImageRef());
+                ps.setObject(4, java.util.UUID.fromString(quiz.getCreatorId()));
+                ps.setBoolean(5, quiz.isActivated());
+                ps.setBoolean(6, quiz.isValidated());
+                ps.setString(7, quiz.getLanguage());
+                ps.setInt(8, 0);
+                ps.setBoolean(9, quiz.isPublished());
+                return ps;
+            }
+        }, keyHolder);
         quiz.setId(keyHolder.getKeys().get("quiz_id").toString());
         for (int i = 0; i < quiz.getTagIdList().size(); i++) {
             jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (UUID(?),UUID(?))", quiz.getId(), quiz.getTagIdList().get(i));
@@ -66,9 +63,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
         quiz = saveQuiz(quiz);
-        jdbcTemplate.update(
-                "INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)",
-                oldQuizId, quiz.getId());
+        jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
         System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
         return quiz;
     }
@@ -76,13 +71,8 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public Quiz getQuiz(String quizId, String userId) {
         try {
-            Quiz quiz =  jdbcTemplate.queryForObject(
-                    "SELECT * FROM quizzes WHERE quiz_id = UUID(?)",
-                    new Object[]{quizId},
-                    new QuizMapper());
-            if(jdbcTemplate.queryForObject(
-                    "SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)",
-                    new Object[] {userId, quiz.getId()}, Long.class) >= 1) {
+            Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
+            if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
                 quiz.setFavourite(true);
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
@@ -106,8 +96,12 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public void deleteQuizById(DtoQuiz dtoQuiz) {
-        jdbcTemplate.update("DELETE FROM quizzes WHERE quiz_id = UUID(?)", dtoQuiz.getQuizId());
+    @Transactional
+    public void deleteQuizById(String id) {
+        jdbcTemplate.update("DELETE FROM quizzes WHERE quiz_id = UUID(?)", id);
+        for (Question q : getQuestionList(id)) {
+            deleteQuestion(q);
+        }
         System.out.println("Quiz deleted");
     }
 
@@ -118,13 +112,28 @@ public class QuizDaoImpl implements QuizDao {
     }
 
 
-
     @Override
     public Quiz getUserQuizByTitle(String title, String userId) {
         try {
             return jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE title = ? AND creator_id = UUID(?)", new Object[]{title, userId}, new QuizMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
+        }
+    }
+
+    @Transactional
+    @Override
+    public void validateQuiz(DtoQuiz dtoQuiz) {
+        jdbcTemplate.update("UPDATE quizzes SET validated = ?, admin_commentary = ? WHERE quiz_id = UUID(?)", dtoQuiz.isValidated(), dtoQuiz.getAdminCommentary(), dtoQuiz.getQuizId());
+
+        if (dtoQuiz.isValidated()) {
+            try {
+                String oldQuizId = jdbcTemplate.queryForObject("SELECT prev_ver_id FROM quizzes_edit WHERE new_ver_id = UUID(?)", new Object[]{dtoQuiz.getQuizId()}, String.class);
+                deleteQuizById(oldQuizId);
+                System.out.println("Validate quiz in db. Quiz id: " + dtoQuiz.getQuizId() + ". Delete old version. Quiz id: " + oldQuizId);
+            } catch (EmptyResultDataAccessException e) {
+                System.out.println("Validate quiz in db. Quiz id: " + dtoQuiz.getQuizId());
+            }
         }
     }
 
@@ -181,10 +190,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Question> getQuestionList(String quizId) {
         try {
-            List<Question> listQ = jdbcTemplate.query(
-                    "SELECT * FROM questions WHERE quiz_id = UUID(?)",
-                    new Object[]{quizId},
-                    new QuestionMapper());
+            List<Question> listQ = jdbcTemplate.query("SELECT * FROM questions WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuestionMapper());
             for (int i = 0; i < listQ.size(); i++) {
                 listQ.set(i, loadAnswersForQuestion(listQ.get(i), i));
             }
@@ -217,10 +223,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Quiz> getUserQuizList(String userId) {
         try {
-            return jdbcTemplate.query(
-                    "SELECT * FROM quizzes WHERE creator_id = UUID(?)",
-                    new Object[]{userId},
-                    new QuizMapper());
+            return jdbcTemplate.query("SELECT * FROM quizzes WHERE creator_id = UUID(?)", new Object[]{userId}, new QuizMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
