@@ -1,7 +1,10 @@
 package net.dreamfteam.quiznet.data.entities;
 
-import lombok.*;
-
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import java.util.Date;
 
 
@@ -12,7 +15,7 @@ import java.util.Date;
 @EqualsAndHashCode
 public class User {
 
-    private long id;
+    private String id;
 
     private String email;
 
@@ -20,8 +23,26 @@ public class User {
 
     private String username;
 
+    private Date creationDate;
+
+    private Date lastTimeOnline;
+
+    private String image;
+
+    private String aboutMe;
+
+    private String recoveryUrl;
+
+    private String activationUrl;
+
+    private Date recoverySentTime;
+
+    private boolean online;
+
     private boolean activated;
 
-    private Date creationDate;
+    private boolean verified;
+
+    private Role role;
 
 }

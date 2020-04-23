@@ -1,11 +1,12 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
 import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.web.dto.DtoUser;
+import net.dreamfteam.quiznet.web.dto.DtoUserSignUp;
 import net.dreamfteam.quiznet.web.dto.LoginRequest;
 import net.dreamfteam.quiznet.web.dto.UserLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
@@ -13,8 +14,15 @@ import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
+import javax.websocket.server.PathParam;
 
 @RestController
 @CrossOrigin
@@ -30,37 +38,38 @@ public class AuthorizationController {
         this.activationService = activationService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity authenticateUser(@RequestBody LoginRequest loginRequest) {
+    @PostMapping("/log-in")
+    public ResponseEntity<UserLoginSuccessResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
         LoginRequestValidator.validate(loginRequest);
 
         User currentUser = userService.getByUsername(loginRequest.getUsername());
 
-        UserLoginSuccessResponse userLoginSuccessResponse = UserLoginSuccessResponse.builder()
-                .success(true)
-                .token(activationService.isUserActivated(loginRequest))
-                .username(currentUser.getUsername())
-                .email(currentUser.getEmail())
-                .creationDate(currentUser.getCreationDate()).build();
+        userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
 
+        UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
 
-        return ResponseEntity.ok(userLoginSuccessResponse);
+        successResponse.setSuccess(true);
+        successResponse.setToken(activationService.isUserActivated(currentUser.getUsername()));
+        successResponse.setOnline(true);
+
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) throws ValidationException {
+    @PostMapping(value = "/sign-up")
+    public ResponseEntity<DtoUser> registerUser(@RequestBody DtoUserSignUp user) throws ValidationException {
 
         UserValidator.validate(user);
-        return new ResponseEntity<>(userService.save(user), HttpStatus.CREATED);
+        User saved = userService.save(user.toUser());
+
+        return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.CREATED);
     }
 
-    @GetMapping("/activate/{hashedId}")
-    public String activate(@PathVariable String hashedId) {
-        activationService.activateUser(hashedId);
-        return "<img style='width:100%' 'height:100%' 'text-align: center' src='https://cdn1.savepice.ru/uploads/2019/11/21/bcadc0172fce5e6a398bb4edcdf8bf7a-full.jpg'>";
+    @GetMapping("/activation")
+    public RedirectView activate(@PathParam("key") String key) {
+
+        return new RedirectView(Constants.ACTIVATION_REDIRECT_URL + activationService.activateUser(key));
+
     }
-
-
 }
 

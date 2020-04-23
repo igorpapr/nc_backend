@@ -36,7 +36,6 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz updateQuiz(DtoQuiz dtoQuiz) {
-        checkQuizUniqueness(dtoQuiz.getNewTitle(), dtoQuiz.getCreatorId());
         Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(dtoQuiz.getCreatorId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
 
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
@@ -75,26 +74,15 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Question saveQuestion(Question newQuestion) {
         newQuestion.setId(quizDao.saveQuestion(newQuestion));
-        switch (newQuestion.getTypeId()) {
-            case (1): // One of four options question, can be multiple right answers
-                quizDao.saveFirstTypeAns(newQuestion);
-                return (newQuestion);
-            case (2): // True-false question
-            case (3):
-                quizDao.saveSecondThirdTypeAns(newQuestion);
-                return (newQuestion);
-            case (4):
-                quizDao.saveFourthTypeAns(newQuestion);
-                return (newQuestion);
-            default:
-                throw new ValidationException("Question type should be in range of [1 - 4]");
-        }
+        saveAnsw(newQuestion);
+        return newQuestion;
     }
 
     @Override
     public Question updateQuestion(Question newQuestion) {
         quizDao.deleteQuestion(newQuestion);
         newQuestion.setId(quizDao.saveQuestion(newQuestion));
+        saveAnsw(newQuestion);
         return newQuestion;
     }
 
@@ -141,6 +129,23 @@ public class QuizServiceImpl implements QuizService {
     private void checkQuizUniqueness(String title, String creatorId) {
         if (quizDao.getUserQuizByTitle(title, creatorId) != null) {
             throw new ValidationException("Quiz with current name already exist for this user");
+        }
+    }
+
+    private void saveAnsw(Question question) {
+        switch (question.getTypeId()) {
+            case (1): // One of four options question, can be multiple right answers
+                quizDao.saveFirstTypeAns(question);
+                break;
+            case (2): // True-false question
+            case (3):
+                quizDao.saveSecondThirdTypeAns(question);
+                break;
+            case (4):
+                quizDao.saveFourthTypeAns(question);
+                break;
+            default:
+                throw new ValidationException("Question type should be in range of [1 - 4]");
         }
     }
 }
