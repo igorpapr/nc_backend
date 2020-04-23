@@ -1,6 +1,5 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
-
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.rowmappers.UserMapper;
@@ -10,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Repository
@@ -23,15 +23,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getAll() {
-        return jdbcTemplate.queryForList("SELECT * FROM users", User.class);
+    public List<User> getAll(String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "AND user_id <> UUID(?)",
+                new UserMapper(),
+                currentUserId
+        );
     }
 
     @Override
-    public User getByHashedId(String hashedId) {
+    public User getByActivationUrl(String activationUrl) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE MD5(id::text) = ?",
-                    new Object[]{hashedId},
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE activation_url = ?",
+                    new Object[]{activationUrl},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
             return null;
@@ -39,9 +45,52 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public User getByRecoverUrl(String recoverUrl) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n " +
+                            "WHERE recovery_url = ?",
+                    new Object[]{recoverUrl},
+                    new UserMapper());
+        } catch (EmptyResultDataAccessException exception) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<User> getAllByRoleUser(String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE roles.role_id = 1 AND user_id <> UUID(?)",
+                new UserMapper(),
+                currentUserId
+        );
+    }
+
+    @Override
+    public List<User> getBySubStr(String str, String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE LOWER(username) LIKE LOWER(?) AND user_id <> UUID(?)",
+                new UserMapper(),
+                str + "%", currentUserId);
+    }
+
+    @Override
+    public List<User> getBySubStrAndRoleUser(String str, String currentUserId) {
+        return jdbcTemplate.query(
+                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+                        "WHERE LOWER(username) LIKE LOWER(?)" +
+                        "AND roles.role_id = 1 " +
+                        "AND user_id <> UUID(?)",
+                new UserMapper(),
+                str + "%", currentUserId);
+    }
+
+    @Override
     public User getByEmail(String email) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE email = ?",
                     new Object[]{email},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -53,7 +102,8 @@ public class UserDaoImpl implements UserDao {
     public User getByUsername(String username) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE username = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            "WHERE username=?",
                     new Object[]{username},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -62,10 +112,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getById(Long id) {
+    public User getById(String id) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+                            " WHERE user_id = UUID(?)",
                     new Object[]{id},
                     new UserMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -75,25 +126,30 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        jdbcTemplate.update("INSERT INTO users (username, email, password, activated) VALUES (?,?,?,?)",
-                user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated());
+        jdbcTemplate.update("INSERT INTO users (user_id, username, email, password, is_activated," +
+                        "is_verified, is_online, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
+                user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
+                user.getRole().ordinal() + 1
+        );
 
         return getByEmail(user.getEmail());
 
     }
 
     @Override
-    public void deleteById(Long id) {
-
+    public void deleteById(String id) {
+        jdbcTemplate.update("DELETE FROM users where user_id = UUID(?)", id);
     }
-
 
     @Override
     public void update(User user) {
-        jdbcTemplate.update("UPDATE users SET username = ?, email = ?," +
-                        "password= ?, activated = ?, creation_date = ? WHERE id = ?",
-                user.getUsername(), user.getEmail(), user.getPassword(),
-                user.isActivated(), user.getCreationDate(), user.getId());
+        jdbcTemplate.update("UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
+                        "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?" +
+                        "WHERE user_id = UUID(?)",
+                user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
+                user.isOnline(), user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
+                user.getRecoverySentTime(), user.getId());
 
     }
 }

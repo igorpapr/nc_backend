@@ -4,7 +4,7 @@ import net.dreamfteam.quiznet.web.dto.LoginRequest;
 
 public interface ActivationService {
 
-    void activateUser(String hashedId);
+    String activateUser(String activationUrl);
 
-    String isUserActivated(LoginRequest loginRequest);
+    String isUserActivated(String username);
 }
