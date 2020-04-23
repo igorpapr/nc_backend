@@ -20,6 +20,8 @@ public class Constants {
     public static final String SECUR_ACTIVATION_URLS = "/api/activation";
     public static final String SECUR_LOG_IN_URLS = "/api/log-in";
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
+    public static final String SECUR_QUIZ_URLS = "/api/recovery/**";
+
     public static final String SECUR_ADMIN_URLS = "/api/admins/**";
 
     //Redirection URLS
