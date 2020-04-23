@@ -7,6 +7,8 @@ import java.util.Locale;
 public class Constants {
 
     //URLS
+
+    public static final String QUIZ_URLS = "/api/quiz/**";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";
     public static final String TEST_URLS = "/api/test/**";
@@ -30,6 +32,8 @@ public class Constants {
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
     public static final long EXPIRATION_TIME = 300_000_000; //30 000 seconds
+
+    public static final int AMOUNT_QUIZ_ON_PAGE = 16;
 
     public static final String SERVER_NAME = "qznetbc.herokuapp.com";
     public static final int SERVER_PORT = 8081;
