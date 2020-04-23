@@ -51,6 +51,7 @@ public class AdminController {
             }
 
             otherUser.setRole(Role.valueOf(editAdminProfile.getRole()));
+            userService.update(otherUser);
         }
 
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
