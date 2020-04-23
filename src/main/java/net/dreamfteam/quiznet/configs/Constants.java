@@ -16,6 +16,8 @@ public class Constants {
     public static final String HEADER_STRING = "Authorization";
     public static final long EXPIRATION_TIME = 300_000_000; //30 000 seconds
 
+    public static final int AMOUNT_QUIZ_ON_PAGE = 16;
+
     public static final String SERVER_NAME = "qznetbc.herokuapp.com";
     public static final int SERVER_PORT = 8081;
 

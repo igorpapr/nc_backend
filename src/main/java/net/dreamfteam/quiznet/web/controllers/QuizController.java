@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static java.util.Objects.isNull;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.QUIZ_URLS)
@@ -41,14 +43,29 @@ public class QuizController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), ""))) {
+            return ResponseEntity.notFound().build();
+        }
         quizService.deleteQuizById(dtoQuiz);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getuserquizlist")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
     }
+
+    @GetMapping("/quiz-list/{page}")
+    public ResponseEntity<?> getQuizList(@PathVariable int page) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
+    }
+
+    @GetMapping("/quiz-list-invalid/{page}")
+    public ResponseEntity<?> getInvalidQuizList(@PathVariable int page) throws ValidationException {
+        return new ResponseEntity<>(quizService.getInvalidQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
+    }
+
+
 
     @PostMapping("/create/question")
     public ResponseEntity<?> createQuestion(@RequestBody Question question) throws ValidationException {
@@ -97,13 +114,26 @@ public class QuizController {
 
     @PostMapping("/deactivate")
     public ResponseEntity<?> deactivateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), ""))) {
+            return ResponseEntity.notFound().build();
+        }
         quizService.deactivateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/validate")
     public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+
+        //TODO Add role verification (Only admins & moderators allowed)
+        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), dtoQuiz.getUserId()))) {
+            return ResponseEntity.notFound().build();
+        }
         quizService.validateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/getquiztotalsize")
+    public ResponseEntity<?> getQuizTotalSize() throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuizzesTotalSize(), HttpStatus.OK);
     }
 }

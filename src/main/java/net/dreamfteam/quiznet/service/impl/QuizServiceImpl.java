@@ -8,7 +8,6 @@ import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.List;
@@ -122,6 +121,21 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public List<Quiz> getUserQuizList(String userId) {
         return quizDao.getUserQuizList(userId);
+    }
+
+    @Override
+    public List<Quiz> getQuizzes(int startIndex, int amount) {
+        return quizDao.getQuizzes(startIndex, amount);
+    }
+
+    @Override
+    public List<Quiz> getInvalidQuizzes(int startIndex, int amount) {
+        return quizDao.getInvalidQuizzes(startIndex, amount);
+    }
+
+    @Override
+    public int getQuizzesTotalSize() {
+        return quizDao.getQuizzesTotalSize();
     }
 
     private void checkQuizUniqueness(String title, String creatorId) {

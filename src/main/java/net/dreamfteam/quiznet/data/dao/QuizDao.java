@@ -40,8 +40,15 @@ public interface QuizDao {
 
     List<Quiz> getUserQuizList(String userId);
 
+    List<Quiz> getQuizzes(int startIndex, int amount);
+
+    List<Quiz> getInvalidQuizzes(int startIndex, int amount);
+
+    int getQuizzesTotalSize();
+
     Quiz getUserQuizByTitle(String title, String username);
 
     void validateQuiz(DtoQuiz dtoQuiz);
+
 
 }

@@ -229,6 +229,34 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
+    @Override
+    public List<Quiz> getQuizzes(int startIndex, int amount) {
+        try {
+            return jdbcTemplate.query("SELECT quiz_id, title, image_ref FROM quizzes ORDER BY rating  LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> Quiz.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageRef(rs.getString("image_ref")).build());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Quiz> getInvalidQuizzes(int startIndex, int amount) {
+        try {
+            return jdbcTemplate.query("SELECT quiz_id, title, description, image_ref FROM quizzes WHERE validated = false LIMIT ? OFFSET ?;", new Object[]{amount, startIndex}, (rs, i) -> Quiz.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageRef(rs.getString("image_ref")).build());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int getQuizzesTotalSize() {
+        try {
+          return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes", Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+
     private Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):

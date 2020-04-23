@@ -39,4 +39,11 @@ public interface QuizService {
     List<List<Object>> getCategoryList();
 
     List<Quiz> getUserQuizList(String userId);
+
+    List<Quiz> getQuizzes(int startIndex, int amount);
+
+    List<Quiz> getInvalidQuizzes(int startIndex, int amount);
+
+    int getQuizzesTotalSize();
+
 }
