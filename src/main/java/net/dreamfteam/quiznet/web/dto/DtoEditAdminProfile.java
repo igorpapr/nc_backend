@@ -9,10 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DtoEditProfile {
+public class DtoEditAdminProfile {
+
+    private String id;
 
     private String image;
 
     private String aboutMe;
 
+    private String role;
 }
