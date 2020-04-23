@@ -41,7 +41,7 @@ public class AdminController {
             throw new ValidationException("Not found such user");
         }
 
-        if (otherUser.getRole() != Role.ROLE_USER) {
+        if (otherUser.getRole() == Role.ROLE_USER) {
             throw new ValidationException("You dont have such capabilities");
         }
 
