@@ -64,6 +64,10 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
         quiz = saveQuiz(quiz);
         jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
+        List<Question> qlist = getQuestionList(oldQuizId);
+        for (int i = 0; i < qlist.size(); i++) {
+            saveQuestion(qlist.get(i));
+        }
         System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
         return quiz;
     }
