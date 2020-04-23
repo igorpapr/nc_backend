@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 
@@ -40,9 +41,9 @@ public interface QuizService {
 
     List<Quiz> getUserQuizList(String userId);
 
-    List<Quiz> getQuizzes(int startIndex, int amount);
+    List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<Quiz> getInvalidQuizzes(int startIndex, int amount);
+    List<QuizView> getInvalidQuizzes(int startIndex, int amount);
 
     int getQuizzesTotalSize();
 

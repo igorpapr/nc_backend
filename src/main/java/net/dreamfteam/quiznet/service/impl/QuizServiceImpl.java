@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
@@ -112,12 +113,12 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<Quiz> getQuizzes(int startIndex, int amount) {
+    public List<QuizView> getQuizzes(int startIndex, int amount) {
         return quizDao.getQuizzes(startIndex, amount);
     }
 
     @Override
-    public List<Quiz> getInvalidQuizzes(int startIndex, int amount) {
+    public List<QuizView> getInvalidQuizzes(int startIndex, int amount) {
         return quizDao.getInvalidQuizzes(startIndex, amount);
     }
 
