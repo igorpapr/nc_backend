@@ -50,7 +50,7 @@ public class AuthorizationController {
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
 
         successResponse.setSuccess(true);
-        successResponse.setToken(activationService.isUserActivated(currentUser.getUsername()));
+        successResponse.setToken(activationService.isUserVerified(currentUser.getUsername()));
         successResponse.setOnline(true);
 
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
@@ -68,7 +68,7 @@ public class AuthorizationController {
     @GetMapping("/activation")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView(Constants.ACTIVATION_REDIRECT_URL + activationService.activateUser(key));
+        return new RedirectView(Constants.ACTIVATION_REDIRECT_URL + activationService.verifyUser(key));
 
     }
 }

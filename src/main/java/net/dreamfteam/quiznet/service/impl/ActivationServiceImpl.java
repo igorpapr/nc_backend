@@ -18,7 +18,7 @@ public class ActivationServiceImpl implements ActivationService {
     private JwtTokenProvider tokenProvider;
     private UserService userService;
     private static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please log in";
-    private static final String MESSAGE_LINK_EXPIRED = "Already activated. Please log in";
+    private static final String MESSAGE_LINK_EXPIRED = "Your activation link is expired. Please create your account";
     private static final String MESSAGE_ACTIVATED = "Successfully activated. Please log in";
 
     @Autowired
@@ -29,7 +29,7 @@ public class ActivationServiceImpl implements ActivationService {
 
 
     @Override
-    public String activateUser(String activationUrl) {
+    public String verifyUser(String activationUrl) {
 
         User user = userService.getByActivationUrl(activationUrl);
 
@@ -58,7 +58,7 @@ public class ActivationServiceImpl implements ActivationService {
 
 
     @Override
-    public String isUserActivated(String username) {
+    public String isUserVerified(String username) {
 
         User user = userService.getByUsername(username);
 
@@ -66,7 +66,7 @@ public class ActivationServiceImpl implements ActivationService {
             throw new ValidationException("User with such username not found");
         }
 
-        if (!user.isActivated()) {
+        if (!user.isVerified()) {
             throw new ValidationException("Your profile is not activated");
         }
 
