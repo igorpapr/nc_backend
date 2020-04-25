@@ -54,9 +54,9 @@ public class AuthorizationController {
 
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
 
-        successResponse.setSuccess(true);
-        successResponse.setToken(activationService.isUserVerified(currentUser.getUsername()));
+        successResponse.setToken(activationService.isUserVerified(currentUser));
         successResponse.setOnline(true);
+        successResponse.setSuccess(true);
 
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }

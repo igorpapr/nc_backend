@@ -58,9 +58,7 @@ public class ActivationServiceImpl implements ActivationService {
 
 
     @Override
-    public String isUserVerified(String username) {
-
-        User user = userService.getByUsername(username);
+    public String isUserVerified(User user) {
 
         if (user == null) {
             throw new ValidationException("User with such username not found");
