@@ -21,8 +21,6 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(String userEmail, String subject, String article, String messageText) {
 
-        //TODO throw wrapped exception then mail not exist, cannot send message for this address
-
         new Thread(() -> {
             try {
                 String content = "<h3>" + article + "</h3>" +

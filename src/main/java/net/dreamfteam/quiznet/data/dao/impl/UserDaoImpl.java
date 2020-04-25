@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,6 +87,7 @@ public class UserDaoImpl implements UserDao {
                 str + "%", currentUserId);
     }
 
+
     @Override
     public User getByEmail(String email) {
         try {
@@ -140,6 +142,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void deleteById(String id) {
         jdbcTemplate.update("DELETE FROM users where user_id = UUID(?)", id);
+    }
+
+    @Override
+    public int deleteIfLinkExpired() {
+        return jdbcTemplate
+                .update("DELETE FROM users WHERE is_verified = 'false' and CURRENT_TIMESTAMP - date_acc_creation >= '1 DAY'");
     }
 
     @Override

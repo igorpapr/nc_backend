@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.User;
 
+import java.util.Date;
 import java.util.List;
 
 public interface UserDao {
@@ -28,4 +29,6 @@ public interface UserDao {
     List<User> getBySubStr(String str, String currentUserId);
 
     List<User> getBySubStrAndRoleUser(String str, String currentUserId);
+
+    int deleteIfLinkExpired();
 }

@@ -9,19 +9,21 @@ import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-
 import static javax.management.timer.Timer.ONE_DAY;
 
 @Service
 public class RecoveringServiceImpl implements RecoveringService {
+
+    @Value("${recover.mail.url}")
+    private String RECOVER_MAIL_URL;
 
     private UserService userService;
     private MailService mailService;
@@ -48,7 +50,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         userService.update(user);
 
         mailService.sendMail(userMail.getEmail(), Constants.RECOVER_MAIL_SUBJECT, Constants.RECOVER_MAIL_SUBJECT,
-                Constants.RECOVER_MAIL_MESSAGE + Constants.RECOVER_URL + user.getRecoveryUrl());
+                Constants.RECOVER_MAIL_MESSAGE + RECOVER_MAIL_URL + user.getRecoveryUrl());
 
     }
 
