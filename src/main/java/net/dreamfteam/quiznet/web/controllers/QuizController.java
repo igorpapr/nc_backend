@@ -60,11 +60,15 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
 
+    @GetMapping("/quiz-list")
+    public ResponseEntity<?> getQuizList(@RequestParam int startIndex, @RequestParam int amount) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuizzes(startIndex, amount), HttpStatus.OK);
+    }
+
     @GetMapping("/quiz-list-invalid/{page}")
     public ResponseEntity<?> getInvalidQuizList(@PathVariable int page) throws ValidationException {
         return new ResponseEntity<>(quizService.getInvalidQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
-
 
 
     @PostMapping("/create/question")
