@@ -3,10 +3,12 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizFiltered;
 import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -125,6 +127,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public int getQuizzesTotalSize() {
         return quizDao.getQuizzesTotalSize();
+    }
+
+    @Override
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
+        return quizDao.findQuizzesByFilter(quizFilter);
     }
 
     private void checkQuizUniqueness(String title, String creatorId) {

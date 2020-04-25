@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,11 @@ public class QuizController {
     @GetMapping("/getuserquizlist")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
+    }
+
+    @PostMapping("/filter-quiz-list")
+    public ResponseEntity<?> getFilteredQuizList(@RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
+        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter), HttpStatus.OK);
     }
 
     @GetMapping("/quiz-list/{page}")

@@ -3,10 +3,12 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizFiltered;
 import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.data.rowmappers.QuestionMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -139,6 +141,53 @@ public class QuizDaoImpl implements QuizDao {
             } catch (EmptyResultDataAccessException e) {
                 System.out.println("Validate quiz in db. Quiz id: " + dtoQuiz.getQuizId());
             }
+        }
+    }
+
+    @Override
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
+        String sql = "SELECT * FROM quizzes WHERE activated = true AND validated = true AND ";
+        if(quizFilter.getQuizName() != null) {
+            sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
+        }
+        if(quizFilter.getUserName() != null) {
+            sql = sql + "creator_id = (SELECT user_id FROM users WHERE username LIKE '" + quizFilter.getUserName() + "') AND ";
+        }
+        if(quizFilter.getMoreThanRating() > 0) {
+            sql = sql + "rating >= " + quizFilter.getMoreThanRating() + " AND ";
+        }
+        if(quizFilter.getLessThanRating() > 0) {
+            sql = sql + "rating <= " + quizFilter.getLessThanRating() + " AND ";
+        }
+        if(quizFilter.getTags() != null && quizFilter.getTags().size() > 0) {
+            for (int i = 0; i < quizFilter.getTags().size(); i++) {
+                sql = sql + "quiz_id IN (SELECT quiz_id FROM quizzes_tags WHERE tag_id = '" + quizFilter.getTags().get(i) + "') AND ";
+            }
+        }
+        if(quizFilter.getCategories() != null && quizFilter.getCategories().size() > 0) {
+            for (int i = 0; i < quizFilter.getCategories().size(); i++) {
+                sql = sql + "quiz_id IN (SELECT quiz_id FROM categs_quizzes WHERE category_id = '" + quizFilter.getCategories().get(i) + "') AND ";
+            }
+        }
+        if(sql.length() >= 24) { sql = sql.substring(0, sql.length()-4); }
+        if(quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
+            sql = sql + "ORDER BY rating DESC";
+        } else {sql = sql + " ORDER BY ver_creation_datetime DESC";}
+        System.out.println("SQL QUERY: " + sql);
+        try {
+            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{}, (rs, i) -> QuizFiltered.builder()
+                    .id(rs.getString("quiz_id"))
+                    .title(rs.getString("title"))
+                    .description(rs.getString("description"))
+                    .imageRef(rs.getString("image_ref"))
+                    .creationDate(rs.getDate("ver_creation_datetime"))
+                    .creatorId(rs.getString("creator_id"))
+                    .language(rs.getString("quiz_lang"))
+                    .rating(rs.getFloat("rating")).build()
+            );
+            return quizList;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
