@@ -70,7 +70,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECUR_LOG_IN_URLS,
                         Constants.SECUR_ACTIVATION_URLS,
                         Constants.SECUR_RECOVER_URLS,
-                        Constants.QUIZ_URLS
+                        Constants.QUIZ_URLS,
+                        //for Swagger
+                        "/v2/api-docs",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**"
+
                 );
     }
 

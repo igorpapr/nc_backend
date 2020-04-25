@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.data.rowmappers.QuestionMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
@@ -234,18 +235,18 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<Quiz> getQuizzes(int startIndex, int amount) {
+    public List<QuizView> getQuizzes(int startIndex, int amount) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, image_ref FROM quizzes ORDER BY rating  LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> Quiz.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageRef(rs.getString("image_ref")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, image_ref FROM quizzes ORDER BY rating  LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> QuizView.builder().quiz_id(rs.getString("quiz_id")).title(rs.getString("title")).image_ref(rs.getString("image_ref")).build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     @Override
-    public List<Quiz> getInvalidQuizzes(int startIndex, int amount) {
+    public List<QuizView> getInvalidQuizzes(int startIndex, int amount) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, image_ref FROM quizzes WHERE validated = false LIMIT ? OFFSET ?;", new Object[]{amount, startIndex}, (rs, i) -> Quiz.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageRef(rs.getString("image_ref")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, image_ref FROM quizzes WHERE validated = false LIMIT ? OFFSET ?;", new Object[]{amount, startIndex}, (rs, i) -> QuizView.builder().quiz_id(rs.getString("quiz_id")).title(rs.getString("title")).image_ref(rs.getString("image_ref")).build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

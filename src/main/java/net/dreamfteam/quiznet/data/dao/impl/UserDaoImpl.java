@@ -8,6 +8,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,6 +87,7 @@ public class UserDaoImpl implements UserDao {
                 str + "%", currentUserId);
     }
 
+
     @Override
     public User getByEmail(String email) {
         try {
@@ -143,13 +145,19 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public int deleteIfLinkExpired() {
+        return jdbcTemplate
+                .update("DELETE FROM users WHERE is_verified = 'false' and CURRENT_TIMESTAMP - date_acc_creation >= '1 DAY'");
+    }
+
+    @Override
     public void update(User user) {
         jdbcTemplate.update("UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
-                        "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?" +
+                        "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?, role_id = ?" +
                         "WHERE user_id = UUID(?)",
                 user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
                 user.isOnline(), user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
-                user.getRecoverySentTime(), user.getId());
+                user.getRecoverySentTime(), user.getRole().ordinal() + 1, user.getId());
 
     }
 }

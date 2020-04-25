@@ -3,21 +3,16 @@ package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoEditProfile;
+import net.dreamfteam.quiznet.web.dto.DtoEditUserProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
@@ -37,8 +32,12 @@ public class UserController {
     }
 
     @PostMapping("/edit/{field}")
-    public ResponseEntity<?> activate(@PathVariable("field") String field, @RequestBody DtoEditProfile editProfile) {
+    public ResponseEntity<?> activate(@PathVariable("field") String field, @RequestBody DtoEditUserProfile editProfile) {
         User currentUser = userService.getById(authenticationFacade.getUserId());
+
+        if (currentUser.getRole() != Role.ROLE_USER) {
+            throw new ValidationException("You dont have such capabilities");
+        }
 
         if (field.equals("image")) {
             currentUser.setImage(editProfile.getImage());
