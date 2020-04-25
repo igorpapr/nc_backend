@@ -12,6 +12,8 @@ import net.dreamfteam.quiznet.web.dto.UserLoginSuccessResponse;
 import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,6 +30,9 @@ import javax.websocket.server.PathParam;
 @CrossOrigin
 @RequestMapping(Constants.SIGN_UP_URLS)
 public class AuthorizationController {
+
+    @Value("${activation.redirect.url}")
+    private String ACTIVATION_REDIRECT_URL;
 
     private UserService userService;
     private ActivationService activationService;
@@ -68,7 +73,7 @@ public class AuthorizationController {
     @GetMapping("/activation")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView(Constants.ACTIVATION_REDIRECT_URL + activationService.verifyUser(key));
+        return new RedirectView(ACTIVATION_REDIRECT_URL + activationService.verifyUser(key));
 
     }
 }
