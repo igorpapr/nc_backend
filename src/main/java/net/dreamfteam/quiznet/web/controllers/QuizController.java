@@ -1,6 +1,8 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
@@ -31,10 +33,12 @@ import static java.util.Objects.isNull;
 public class QuizController {
     private QuizService quizService;
     private ImageService imageService;
+    private IAuthenticationFacade authenticationFacade;
 
-    public QuizController(QuizService quizService, ImageService imageService) {
+    public QuizController(QuizService quizService, ImageService imageService, IAuthenticationFacade authenticationFacade) {
         this.quizService = quizService;
         this.imageService = imageService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -129,10 +133,10 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/validate")
     public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
-
-        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), dtoQuiz.getUserId()))) {
+        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId()))) {
             return ResponseEntity.notFound().build();
         }
+        dtoQuiz.setUserId(authenticationFacade.getUserId());
         quizService.validateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -144,14 +148,32 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @GetMapping("/quiz-list-invalid/{page}")
+    @GetMapping("/quiz-list-invalid/page/{page}")
     public ResponseEntity<?> getInvalidQuizList(@PathVariable int page) throws ValidationException {
-        return new ResponseEntity<>(quizService.getInvalidQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getInvalidQuizzes((page - 1) * Constants.AMOUNT_VALID_QUIZ_ON_PAGE, Constants.AMOUNT_VALID_QUIZ_ON_PAGE, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/quiz-list-valid/page/{page}")
+    public ResponseEntity<?> getValidQuizList(@PathVariable int page) throws ValidationException {
+        return new ResponseEntity<>(quizService.getValidQuizzes((page - 1) * Constants.AMOUNT_VALID_QUIZ_ON_PAGE, Constants.AMOUNT_VALID_QUIZ_ON_PAGE, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/getquiztotalsize")
     public ResponseEntity<?> getQuizTotalSize() throws ValidationException {
         return new ResponseEntity<>(quizService.getQuizzesTotalSize(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/getinvalidquiztotalsize")
+    public ResponseEntity<?> getInvalidQuizTotalSize() throws ValidationException {
+        return new ResponseEntity<>(quizService.getInvalidQuizzesTotalSize(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/getvalidquiztotalsize")
+    public ResponseEntity<?> getValidQuizTotalSize() throws ValidationException {
+        return new ResponseEntity<>(quizService.getValidQuizzesTotalSize(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @GetMapping("/getquestionlist")
@@ -177,6 +199,12 @@ public class QuizController {
     @GetMapping("/get")
     public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @PostMapping("/setvalidator")
+    public ResponseEntity<?> getQuiz(@RequestBody String quizId) throws ValidationException {
+        return new ResponseEntity<>(quizService.setValidator(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
 }
