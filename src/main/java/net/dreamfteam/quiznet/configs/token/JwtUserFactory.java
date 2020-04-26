@@ -32,7 +32,7 @@ public class JwtUserFactory {
 
     private static List<GrantedAuthority> mapToGrantedAuthorities(Role role) {
         List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(role.name()));
+        roles.add(new SimpleGrantedAuthority(role.toString()));
         return roles;
     }
 }

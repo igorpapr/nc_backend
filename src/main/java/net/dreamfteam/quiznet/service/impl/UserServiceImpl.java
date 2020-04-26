@@ -100,10 +100,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllByRole(Role role, String currentUserId) {
+    public List<User> getAllByRole(Role role) {
         if (role.equals(Role.ROLE_USER)) {
-            return userDao.getAllByRoleUser(currentUserId);
-        } else return userDao.getAll(currentUserId);
+            return userDao.getAllByRoleUser();
+        } else return userDao.getAll();
     }
 
     @Override
@@ -135,10 +135,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getBySubStr(String substr, Role role, String currentUserId) {
+    public List<User> getBySubStr(String substr, Role role) {
         if (role.equals(Role.ROLE_USER)) {
-            return userDao.getBySubStrAndRoleUser(substr, currentUserId);
-        } else return userDao.getBySubStr(substr, currentUserId);
+            return userDao.getBySubStrAndRoleUser(substr);
+        } else return userDao.getBySubStr(substr);
     }
 }
 
