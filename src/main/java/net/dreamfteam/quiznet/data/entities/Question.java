@@ -28,4 +28,6 @@ public class Question {
     private List<String> rightOptions;
 
     private List<String> otherOptions;
+
+    private byte[] imageContent;
 }

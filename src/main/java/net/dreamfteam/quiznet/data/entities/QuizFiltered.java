@@ -17,6 +17,8 @@ public class QuizFiltered {
 
     private String description;
 
+    private String author;
+
     private String imageRef;
 
     private Date creationDate;
@@ -27,4 +29,5 @@ public class QuizFiltered {
 
     private float rating;
 
+    private byte[] imageContent;
 }

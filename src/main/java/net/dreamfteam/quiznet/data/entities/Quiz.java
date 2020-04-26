@@ -24,6 +24,8 @@ public class Quiz {
 
     private String creatorId;
 
+    private String author;
+
     private boolean activated;
 
     private boolean validated;
@@ -45,5 +47,7 @@ public class Quiz {
     private List<String> categoryNameList;
 
     private boolean isFavourite;
+
+    private byte[] imageContent;
 
 }

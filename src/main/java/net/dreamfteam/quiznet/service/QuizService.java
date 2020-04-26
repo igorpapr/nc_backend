@@ -49,6 +49,10 @@ public interface QuizService {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
 
+    void addQuizImage(String imageId, String quizId);
+
+    void addQuestionImage(String imageId, String questionId);
+
     int getQuizzesTotalSize();
 
 }

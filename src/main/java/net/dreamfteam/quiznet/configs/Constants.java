@@ -7,7 +7,7 @@ import java.util.Locale;
 public class Constants {
 
     //URLS
-    public static final String QUIZ_URLS = "/api/quiz/**";
+    public static final String QUIZ_URLS = "/api/quiz";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";
     public static final String TEST_URLS = "/api/test/**";
@@ -19,8 +19,13 @@ public class Constants {
     public static final String SECUR_ACTIVATION_URLS = "/api/activation";
     public static final String SECUR_LOG_IN_URLS = "/api/log-in";
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
-    public static final String SECUR_QUIZ_URLS = "/api/recovery/**";
-    public static final String SECUR_ADMIN_URLS = "/api/admins/**";
+    public static final String SECUR_QUIZ_QUESTION_LIST_URLS = "/api/quiz/getquestionlist";
+    public static final String SECUR_QUIZ_TOTAL_SIZE_URLS = "api/quiz/getquiztotalsize";
+    public static final String SECUR_QUIZ_TAG_LIST_URLS = "api/quiz/gettaglist";
+    public static final String SECUR_QUIZ_CATEG_LIST_URLS = "api/quiz/getcateglist";
+    public static final String SECUR_QUIZ_URLS = "api/quiz/get";
+    public static final String SECUR_QUIZ_LIST_URLS = "api/quiz/quiz-list/**";
+
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
