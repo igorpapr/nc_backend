@@ -102,6 +102,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .anonymous()
                 .and()
+                .cors()
+                .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
 
 
