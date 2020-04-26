@@ -1,9 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
-import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserService;
@@ -12,7 +10,14 @@ import net.dreamfteam.quiznet.web.dto.DtoUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
@@ -31,13 +36,11 @@ public class UserController {
         this.authenticationFacade = authenticationFacade;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/edit/{field}")
     public ResponseEntity<?> activate(@PathVariable("field") String field, @RequestBody DtoEditUserProfile editProfile) {
-        User currentUser = userService.getById(authenticationFacade.getUserId());
 
-        if (currentUser.getRole() != Role.ROLE_USER) {
-            throw new ValidationException("You dont have such capabilities");
-        }
+        User currentUser = userService.getById(authenticationFacade.getUserId());
 
         if (field.equals("image")) {
             currentUser.setImage(editProfile.getImage());
@@ -74,7 +77,7 @@ public class UserController {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
-        List<User> users = userService.getBySubStr(key, currentUser.getRole(), currentUser.getId());
+        List<User> users = userService.getBySubStr(key, currentUser.getRole());
 
         return new ResponseEntity<>(DtoUser.fromUser(users), HttpStatus.OK);
     }
@@ -83,7 +86,7 @@ public class UserController {
     public ResponseEntity<List<DtoUser>> getAllProfiles() {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole(), currentUser.getId()));
+        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole()));
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 }
