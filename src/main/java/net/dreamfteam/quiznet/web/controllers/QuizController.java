@@ -3,8 +3,10 @@ package net.dreamfteam.quiznet.web.controllers;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import static java.util.Objects.isNull;
 
 @RestController
@@ -26,10 +30,11 @@ import static java.util.Objects.isNull;
 @RequestMapping(Constants.QUIZ_URLS)
 public class QuizController {
     private QuizService quizService;
+    private ImageService imageService;
 
-    @Autowired
-    public QuizController(QuizService quizService) {
+    public QuizController(QuizService quizService, ImageService imageService) {
         this.quizService = quizService;
+        this.imageService = imageService;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -54,6 +59,26 @@ public class QuizController {
         }
         quizService.deleteQuizById(dtoQuiz);
         return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PostMapping("/quiz-image")
+    public ResponseEntity<?> uploadQuizImage(@RequestParam("img") MultipartFile image, @RequestParam("quizId") String quizId) throws ValidationException {
+        quizService.addQuizImage(imageService.saveImage(image), quizId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PostMapping("/question-image")
+    public ResponseEntity<?> uploadQuestionImage(@RequestParam("img") MultipartFile image, @RequestParam("questionId") String questionId) throws ValidationException {
+        quizService.addQuestionImage(imageService.saveImage(image), questionId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PostMapping("/filter-quiz-list")
+    public ResponseEntity<?> getFilteredQuizList(@RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
+        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")

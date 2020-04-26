@@ -3,10 +3,13 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizFiltered;
 import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Calendar;
@@ -17,10 +20,11 @@ import java.util.Map;
 public class QuizServiceImpl implements QuizService {
 
     private QuizDao quizDao;
+    private ImageService imageService;
 
-    @Autowired
-    public QuizServiceImpl(QuizDao quizDao) {
+    public QuizServiceImpl(QuizDao quizDao, ImageService imageService) {
         this.quizDao = quizDao;
+        this.imageService = imageService;
     }
 
     @Override
@@ -43,7 +47,9 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz getQuiz(String quizId, String userId) {
-        return quizDao.getQuiz(quizId, userId);
+        Quiz quiz = quizDao.getQuiz(quizId, userId);
+        quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        return quiz;
     }
 
     @Override
@@ -124,6 +130,21 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public int getQuizzesTotalSize() {
         return quizDao.getQuizzesTotalSize();
+    }
+
+    @Override
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
+        return quizDao.findQuizzesByFilter(quizFilter);
+    }
+
+    @Override
+    public void addQuizImage(String imageId, String quizId) {
+        quizDao.addQuizImage(imageId, quizId);
+    }
+
+    @Override
+    public void addQuestionImage(String imageId, String questionId) {
+        quizDao.addQuestionImage(imageId, questionId);
     }
 
     private void checkQuizUniqueness(String title, String creatorId) {

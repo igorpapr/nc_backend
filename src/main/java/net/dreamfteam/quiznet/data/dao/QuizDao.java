@@ -2,8 +2,10 @@ package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizFiltered;
 import net.dreamfteam.quiznet.data.entities.QuizView;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,12 @@ public interface QuizDao {
     Quiz getUserQuizByTitle(String title, String username);
 
     void validateQuiz(DtoQuiz dtoQuiz);
+
+    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
+
+    void addQuizImage(String imageId, String quizId);
+
+    void addQuestionImage(String imageId, String questionId);
 
 
 }
