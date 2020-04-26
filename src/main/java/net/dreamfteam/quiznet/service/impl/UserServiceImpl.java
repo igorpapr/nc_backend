@@ -10,6 +10,8 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    @Value("${reg.url.activate}")
+    private String REG_URL_ACTIVATE;
 
     private MailService mailService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -54,7 +59,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userDao.save(user);
 
         mailService.sendMail(savedUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
+                Constants.REG_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
 
         return savedUser;
     }
@@ -74,7 +79,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userDao.save(newUser);
 
         mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
-                Constants.REG_ADMIN_MAIL_MESSAGE + Constants.REG_URL_ACTIVATE + savedUser.getActivationUrl());
+                Constants.REG_ADMIN_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
 
         return savedUser;
     }
@@ -95,10 +100,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllByRole(Role role, String currentUserId) {
+    public List<User> getAllByRole(Role role) {
         if (role.equals(Role.ROLE_USER)) {
-            return userDao.getAllByRoleUser(currentUserId);
-        } else return userDao.getAll(currentUserId);
+            return userDao.getAllByRoleUser();
+        } else return userDao.getAll();
     }
 
     @Override
@@ -130,10 +135,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getBySubStr(String substr, Role role, String currentUserId) {
+    public List<User> getBySubStr(String substr, Role role) {
         if (role.equals(Role.ROLE_USER)) {
-            return userDao.getBySubStrAndRoleUser(substr, currentUserId);
-        } else return userDao.getBySubStr(substr, currentUserId);
+            return userDao.getBySubStrAndRoleUser(substr);
+        } else return userDao.getBySubStr(substr);
     }
 }
 

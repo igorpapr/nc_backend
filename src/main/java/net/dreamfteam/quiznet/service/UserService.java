@@ -19,7 +19,7 @@ public interface UserService {
 
     User getByRecoverUrl(String recoverUrl);
 
-    List<User> getAllByRole(Role role, String currentUserId);
+    List<User> getAllByRole(Role role);
 
     User getByUsername(String username);
 
@@ -31,6 +31,6 @@ public interface UserService {
 
     void checkCorrectPassword(User user, String password);
 
-    List<User> getBySubStr(String substr, Role role, String currentUserId);
+    List<User> getBySubStr(String substr, Role role);
 
 }

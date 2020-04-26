@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import net.dreamfteam.quiznet.web.validators.RecoverDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +23,9 @@ import javax.websocket.server.PathParam;
 @CrossOrigin
 @RequestMapping(Constants.SECUR_RECOVER_URLS)
 public class RecoveringController {
+
+    @Value("${recover.redirect.url}")
+    private String RECOVER_REDIRECT_URL;
 
     private RecoveringService recoveringService;
 
@@ -43,7 +47,7 @@ public class RecoveringController {
     @GetMapping("/confirm")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView(Constants.RECOVER_REDIRECT_URL + recoveringService.confirmRecovery(key));
+        return new RedirectView(RECOVER_REDIRECT_URL + recoveringService.confirmRecovery(key));
     }
 
     @PostMapping("/changePassword")

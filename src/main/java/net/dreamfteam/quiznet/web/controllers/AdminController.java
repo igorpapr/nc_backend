@@ -8,17 +8,17 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoAdminActivation;
 import net.dreamfteam.quiznet.web.dto.DtoAdminSignUp;
+import net.dreamfteam.quiznet.web.dto.DtoEditAdminProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
+@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
@@ -31,6 +31,42 @@ public class AdminController {
     public AdminController(UserService userService, IAuthenticationFacade authenticationFacade) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
+    }
+
+    @PostMapping("/edit/{field}")
+    public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
+
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+        User otherUser = userService.getById(editAdminProfile.getId());
+
+        if (otherUser == null) {
+            throw new ValidationException("Not found such user");
+        }
+
+        if (field.equals("role") && !StringUtils.isEmpty(editAdminProfile.getRole())) {
+            if (currentUser.getRole() != Role.ROLE_SUPERADMIN) {
+                throw new ValidationException("You dont have such capabilities");
+            }
+
+            otherUser.setRole(Role.valueOf(editAdminProfile.getRole()));
+            userService.update(otherUser);
+        }
+
+        if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
+            throw new ValidationException("You dont have such capabilities");
+        }
+
+        if (field.equals("image")) {
+            otherUser.setImage(editAdminProfile.getImage());
+            userService.update(otherUser);
+        }
+
+        if (field.equals("aboutMe")) {
+            otherUser.setAboutMe(editAdminProfile.getAboutMe());
+            userService.update(otherUser);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping
@@ -48,12 +84,12 @@ public class AdminController {
             throw new ValidationException("Such username has been taken");
         }
 
-        if (!(currentUser.getRole().ordinal() > Role.valueOf(newAdmin.getRole()).ordinal())) {
+        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()){
             throw new ValidationException("You dont have such capabilities");
         }
 
         User saved = userService.saveAdmin(newAdmin.toUser());
-        return new ResponseEntity<>(DtoUser.fromUser(saved),HttpStatus.OK);
+        return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }
 
     @PostMapping("/activation")
