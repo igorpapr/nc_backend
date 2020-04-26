@@ -95,7 +95,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)// add Exception Handler
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)// without session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // without session
                 .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()//other URLS only authenticated( with token)

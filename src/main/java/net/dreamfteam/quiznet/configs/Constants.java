@@ -26,7 +26,6 @@ public class Constants {
     public static final String SECUR_QUIZ_URLS = "api/quiz/get";
     public static final String SECUR_QUIZ_LIST_URLS = "api/quiz/quiz-list/**";
 
-
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -48,7 +47,6 @@ public class Constants {
     public static final String RECOVER_MAIL_SUBJECT = "Reset password(QuizNet)";
     public static final String RECOVER_MAIL_ARTICLE = "Changing password";
     public static final String RECOVER_MAIL_MESSAGE = "To change your password visit next link: ";
-
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
