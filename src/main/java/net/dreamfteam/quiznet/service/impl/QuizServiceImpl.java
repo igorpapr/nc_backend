@@ -53,7 +53,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz getQuiz(String quizId, String userId) {
-        Quiz quiz = quizDao.getQuiz(quizId, authenticationFacade.getUserId());
+        Quiz quiz = quizDao.getQuiz(quizId, userId);
         if(quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }
@@ -141,15 +141,14 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
-        return quizDao.findQuizzesByFilter(quizFilter);
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
+        return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }
 
     @Override
     public List<QuizFiltered> shortListOfQuizzes() {
         DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
-        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter);
-        shortList = shortList.subList(0, 10);
+        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter, 0, 10);
         return shortList;
     }
 

@@ -53,7 +53,7 @@ public interface QuizDao {
 
     void validateQuiz(DtoQuiz dtoQuiz);
 
-    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
+    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
     void addQuizImage(String imageId, String quizId);
 
