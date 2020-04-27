@@ -13,6 +13,7 @@ public class Constants {
     public static final String TEST_URLS = "/api/test/**";
     public static final String RECOVER_URLS = "/api/recovery";
     public static final String ADMIN_URLS = "/api/admins";
+    public static final String ANNOUNCEMENT_URLS = "/api/announcement";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
@@ -25,6 +26,8 @@ public class Constants {
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "api/quiz/getcateglist";
     public static final String SECUR_QUIZ_URLS = "api/quiz/get";
     public static final String SECUR_QUIZ_LIST_URLS = "api/quiz/quiz-list/**";
+
+
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
