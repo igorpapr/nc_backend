@@ -82,8 +82,10 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
-                quiz.setFavourite(true);
+            if(userId != null) {
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
+                    quiz.setFavourite(true);
+                }
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
