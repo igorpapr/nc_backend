@@ -76,8 +76,10 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
-            if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
-                quiz.setFavourite(true);
+            if(userId != null) {
+                if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
+                    quiz.setFavourite(true);
+                }
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
@@ -142,7 +144,7 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
-    @Override
+    
     public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) INNER JOIN images i ON q.image_ref = i.image_id WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
@@ -180,6 +182,7 @@ public class QuizDaoImpl implements QuizDao {
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
         String sql = "SELECT q.quiz_id, q.title, q.description, q.image_ref, q.ver_creation_datetime,\n" + "q.creator_id, q.activated, q.validated, q.quiz_lang, q.rating, i.image, u.username\n" + "FROM quizzes q LEFT JOIN images i ON q.image_ref = i.image_id INNER JOIN users u ON q.creator_id = u.user_id \n" + "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
+
             sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
         }
         if (quizFilter.getUserName() != null) {
@@ -201,15 +204,26 @@ public class QuizDaoImpl implements QuizDao {
                 sql = sql + "quiz_id IN (SELECT quiz_id FROM categs_quizzes WHERE category_id = '" + quizFilter.getCategories().get(i) + "') AND ";
             }
         }
-        sql = sql.substring(0, sql.length() - 4);
-        if (quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
-            sql = sql + "ORDER BY rating DESC";
-        } else {
-            sql = sql + " ORDER BY ver_creation_datetime DESC";
-        }
+
+        sql = sql.substring(0, sql.length()-4);
+        if(quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
+            sql = sql + "ORDER BY rating DESC LIMIT ? OFFSET ?";
+        } else {sql = sql + " ORDER BY ver_creation_datetime DESC LIMIT ? OFFSET ?";}
         System.out.println("FILTERED");
         try {
-            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{}, (rs, i) -> QuizFiltered.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageRef(rs.getString("image_ref")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).language(rs.getString("quiz_lang")).rating(rs.getFloat("rating")).imageContent(rs.getBytes("image")).author(rs.getString("username")).build());
+            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{amount, startIndex}, (rs, i) -> QuizFiltered.builder()
+                    .id(rs.getString("quiz_id"))
+                    .title(rs.getString("title"))
+                    .description(rs.getString("description"))
+                    .imageRef(rs.getString("image_ref"))
+                    .creationDate(rs.getDate("ver_creation_datetime"))
+                    .creatorId(rs.getString("creator_id"))
+                    .language(rs.getString("quiz_lang"))
+                    .rating(rs.getFloat("rating"))
+                    .imageContent(rs.getBytes("image"))
+                    .author(rs.getString("username")).build()
+            );
+
             return quizList;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -279,7 +293,18 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Question> getQuestionList(String quizId) {
         try {
-            List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q INNER JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?)", new Object[]{quizId}, (rs, i) -> Question.builder().id(rs.getString("question_id")).quizId(rs.getString("quiz_id")).title(rs.getString("title")).content(rs.getString("content")).image(rs.getString("image")).points(rs.getInt("points")).typeId(rs.getInt("type_id")).imageContent(rs.getBytes("imgcontent")).build());
+
+            List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?)",
+                    new Object[]{quizId},  (rs, i) -> Question.builder()
+                            .id(rs.getString("question_id"))
+                            .quizId(rs.getString("quiz_id"))
+                            .title(rs.getString("title"))
+                            .content(rs.getString("content"))
+                            .image(rs.getString("image"))
+                            .points(rs.getInt("points"))
+                            .typeId(rs.getInt("type_id"))
+                            .imageContent(rs.getBytes("imgcontent"))
+                            .build());
             for (int i = 0; i < listQ.size(); i++) {
                 listQ.set(i, loadAnswersForQuestion(listQ.get(i), i));
             }

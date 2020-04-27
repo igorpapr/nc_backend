@@ -46,7 +46,9 @@ public interface QuizService {
 
     List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
 
-    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
+    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
+
+    List<QuizFiltered> shortListOfQuizzes();
 
     void addQuizImage(String imageId, String quizId);
 

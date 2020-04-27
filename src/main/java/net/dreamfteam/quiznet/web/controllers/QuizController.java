@@ -80,9 +80,10 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/filter-quiz-list")
-    public ResponseEntity<?> getFilteredQuizList(@RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
-        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter), HttpStatus.OK);
+    @PostMapping("/filter-quiz-list/page/{page}")
+    public ResponseEntity<?> getFilteredQuizList(@PathVariable int page, @RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
+
+        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter, (page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -197,7 +198,7 @@ public class QuizController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam String userId) throws ValidationException {
+    public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam(required = false) String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
     }
 
@@ -205,6 +206,10 @@ public class QuizController {
     @PostMapping("/setvalidator")
     public ResponseEntity<?> getQuiz(@RequestBody String quizId) throws ValidationException {
         return new ResponseEntity<>(quizService.setValidator(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
+
+    @GetMapping("/getshortlist")
+    public ResponseEntity<?> getShortListOfQuizzes() throws ValidationException {
+        return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
     }
 
 }

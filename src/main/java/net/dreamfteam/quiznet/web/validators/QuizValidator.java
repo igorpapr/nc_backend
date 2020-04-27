@@ -12,7 +12,6 @@ public class QuizValidator {
 
     public static void validate(DtoQuiz quiz) {
         isNotEmpty(quiz.getTitle(), "title");
-        isNotEmpty(quiz.getCreatorId(), "creator id");
         isNotEmpty(quiz.getLanguage(), "language");
         isNotEmpty(quiz.getDescription(), "description");
         if(quiz.getTagList().size() == 0 || quiz.getCategoryList().size() == 0) {
@@ -25,7 +24,6 @@ public class QuizValidator {
         isNotEmpty(quiz.getNewLanguage(), "new language");
         isNotEmpty(quiz.getNewDescription(), "new description");
         isNotEmpty(quiz.getQuizId(), "quiz id");
-        isNotEmpty(quiz.getCreatorId(), "creator id");
     }
 
     public static void validateQuestion(Question question) {
