@@ -22,6 +22,7 @@ public class QuizServiceImpl implements QuizService {
     private QuizDao quizDao;
     private ImageService imageService;
 
+    @Autowired
     public QuizServiceImpl(QuizDao quizDao, ImageService imageService) {
         this.quizDao = quizDao;
         this.imageService = imageService;
@@ -135,6 +136,14 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
         return quizDao.findQuizzesByFilter(quizFilter);
+    }
+
+    @Override
+    public List<QuizFiltered> shortListOfQuizzes() {
+        DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
+        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter);
+        shortList = shortList.subList(0, 10);
+        return shortList;
     }
 
     @Override

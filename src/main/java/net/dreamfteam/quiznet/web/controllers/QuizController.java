@@ -169,7 +169,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getCategoryList(), HttpStatus.OK);
     }
 
-    @GetMapping("/quiz-list/{page}")
+    @GetMapping("/quiz-list/page/{page}")
     public ResponseEntity<?> getQuizList(@PathVariable int page) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
@@ -177,6 +177,11 @@ public class QuizController {
     @GetMapping("/get")
     public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/getshortlist")
+    public ResponseEntity<?> getShortListOfQuizzes() throws ValidationException {
+        return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
     }
 
 }
