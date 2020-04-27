@@ -4,6 +4,7 @@ package net.dreamfteam.quiznet.configs.token;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -54,6 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
             }
+            else throw new AuthenticationServiceException("Token not found in Authorization Header");
         } catch (Exception ex) {
             log.info("Could not set user authentication in security context", ex);
         }

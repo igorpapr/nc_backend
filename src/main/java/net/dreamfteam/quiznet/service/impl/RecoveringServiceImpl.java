@@ -78,7 +78,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByRecoverUrl(passwordDto.getRecoverUrl());
 
         if (user == null) {
-            throw new ValidationException("Not found passwordDto with such recover url");
+            throw new ValidationException("Not found user with such recover url");
         }
 
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {
