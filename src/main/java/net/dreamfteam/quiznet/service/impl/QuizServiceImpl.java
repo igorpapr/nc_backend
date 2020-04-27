@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
@@ -21,15 +22,19 @@ public class QuizServiceImpl implements QuizService {
 
     private QuizDao quizDao;
     private ImageService imageService;
+    private IAuthenticationFacade authenticationFacade;
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ImageService imageService) {
+    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, IAuthenticationFacade authenticationFacade) {
         this.quizDao = quizDao;
         this.imageService = imageService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
     public Quiz saveQuiz(DtoQuiz newQuiz) throws ValidationException {
+        System.out.println("FACADE" + authenticationFacade.getUserId());
+        newQuiz.setCreatorId(authenticationFacade.getUserId());
         checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
         Quiz quiz = Quiz.builder().title(newQuiz.getTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(newQuiz.getCreatorId()).language(newQuiz.getLanguage()).description(newQuiz.getDescription()).imageRef(newQuiz.getImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(newQuiz.getTagList()).categoryIdList(newQuiz.getCategoryList()).build();
 
@@ -41,15 +46,17 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz updateQuiz(DtoQuiz dtoQuiz) {
-        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(dtoQuiz.getCreatorId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
+        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(authenticationFacade.getUserId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
 
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override
     public Quiz getQuiz(String quizId, String userId) {
-        Quiz quiz = quizDao.getQuiz(quizId, userId);
-        quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        Quiz quiz = quizDao.getQuiz(quizId, authenticationFacade.getUserId());
+        if(quiz.getImageRef() != null) {
+            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        }
         return quiz;
     }
 

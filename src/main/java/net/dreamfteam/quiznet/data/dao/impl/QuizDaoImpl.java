@@ -263,7 +263,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Question> getQuestionList(String quizId) {
         try {
-            List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q INNER JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?)",
+            List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?)",
                     new Object[]{quizId},  (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
