@@ -207,6 +207,8 @@ public class QuizController {
     public ResponseEntity<?> getQuiz(@RequestBody String quizId) throws ValidationException {
         return new ResponseEntity<>(quizService.setValidator(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
 
+    }
+
     @GetMapping("/getshortlist")
     public ResponseEntity<?> getShortListOfQuizzes() throws ValidationException {
         return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);

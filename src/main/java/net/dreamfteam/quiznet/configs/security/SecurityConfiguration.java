@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.configs.security;
 
 
+import io.swagger.models.HttpMethod;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.token.JwtAuthenticationEntryPoint;
 import net.dreamfteam.quiznet.configs.token.JwtConfigurer;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsUtils;
 
 /**
  * Main security configuration
@@ -97,7 +99,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // without session
                 .and()
-                .authorizeRequests()
+                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .anyRequest().authenticated()//other URLS only authenticated( with token)
                 .and()
                 .anonymous()
@@ -106,6 +108,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
 
+        //http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
 
     }
 
