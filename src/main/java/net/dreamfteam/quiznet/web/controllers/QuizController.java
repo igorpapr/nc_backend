@@ -76,9 +76,10 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/filter-quiz-list")
-    public ResponseEntity<?> getFilteredQuizList(@RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
-        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter), HttpStatus.OK);
+    @PostMapping("/filter-quiz-list/page/{page}")
+    public ResponseEntity<?> getFilteredQuizList(@PathVariable int page, @RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
+
+        return new ResponseEntity<>(quizService.findQuizzesByFilter(dtoQuizFilter, (page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")

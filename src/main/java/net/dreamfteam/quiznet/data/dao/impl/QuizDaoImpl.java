@@ -149,7 +149,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         String sql = "SELECT q.quiz_id, q.title, q.description, q.image_ref, q.ver_creation_datetime,\n" +
                 "q.creator_id, q.activated, q.validated, q.quiz_lang, q.rating, i.image, u.username\n" +
                 "FROM quizzes q LEFT JOIN images i ON q.image_ref = i.image_id INNER JOIN users u ON q.creator_id = u.user_id \n" +
@@ -178,11 +178,11 @@ public class QuizDaoImpl implements QuizDao {
         }
         sql = sql.substring(0, sql.length()-4);
         if(quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
-            sql = sql + "ORDER BY rating DESC";
-        } else {sql = sql + " ORDER BY ver_creation_datetime DESC";}
+            sql = sql + "ORDER BY rating DESC LIMIT ? OFFSET ?";
+        } else {sql = sql + " ORDER BY ver_creation_datetime DESC LIMIT ? OFFSET ?";}
         System.out.println("FILTERED");
         try {
-            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{}, (rs, i) -> QuizFiltered.builder()
+            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{amount, startIndex}, (rs, i) -> QuizFiltered.builder()
                     .id(rs.getString("quiz_id"))
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))

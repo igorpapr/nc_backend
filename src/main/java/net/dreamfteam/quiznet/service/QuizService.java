@@ -47,7 +47,7 @@ public interface QuizService {
 
     List<QuizView> getInvalidQuizzes(int startIndex, int amount);
 
-    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
+    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
     List<QuizFiltered> shortListOfQuizzes();
 
