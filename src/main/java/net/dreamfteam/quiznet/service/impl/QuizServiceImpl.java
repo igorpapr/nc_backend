@@ -53,7 +53,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz getQuiz(String quizId, String userId) {
-        Quiz quiz = quizDao.getQuiz(quizId, authenticationFacade.getUserId());
+        Quiz quiz = quizDao.getQuiz(quizId, userId);
         if(quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }

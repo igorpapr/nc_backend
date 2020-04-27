@@ -176,8 +176,8 @@ public class QuizController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getQuiz(@RequestParam String quizId) throws ValidationException {
-        return new ResponseEntity<>(quizService.getQuiz(quizId, ""), HttpStatus.OK);
+    public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam String userId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
     }
 
     @GetMapping("/getshortlist")
