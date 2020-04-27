@@ -191,7 +191,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getCategoryList(), HttpStatus.OK);
     }
 
-    @GetMapping("/quiz-list/{page}")
+    @GetMapping("/quiz-list/page/{page}")
     public ResponseEntity<?> getQuizList(@PathVariable int page) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
