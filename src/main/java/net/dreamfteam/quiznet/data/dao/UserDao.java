@@ -11,12 +11,12 @@ public interface UserDao {
             "FROM users INNER JOIN roles ON users.role_id=roles.role_id\n";
 
     String UPDATE_QUERY = "UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
-            "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?, role_id = ?";
+            " is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?, role_id = ?";
 
     String DELETE_QUERY = "DELETE FROM users";
 
-    String SAVE_QUERY = "INSERT INTO users (user_id, username, email, password, is_activated,\" +\n" +
-            "\"is_verified, is_online, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+    String SAVE_QUERY = "INSERT INTO users (user_id, username, email, password, is_activated," +
+            " is_verified, is_online, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
     User getByEmail(String email);
 
