@@ -2,10 +2,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
-import net.dreamfteam.quiznet.data.entities.Question;
-import net.dreamfteam.quiznet.data.entities.Quiz;
-import net.dreamfteam.quiznet.data.entities.QuizFiltered;
-import net.dreamfteam.quiznet.data.entities.QuizView;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
@@ -131,13 +128,34 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizView> getInvalidQuizzes(int startIndex, int amount) {
-        return quizDao.getInvalidQuizzes(startIndex, amount);
+    public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
+        return quizDao.getInvalidQuizzes(startIndex, amount,adminId);
+    }
+
+    @Override
+    public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
+        return quizDao.getValidQuizzes(startIndex, amount, adminId);
     }
 
     @Override
     public int getQuizzesTotalSize() {
         return quizDao.getQuizzesTotalSize();
+    }
+
+    @Override
+
+    public int getInvalidQuizzesTotalSize() {
+        return quizDao.getInvalidQuizzesTotalSize();
+    }
+
+    @Override
+    public int getValidQuizzesTotalSize(String adminId) {
+        return quizDao.getValidQuizzesTotalSize(adminId);
+    }
+
+    @Override
+    public Quiz setValidator(String quizId, String adminId) {
+        return quizDao.setValidator(quizId,adminId);
     }
 
     @Override
