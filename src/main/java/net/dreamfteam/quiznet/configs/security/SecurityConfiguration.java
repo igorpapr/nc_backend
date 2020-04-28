@@ -80,6 +80,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECUR_QUIZ_TAG_LIST_URLS,
                         Constants.SECURE_ANNOUNCEMENT_LIST_URLS,
                         Constants.SECURE_ANNOUNCEMENT_URLS,
+                        Constants.SECURE_ANNOUNCEMENT_SIZE,
                         //for Swagger
                         "/v2/api-docs",
                         "/configuration/ui",

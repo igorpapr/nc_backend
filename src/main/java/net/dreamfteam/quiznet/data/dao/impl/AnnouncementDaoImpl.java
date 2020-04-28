@@ -82,4 +82,14 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     public void deleteAnnouncementById(String announcementId) {
         jdbcTemplate.update("DELETE FROM announcementS WHERE announcement_id = UUID(?) ", announcementId);
     }
+
+    @Override
+    public long getAmount() {
+        try {
+            return jdbcTemplate.queryForObject("SELECT count(*) from announcements", Long.class);
+
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
 }

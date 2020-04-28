@@ -18,4 +18,6 @@ public interface AnnouncementService {
 
     void deleteAnnouncementById(String announcementId);
 
+    long getAmount();
+
 }

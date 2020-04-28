@@ -75,4 +75,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public void deleteAnnouncementById(String id) {
         announcementDao.deleteAnnouncementById(id);
     }
+
+    @Override
+    public long getAmount() {
+       return announcementDao.getAmount();
+    }
 }

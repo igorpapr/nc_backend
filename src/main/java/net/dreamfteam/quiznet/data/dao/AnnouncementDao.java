@@ -15,4 +15,6 @@ public interface AnnouncementDao {
     Announcement editAnnouncement(Announcement announcement);
 
     void deleteAnnouncementById(String announcementId);
+
+    long getAmount();
 }

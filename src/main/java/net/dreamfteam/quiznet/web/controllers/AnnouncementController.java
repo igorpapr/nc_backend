@@ -64,5 +64,10 @@ public class AnnouncementController {
         return new ResponseEntity<>(announcementService.getAnnouncement(id), HttpStatus.OK);
     }
 
+    @GetMapping("/getamount")
+    public ResponseEntity<?> getAmount() throws ValidationException {
+        return new ResponseEntity<>(announcementService.getAmount(), HttpStatus.OK);
+    }
+
 
 }

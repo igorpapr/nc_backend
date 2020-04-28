@@ -28,7 +28,8 @@ public class Constants {
     public static final String SECUR_QUIZ_URLS = "/api/quiz/get**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quiz/quiz-list/**";
     public static final String SECURE_ANNOUNCEMENT_LIST_URLS = "/api/announcement/getall";
-    public static final String SECURE_ANNOUNCEMENT_URLS = "/api/announcement/get";
+    public static final String SECURE_ANNOUNCEMENT_URLS = "/api/announcement/get/**";
+    public static final String SECURE_ANNOUNCEMENT_SIZE = "/api/announcement/getamount";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
