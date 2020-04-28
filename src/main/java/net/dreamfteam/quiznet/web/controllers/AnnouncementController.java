@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import static java.util.Objects.isNull;
 
@@ -28,17 +29,18 @@ public class AnnouncementController {
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement) throws ValidationException {
+    public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement , @RequestPart(value = "pic", required = false) MultipartFile  profilePic) throws ValidationException {
+        System.out.println(profilePic.toString());
         AnnouncementValidator.validate(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement), HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement, profilePic ), HttpStatus.OK);
     }
 
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement) throws ValidationException {
+    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement, @RequestPart(value = "pic", required = false) MultipartFile  profilePic) throws ValidationException {
         AnnouncementValidator.validateForEdit(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement), HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement, profilePic), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")

@@ -9,7 +9,9 @@ import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
 import net.dreamfteam.quiznet.web.dto.DtoEditAnnouncement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -30,11 +32,21 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement createAnnouncement(DtoAnnouncement ann) {
+    public Announcement createAnnouncement(DtoAnnouncement ann, MultipartFile file) {
+
+        byte[] byteArr = {};
+        try {
+            if(file != null && !file.isEmpty()) {
+                byteArr = file.getBytes();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Announcement announcement = Announcement.builder()
                 .creatorId(authenticationFacade.getUserId())
                 .title(ann.getTitle()).
-                        image(ann.getImage())
+                        image(byteArr)
                 .textContent(ann.getTextContent())
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
@@ -50,19 +62,27 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public List<Announcement> getAllAnnouncements(long start, long amount) {
-     //   if (settingsService.getSettings(authenticationFacade.getUserId()).isSeeAnnouncements()) {
+        //   if (settingsService.getSettings(authenticationFacade.getUserId()).isSeeAnnouncements()) {
         return announcementDao.getAllAnnouncements(start, amount);
-       // }
+        // }
 
-    //    return null;
+        //    return null;
     }
 
     @Override
-    public Announcement editAnnouncement(DtoEditAnnouncement ann) {
+    public Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile file) {
+
+        byte[] byteArr = {};
+        try {
+            byteArr = file.getBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Announcement announcement = Announcement.builder().announcementId(ann.getAnnouncementId())
                 .creatorId(authenticationFacade.getUserId())
                 .title(ann.getTitle()).
-                        image(ann.getImage())
+                        image(byteArr)
                 .textContent(ann.getTextContent())
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
@@ -78,6 +98,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public long getAmount() {
-       return announcementDao.getAmount();
+        return announcementDao.getAmount();
     }
 }

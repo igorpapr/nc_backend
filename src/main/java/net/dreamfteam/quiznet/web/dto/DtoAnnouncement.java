@@ -19,8 +19,6 @@ public class DtoAnnouncement {
 
     private String textContent;
 
-    private String image;
-
     private Date creationDate;
 
 }

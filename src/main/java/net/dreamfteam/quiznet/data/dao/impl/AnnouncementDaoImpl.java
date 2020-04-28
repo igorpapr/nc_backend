@@ -34,11 +34,11 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
             PreparedStatement ps = connection
                     .prepareStatement("INSERT INTO announcements " +
                             "(creator_id, title, text_content, image, datetime_creation," +
-                            " datetime_publication, is_published) VALUES (?,?,?,convert_to(?, 'LATIN1'),?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                            " datetime_publication, is_published) VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, java.util.UUID.fromString(ann.getCreatorId()));
             ps.setString(2, ann.getTitle());
             ps.setString(3, ann.getTextContent());
-            ps.setString(4, ann.getImage());
+            ps.setBytes(4, ann.getImage());
             ps.setTimestamp(5, new Timestamp(ann.getCreationDate().getTime()));
             ps.setTimestamp(6, new Timestamp(ann.getPublicationDate().getTime()));
             ps.setBoolean(7, true);
@@ -73,8 +73,8 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
     @Override
     public Announcement editAnnouncement(Announcement ann) {
-        jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?, image = ?, datetime_creation = ?,"
-                + "is_published = ?, datetime_publication = ? WHERE announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), ann.getImage(), ann.getCreationDate(), true, ann.getPublicationDate(), ann.getAnnouncementId());
+        jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?, image = ?, "
+                + "is_published = ?  WHERE  announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), ann.getImage(), true,  ann.getAnnouncementId());
         return ann;
     }
 

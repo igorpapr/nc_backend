@@ -19,7 +19,7 @@ public class Announcement {
 
     private String textContent;
 
-    private String image;
+    private  byte[] image;
 
     private Date creationDate;
 
