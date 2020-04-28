@@ -27,7 +27,7 @@ public class RecoveringController {
     @Value("${recover.redirect.url}")
     private String RECOVER_REDIRECT_URL;
 
-    private RecoveringService recoveringService;
+    final private RecoveringService recoveringService;
 
     @Autowired
     public RecoveringController(RecoveringService recoveringService) {

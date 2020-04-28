@@ -30,6 +30,7 @@ public class DtoQuiz {
     private String userId;
 
     //For validating quiz
+    private String validator_id;
     private String adminCommentary;
     private boolean validated;
 

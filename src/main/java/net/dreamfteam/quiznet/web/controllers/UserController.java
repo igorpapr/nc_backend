@@ -27,8 +27,8 @@ import java.util.List;
 @RequestMapping(Constants.USER_URLS)
 public class UserController {
 
-    private UserService userService;
-    private IAuthenticationFacade authenticationFacade;
+    final private UserService userService;
+    final private IAuthenticationFacade authenticationFacade;
 
     @Autowired
     public UserController(UserService userService, IAuthenticationFacade authenticationFacade) {

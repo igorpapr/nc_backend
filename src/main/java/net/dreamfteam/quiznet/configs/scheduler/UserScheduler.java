@@ -11,7 +11,7 @@ import static javax.management.timer.Timer.ONE_DAY;
 @Component
 public class UserScheduler {
 
-    private UserDao userDao;
+    final private UserDao userDao;
 
     @Autowired
     public UserScheduler(UserDao userDao) {

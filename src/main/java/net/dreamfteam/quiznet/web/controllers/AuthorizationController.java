@@ -33,8 +33,9 @@ public class AuthorizationController {
     @Value("${activation.redirect.url}")
     private String ACTIVATION_REDIRECT_URL;
 
-    private UserService userService;
-    private ActivationService activationService;
+    final private UserService userService;
+
+    final private ActivationService activationService;
 
     @Autowired
     public AuthorizationController(UserService userService, ActivationService activationService) {

@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ImageServiceImpl implements ImageService {
 
-    private ImageDao imageDao;
+    final private ImageDao imageDao;
 
     public ImageServiceImpl(ImageDao imageDao) {
         this.imageDao = imageDao;

@@ -23,10 +23,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(Constants.ADMIN_URLS)
 public class AdminController {
 
-    private UserService userService;
-    private IAuthenticationFacade authenticationFacade;
+    final private UserService userService;
+    final private IAuthenticationFacade authenticationFacade;
 
-    @Autowired
     public AdminController(UserService userService, IAuthenticationFacade authenticationFacade) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;

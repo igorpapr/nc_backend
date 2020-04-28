@@ -1,9 +1,6 @@
 package net.dreamfteam.quiznet.service;
 
-import net.dreamfteam.quiznet.data.entities.Question;
-import net.dreamfteam.quiznet.data.entities.Quiz;
-import net.dreamfteam.quiznet.data.entities.QuizFiltered;
-import net.dreamfteam.quiznet.data.entities.QuizView;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
@@ -47,9 +44,11 @@ public interface QuizService {
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<QuizView> getInvalidQuizzes(int startIndex, int amount);
+    List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
-    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter);
+    List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
+
+    List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
     List<QuizFiltered> shortListOfQuizzes();
 
@@ -58,5 +57,11 @@ public interface QuizService {
     void addQuestionImage(String imageId, String questionId);
 
     int getQuizzesTotalSize();
+
+    int getInvalidQuizzesTotalSize();
+
+    int getValidQuizzesTotalSize(String adminId);
+
+    Quiz setValidator(String quizId, String adminId);
 
 }
