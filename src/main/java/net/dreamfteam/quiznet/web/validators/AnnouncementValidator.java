@@ -11,15 +11,13 @@ public class AnnouncementValidator {
 
     public static void validate(DtoAnnouncement announcement) {
         isNotEmpty(announcement.getTitle(), "title");
-        isNotEmpty(announcement.getCreatorId(), "creator id");
         isNotEmpty(announcement.getTextContent(), "text content");
     }
 
 
     public static void validateForEdit(DtoEditAnnouncement announcement) {
-        isNotEmpty(announcement.getTitle(), "title");
-        isNotEmpty(announcement.getCreatorId(), "creator id");
         isNotEmpty(announcement.getAnnouncementId(), "announcement id");
+        isNotEmpty(announcement.getTitle(), "title");
         isNotEmpty(announcement.getTextContent(), "text content");
     }
 

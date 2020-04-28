@@ -1,29 +1,38 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.AnnouncementDao;
 import net.dreamfteam.quiznet.data.entities.Announcement;
 import net.dreamfteam.quiznet.service.AnnouncementService;
+import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
 import net.dreamfteam.quiznet.web.dto.DtoEditAnnouncement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.List;
 
 @Service
 public class AnnouncementServiceImpl implements AnnouncementService {
 
     AnnouncementDao announcementDao;
+    AuthenticationFacade authenticationFacade;
+    SettingsService settingsService;
 
     @Autowired
-    public AnnouncementServiceImpl(AnnouncementDao announcementDao) {
+    public AnnouncementServiceImpl(AnnouncementDao announcementDao,
+                                   AuthenticationFacade authenticationFacade, SettingsService settingsService
+    ) {
         this.announcementDao = announcementDao;
+        this.authenticationFacade = authenticationFacade;
+        this.settingsService = settingsService;
     }
 
     @Override
     public Announcement createAnnouncement(DtoAnnouncement ann) {
         Announcement announcement = Announcement.builder()
-                .creatorId(ann.getCreatorId())
+                .creatorId(authenticationFacade.getUserId())
                 .title(ann.getTitle()).
                         image(ann.getImage())
                 .textContent(ann.getTextContent())
@@ -35,14 +44,23 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement getAnnouncement(String announcementId, String creatorId) {
-        return announcementDao.getAnnouncement(announcementId, creatorId);
+    public Announcement getAnnouncement(String announcementId) {
+        return announcementDao.getAnnouncement(announcementId);
+    }
+
+    @Override
+    public List<Announcement> getAllAnnouncements(long start, long amount) {
+     //   if (settingsService.getSettings(authenticationFacade.getUserId()).isSeeAnnouncements()) {
+        return announcementDao.getAllAnnouncements(start, amount);
+       // }
+
+    //    return null;
     }
 
     @Override
     public Announcement editAnnouncement(DtoEditAnnouncement ann) {
         Announcement announcement = Announcement.builder().announcementId(ann.getAnnouncementId())
-                .creatorId(ann.getCreatorId())
+                .creatorId(authenticationFacade.getUserId())
                 .title(ann.getTitle()).
                         image(ann.getImage())
                 .textContent(ann.getTextContent())

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Repository
@@ -49,9 +50,9 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     }
 
     @Override
-    public Announcement getAnnouncement(String announcementId, String creatorId) {
+    public Announcement getAnnouncement(String announcementId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * from announcements where announcement_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id, title, text_content, image, datetime_creation, is_published, datetime_publication from announcements where announcement_id = UUID(?)",
                     new Object[]{announcementId},
                     new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -61,9 +62,19 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     }
 
     @Override
+    public List<Announcement> getAllAnnouncements(long start, long amount) {
+        try {
+            return jdbcTemplate.query("SELECT announcement_id,  creator_id, title, text_content, image, datetime_creation, is_published, datetime_publication from announcements where datetime_publication < current_timestamp order by datetime_publication desc limit ? offset ? rows ;",
+                    new Object[]{amount, start}, new AnnouncementMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
     public Announcement editAnnouncement(Announcement ann) {
         jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?, image = ?, datetime_creation = ?,"
-        + "is_published = ?, datetime_publication = ? WHERE announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), ann.getImage(), ann.getCreationDate(), true, ann.getPublicationDate(), ann.getAnnouncementId());
+                + "is_published = ?, datetime_publication = ? WHERE announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), ann.getImage(), ann.getCreationDate(), true, ann.getPublicationDate(), ann.getAnnouncementId());
         return ann;
     }
 
