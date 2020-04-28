@@ -21,8 +21,8 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public void initSettings() {
-        settingsDao.initSettings(authenticationFacade.getUserId());
+    public void initSettings(String id) {
+        settingsDao.initSettings(id);
     }
 
     @Override

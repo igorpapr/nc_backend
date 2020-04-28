@@ -44,7 +44,7 @@ public class SettingsController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/init")
     public ResponseEntity<?> initSettings() throws ValidationException {
-        settingsService.initSettings();
+        settingsService.initSettings(authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
