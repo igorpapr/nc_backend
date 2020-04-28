@@ -95,6 +95,19 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
+    public Quiz getQuiz(String quizId) {
+        try {
+            Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
+            quiz.setTagNameList(loadTagNameList(quiz.getId()));
+            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+            quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[] { quiz.getCreatorId() }, String.class));
+            return quiz;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
     public void markAsFavourite(DtoQuiz dtoQuiz) {
         jdbcTemplate.update("INSERT INTO favourite_quizzes (user_id, quiz_id) VALUES (UUID(?),UUID(?))", dtoQuiz.getUserId(), dtoQuiz.getQuizId());
         System.out.println("Quiz marked as favourite for user " + dtoQuiz.getUserId());

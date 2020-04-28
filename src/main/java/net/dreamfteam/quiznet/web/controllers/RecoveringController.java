@@ -21,7 +21,7 @@ import javax.websocket.server.PathParam;
 
 @RestController
 @CrossOrigin
-@RequestMapping(Constants.SECUR_RECOVER_URLS)
+@RequestMapping(Constants.RECOVER_URLS)
 public class RecoveringController {
 
     @Value("${recover.redirect.url}")

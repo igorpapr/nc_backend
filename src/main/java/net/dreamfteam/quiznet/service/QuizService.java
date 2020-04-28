@@ -13,9 +13,11 @@ import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException;
 
     Quiz updateQuiz(DtoQuiz quiz);
+
+    Quiz getQuiz(String quizId);
 
     Quiz getQuiz(String quizId, String userId);
 

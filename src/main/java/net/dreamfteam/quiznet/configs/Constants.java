@@ -23,7 +23,7 @@ public class Constants {
     public static final String SECUR_QUIZ_TOTAL_SIZE_URLS = "/api/quiz/getquiztotalsize";
     public static final String SECUR_QUIZ_TAG_LIST_URLS = "/api/quiz/gettaglist";
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quiz/getcateglist";
-    public static final String SECUR_QUIZ_URLS = "/api/quiz/get**";
+    public static final String SECUR_QUIZ_URLS = "/api/quiz/get*";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quiz/quiz-list/**";
 
     public static final String SECRET_MD5 = "SecretQuiz";

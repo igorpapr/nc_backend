@@ -49,6 +49,10 @@ public class AuthorizationController {
 
         User currentUser = userService.getByUsername(loginRequest.getUsername());
 
+        if (currentUser == null) {
+            throw new ValidationException("User Not found with such username" + loginRequest.getUsername());
+        }
+
         userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
 
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);

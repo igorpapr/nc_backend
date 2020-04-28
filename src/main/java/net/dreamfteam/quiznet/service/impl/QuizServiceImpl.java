@@ -1,6 +1,5 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
@@ -13,6 +12,7 @@ import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -22,19 +22,19 @@ public class QuizServiceImpl implements QuizService {
 
     private QuizDao quizDao;
     private ImageService imageService;
-    private IAuthenticationFacade authenticationFacade;
+
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, IAuthenticationFacade authenticationFacade) {
+    public QuizServiceImpl(QuizDao quizDao, ImageService imageService) {
         this.quizDao = quizDao;
         this.imageService = imageService;
-        this.authenticationFacade = authenticationFacade;
+
     }
 
     @Override
-    public Quiz saveQuiz(DtoQuiz newQuiz) throws ValidationException {
-        System.out.println("FACADE" + authenticationFacade.getUserId());
-        newQuiz.setCreatorId(authenticationFacade.getUserId());
+    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException {
+
+        newQuiz.setCreatorId(currentUserId);
         checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
         Quiz quiz = Quiz.builder().title(newQuiz.getTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(newQuiz.getCreatorId()).language(newQuiz.getLanguage()).description(newQuiz.getDescription()).imageRef(newQuiz.getImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(newQuiz.getTagList()).categoryIdList(newQuiz.getCategoryList()).build();
 
@@ -46,18 +46,19 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz updateQuiz(DtoQuiz dtoQuiz) {
-        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(authenticationFacade.getUserId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
+        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
 
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override
+    public Quiz getQuiz(String quizId) {
+        return quizDao.getQuiz(quizId);
+    }
+
+    @Override
     public Quiz getQuiz(String quizId, String userId) {
-        Quiz quiz = quizDao.getQuiz(quizId, authenticationFacade.getUserId());
-        if(quiz.getImageRef() != null) {
-            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
-        }
-        return quiz;
+        return quizDao.getQuiz(quizId, userId);
     }
 
     @Override

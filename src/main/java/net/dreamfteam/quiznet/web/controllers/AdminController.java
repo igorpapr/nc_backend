@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
@@ -33,6 +32,7 @@ public class AdminController {
         this.authenticationFacade = authenticationFacade;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/edit/{field}")
     public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
@@ -69,6 +69,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping
     public ResponseEntity<DtoUser> create(@RequestBody DtoAdminSignUp newAdmin) {
 
@@ -92,6 +93,7 @@ public class AdminController {
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/activation")
     public ResponseEntity<?> activation(@RequestBody DtoAdminActivation admin) {
 
