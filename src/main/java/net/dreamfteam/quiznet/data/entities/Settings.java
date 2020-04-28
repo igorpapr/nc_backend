@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode
 public class Settings {
+    private String userId;
     private boolean seeFriendsActivities;
     private boolean seeAnnouncements;
 }

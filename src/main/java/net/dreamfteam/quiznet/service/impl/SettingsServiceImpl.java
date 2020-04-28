@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.SettingsDao;
 import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.service.SettingsService;
@@ -11,20 +12,17 @@ import org.springframework.stereotype.Service;
 public class SettingsServiceImpl implements SettingsService {
 
     SettingsDao settingsDao;
+    AuthenticationFacade authenticationFacade;
 
     @Autowired
-    public SettingsServiceImpl(SettingsDao settingsDao) {
+    public SettingsServiceImpl(SettingsDao settingsDao, AuthenticationFacade authenticationFacade) {
         this.settingsDao = settingsDao;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
-    public Settings initSettings(DtoSettings settings) {
-        Settings settings1 = Settings.builder().
-                seeAnnouncements(Boolean.parseBoolean(settings.getSeeAnnouncements()))
-                .seeFriendsActivities(Boolean.parseBoolean(settings.getSeeFriendsActivities()))
-                .build();
-
-        return settingsDao.initSettings(settings1);
+    public void initSettings() {
+        settingsDao.initSettings(authenticationFacade.getUserId());
     }
 
     @Override
@@ -32,6 +30,7 @@ public class SettingsServiceImpl implements SettingsService {
         Settings settings1 = Settings.builder().
                 seeAnnouncements(Boolean.parseBoolean(settings.getSeeAnnouncements()))
                 .seeFriendsActivities(Boolean.parseBoolean(settings.getSeeFriendsActivities()))
+                .userId(authenticationFacade.getUserId())
                 .build();
 
         return settingsDao.editSettings(settings1);

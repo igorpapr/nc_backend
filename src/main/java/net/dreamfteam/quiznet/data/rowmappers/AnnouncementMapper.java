@@ -15,9 +15,9 @@ public class AnnouncementMapper implements RowMapper<Announcement> {
                 .title(resultSet.getString("title"))
                 .textContent(resultSet.getString("text_content"))
                 .image(resultSet.getString("image"))
-                .creationDate(resultSet.getDate("datetime_creation"))
+                .creationDate(resultSet.getTimestamp("datetime_creation"))
                 .isPublished(resultSet.getBoolean("is_published"))
-                .publicationDate(resultSet.getDate("datetime_publication"))
+                .publicationDate(resultSet.getTimestamp("datetime_publication"))
                 .build();
 
         return announcement;

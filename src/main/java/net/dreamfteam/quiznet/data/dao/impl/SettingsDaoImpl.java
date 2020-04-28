@@ -18,13 +18,21 @@ public class SettingsDaoImpl implements SettingsDao {
     }
 
     @Override
-    public Settings initSettings(Settings settings) {
-        return null; //TODO
+    public void initSettings(String userId) {
+        jdbcTemplate.update("insert into user_settings (user_id, setting_id, value) " +
+                " select uuid(?) , setting_id, default_value from settings where title='announcements';" +
+                "insert into user_settings (user_id, setting_id, value) " +
+                " select uuid(?) , setting_id, default_value from settings where title='friendsActivities';",
+                userId, userId);
+
     }
 
     @Override
     public Settings editSettings(Settings settings) {
-        return null; //TODO
+        jdbcTemplate.update("update user_settings set value= ? where user_id = uuid(?) " +
+                "and setting_id = (select setting_id from settings where title='friendsActivities'); update user_settings set value= ?" +
+                 "where user_id = uuid(?) and setting_id = (select setting_id from settings where title='announcements');", new Object[]{settings.isSeeFriendsActivities(), settings.getUserId(), settings.isSeeAnnouncements(), settings.getUserId()});
+        return settings;
     }
 
     @Override
