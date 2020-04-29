@@ -392,7 +392,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public int getQuestionsAmountInQuiz(String quizId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM question WHERE quiz_id = uuid(?)", new Object[]{quizId}, Integer.class);
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM questions WHERE quiz_id = uuid(?)", new Object[]{quizId}, Integer.class);
 
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
