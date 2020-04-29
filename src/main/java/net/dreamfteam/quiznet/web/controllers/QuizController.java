@@ -128,7 +128,7 @@ public class QuizController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/markaspublished")
     public ResponseEntity<?> setAsPublished(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         quizService.markAsPublished(dtoQuiz);
