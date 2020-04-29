@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
+import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +43,18 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz updateQuiz(DtoQuiz dtoQuiz) {
-        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
-
+    public Quiz updateQuiz(DtoEditQuiz dtoQuiz) {
+        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(getQuiz(dtoQuiz.getQuizId()).getCreatorId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override
     public Quiz getQuiz(String quizId) {
-        return quizDao.getQuiz(quizId);
+        Quiz quiz = quizDao.getQuiz(quizId);
+        if(quiz.getImageRef() != null) {
+            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        }
+        return quiz;
     }
 
     @Override

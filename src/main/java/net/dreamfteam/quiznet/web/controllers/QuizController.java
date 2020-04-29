@@ -10,6 +10,7 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
@@ -54,7 +55,7 @@ public class QuizController {
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    public ResponseEntity<?> editQuiz(@RequestBody DtoEditQuiz dtoQuiz) throws ValidationException {
         QuizValidator.validateForEdit(dtoQuiz);
         return new ResponseEntity<>(quizService.updateQuiz(dtoQuiz), HttpStatus.OK);
     }
@@ -217,6 +218,11 @@ public class QuizController {
     @GetMapping("/quiz-list/page/{page}")
     public ResponseEntity<?> getQuizList(@PathVariable int page) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
+    }
+
+    @GetMapping("/short-list")
+    public ResponseEntity<?> getShortQuizList() throws ValidationException {
+        return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
     }
 
     @GetMapping
