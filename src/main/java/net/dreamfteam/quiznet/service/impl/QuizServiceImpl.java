@@ -169,7 +169,11 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz setValidator(String quizId, String adminId) {
-        return quizDao.setValidator(quizId,adminId);
+        Quiz quiz = quizDao.setValidator(quizId,adminId);
+        if (quiz.getImageRef() != null) {
+            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        }
+        return quiz;
     }
 
     @Override
