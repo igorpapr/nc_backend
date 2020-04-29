@@ -1,18 +1,23 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
-import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoEditUserProfile;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
@@ -22,32 +27,37 @@ import java.util.List;
 @RequestMapping(Constants.USER_URLS)
 public class UserController {
 
-    private UserService userService;
-    private IAuthenticationFacade authenticationFacade;
+    final private UserService userService;
+    final private ImageService imageService;
+    final private IAuthenticationFacade authenticationFacade;
 
-    @Autowired
-    public UserController(UserService userService, IAuthenticationFacade authenticationFacade) {
+    public UserController(UserService userService, ImageService imageService, IAuthenticationFacade authenticationFacade) {
         this.userService = userService;
+        this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
     }
 
-    @PostMapping("/edit/{field}")
-    public ResponseEntity<?> activate(@PathVariable("field") String field, @RequestBody DtoEditUserProfile editProfile) {
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/edit/aboutMe")
+    public ResponseEntity<?> activate(@RequestParam("key") String aboutMe) {
+
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
-        if (currentUser.getRole() != Role.ROLE_USER) {
-            throw new ValidationException("You dont have such capabilities");
-        }
+        currentUser.setAboutMe(aboutMe);
+        userService.update(currentUser);
 
-        if (field.equals("image")) {
-            currentUser.setImage(editProfile.getImage());
-            userService.update(currentUser);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
-        if (field.equals("aboutMe")) {
-            currentUser.setAboutMe(editProfile.getAboutMe());
-            userService.update(currentUser);
-        }
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/edit/image")
+    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image) {
+
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+
+        currentUser.setImage(imageService.saveImage(image));
+
+        userService.update(currentUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -66,7 +76,10 @@ public class UserController {
             throw new ValidationException("You dont have such capabilities");
         }
 
-        return new ResponseEntity<>(DtoUser.fromUser(user), HttpStatus.OK);
+        DtoUser dtoUser = DtoUser.fromUser(user);
+        dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage()));
+
+        return new ResponseEntity<>(dtoUser, HttpStatus.OK);
     }
 
     @GetMapping("/search")
@@ -74,16 +87,24 @@ public class UserController {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
-        List<User> users = userService.getBySubStr(key, currentUser.getRole(), currentUser.getId());
+        List<User> users = userService.getBySubStr(key, currentUser.getRole());
 
-        return new ResponseEntity<>(DtoUser.fromUser(users), HttpStatus.OK);
+        List<DtoUser> dtoUsers = DtoUser.fromUser(users);
+
+        dtoUsers
+                .forEach(dtoUser -> dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage())));
+
+        return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<DtoUser>> getAllProfiles() {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole(), currentUser.getId()));
+        List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole()));
+        dtoUsers
+                .forEach(dtoUser -> dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage())));
+
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 }

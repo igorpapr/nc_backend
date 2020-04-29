@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoAdminActivation;
 import net.dreamfteam.quiznet.web.dto.DtoAdminSignUp;
@@ -14,35 +15,36 @@ import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
 public class AdminController {
 
-    private UserService userService;
-    private IAuthenticationFacade authenticationFacade;
+    final private UserService userService;
+    final private IAuthenticationFacade authenticationFacade;
+    final private ImageService imageService;
 
     @Autowired
-    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade) {
+    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
+        this.imageService = imageService;
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/edit/{field}")
-    public ResponseEntity<?> activate(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
+    public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
         User otherUser = userService.getById(editAdminProfile.getId());
 
         if (otherUser == null) {
             throw new ValidationException("Not found such user");
-        }
-
-        if (otherUser.getRole() == Role.ROLE_USER) {
-            throw new ValidationException("You dont have such capabilities");
         }
 
         if (field.equals("role") && !StringUtils.isEmpty(editAdminProfile.getRole())) {
@@ -58,11 +60,6 @@ public class AdminController {
             throw new ValidationException("You dont have such capabilities");
         }
 
-        if (field.equals("image")) {
-            otherUser.setImage(editAdminProfile.getImage());
-            userService.update(otherUser);
-        }
-
         if (field.equals("aboutMe")) {
             otherUser.setAboutMe(editAdminProfile.getAboutMe());
             userService.update(otherUser);
@@ -71,6 +68,26 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+    @PostMapping("/edit/image")
+    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
+
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+        User otherUser = userService.getById(userId);
+
+        if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
+            throw new ValidationException("You dont have such capabilities");
+        }
+
+        otherUser.setImage(imageService.saveImage(image));
+
+        userService.update(otherUser);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping
     public ResponseEntity<DtoUser> create(@RequestBody DtoAdminSignUp newAdmin) {
 
@@ -86,7 +103,7 @@ public class AdminController {
             throw new ValidationException("Such username has been taken");
         }
 
-        if (!(currentUser.getRole().ordinal() > Role.valueOf(newAdmin.getRole()).ordinal())) {
+        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()){
             throw new ValidationException("You dont have such capabilities");
         }
 
@@ -94,6 +111,7 @@ public class AdminController {
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/activation")
     public ResponseEntity<?> activation(@RequestBody DtoAdminActivation admin) {
 

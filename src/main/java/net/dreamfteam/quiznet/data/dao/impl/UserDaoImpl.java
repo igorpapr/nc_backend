@@ -8,7 +8,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,19 +23,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getAll(String currentUserId) {
+    public List<User> getAll() {
         return jdbcTemplate.query(
-                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
-                        "AND user_id <> UUID(?)",
-                new UserMapper(),
-                currentUserId
+                SELECT_QUERY,
+                new UserMapper()
+
         );
     }
 
     @Override
     public User getByActivationUrl(String activationUrl) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+            return jdbcTemplate.queryForObject(SELECT_QUERY +
                             "WHERE activation_url = ?",
                     new Object[]{activationUrl},
                     new UserMapper());
@@ -48,7 +46,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByRecoverUrl(String recoverUrl) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n " +
+            return jdbcTemplate.queryForObject(SELECT_QUERY +
                             "WHERE recovery_url = ?",
                     new Object[]{recoverUrl},
                     new UserMapper());
@@ -58,40 +56,35 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getAllByRoleUser(String currentUserId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
-                        "WHERE roles.role_id = 1 AND user_id <> UUID(?)",
-                new UserMapper(),
-                currentUserId
+    public List<User> getAllByRoleUser() {
+        return jdbcTemplate.query(SELECT_QUERY +
+                        "WHERE roles.role_id = 1",
+                new UserMapper()
         );
     }
 
     @Override
-    public List<User> getBySubStr(String str, String currentUserId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
-                        "WHERE LOWER(username) LIKE LOWER(?) AND user_id <> UUID(?)",
+    public List<User> getBySubStr(String str) {
+        return jdbcTemplate.query(SELECT_QUERY +
+                        "WHERE LOWER(username) LIKE LOWER(?)",
                 new UserMapper(),
-                str + "%", currentUserId);
+                str + "%");
     }
 
     @Override
-    public List<User> getBySubStrAndRoleUser(String str, String currentUserId) {
-        return jdbcTemplate.query(
-                "SELECT * FROM users INNER JOIN roles ON users.role_id = roles.role_id\n" +
+    public List<User> getBySubStrAndRoleUser(String str) {
+        return jdbcTemplate.query(SELECT_QUERY +
                         "WHERE LOWER(username) LIKE LOWER(?)" +
-                        "AND roles.role_id = 1 " +
-                        "AND user_id <> UUID(?)",
+                        "AND roles.role_id = 1 ",
                 new UserMapper(),
-                str + "%", currentUserId);
+                str + "%");
     }
 
 
     @Override
     public User getByEmail(String email) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+            return jdbcTemplate.queryForObject(SELECT_QUERY +
                             "WHERE email = ?",
                     new Object[]{email},
                     new UserMapper());
@@ -104,7 +97,7 @@ public class UserDaoImpl implements UserDao {
     public User getByUsername(String username) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+            return jdbcTemplate.queryForObject(SELECT_QUERY +
                             "WHERE username=?",
                     new Object[]{username},
                     new UserMapper());
@@ -117,7 +110,7 @@ public class UserDaoImpl implements UserDao {
     public User getById(String id) {
 
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM users INNER JOIN roles ON users.role_id=roles.role_id\n" +
+            return jdbcTemplate.queryForObject(SELECT_QUERY +
                             " WHERE user_id = UUID(?)",
                     new Object[]{id},
                     new UserMapper());
@@ -128,8 +121,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        jdbcTemplate.update("INSERT INTO users (user_id, username, email, password, is_activated," +
-                        "is_verified, is_online, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        jdbcTemplate.update(SAVE_QUERY,
                 UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
                 user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
                 user.getRole().ordinal() + 1
@@ -141,13 +133,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteById(String id) {
-        jdbcTemplate.update("DELETE FROM users where user_id = UUID(?)", id);
+        jdbcTemplate.update(DELETE_QUERY + " WHERE user_id = UUID( ?)", id);
     }
 
     @Override
     public int deleteIfLinkExpired() {
         return jdbcTemplate
-                .update("DELETE FROM users WHERE is_verified = 'false' and CURRENT_TIMESTAMP - date_acc_creation >= '1 DAY'");
+                .update(DELETE_QUERY +
+                        " WHERE is_verified = 'false' and CURRENT_TIMESTAMP - date_acc_creation >= '1 DAY'");
     }
 
     @Override
@@ -164,8 +157,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void update(User user) {
-        jdbcTemplate.update("UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
-                        "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?, role_id = ?" +
+        jdbcTemplate.update(UPDATE_QUERY +
                         "WHERE user_id = UUID(?)",
                 user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
                 user.isOnline(), user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),

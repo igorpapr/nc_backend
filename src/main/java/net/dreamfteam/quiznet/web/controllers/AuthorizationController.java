@@ -13,7 +13,6 @@ import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -34,8 +33,9 @@ public class AuthorizationController {
     @Value("${activation.redirect.url}")
     private String ACTIVATION_REDIRECT_URL;
 
-    private UserService userService;
-    private ActivationService activationService;
+    final private UserService userService;
+
+    final private ActivationService activationService;
 
     @Autowired
     public AuthorizationController(UserService userService, ActivationService activationService) {
@@ -49,6 +49,10 @@ public class AuthorizationController {
         LoginRequestValidator.validate(loginRequest);
 
         User currentUser = userService.getByUsername(loginRequest.getUsername());
+
+        if (currentUser == null) {
+            throw new ValidationException("User Not found with such username" + loginRequest.getUsername());
+        }
 
         userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
 

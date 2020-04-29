@@ -7,7 +7,6 @@ import net.dreamfteam.quiznet.web.dto.DtoMail;
 import net.dreamfteam.quiznet.web.validators.RecoverDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,13 +21,13 @@ import javax.websocket.server.PathParam;
 
 @RestController
 @CrossOrigin
-@RequestMapping(Constants.SECUR_RECOVER_URLS)
+@RequestMapping(Constants.RECOVER_URLS)
 public class RecoveringController {
 
     @Value("${recover.redirect.url}")
     private String RECOVER_REDIRECT_URL;
 
-    private RecoveringService recoveringService;
+    final private RecoveringService recoveringService;
 
     @Autowired
     public RecoveringController(RecoveringService recoveringService) {
