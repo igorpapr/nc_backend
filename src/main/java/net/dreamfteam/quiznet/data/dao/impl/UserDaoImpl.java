@@ -151,6 +151,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public int userRating(String userId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT SUM(gained_rating) FROM user_activities  WHERE user_id = UUID(?)",
+                    new Object[]{userId},
+                    Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+
+    @Override
     public void update(User user) {
         jdbcTemplate.update("UPDATE users SET username = ?, email = ?, password= ?, is_activated = ?, is_verified = ?," +
                         "is_online = ?, last_time_online = ?, image = ?, about_me = ?, recovery_url = ?, recovery_sent_time = ?, role_id = ?" +
