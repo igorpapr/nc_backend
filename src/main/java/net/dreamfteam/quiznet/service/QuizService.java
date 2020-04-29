@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 
@@ -10,9 +11,11 @@ import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException;
 
-    Quiz updateQuiz(DtoQuiz quiz);
+    Quiz updateQuiz(DtoEditQuiz quiz);
+
+    Quiz getQuiz(String quizId);
 
     Quiz getQuiz(String quizId, String userId);
 

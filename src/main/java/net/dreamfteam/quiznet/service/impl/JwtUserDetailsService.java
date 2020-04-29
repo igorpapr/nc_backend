@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private UserService userService;
+    final private UserService userService;
 
     private static final String USER_NOT_FOUND = "User is not found with username : ";
 
