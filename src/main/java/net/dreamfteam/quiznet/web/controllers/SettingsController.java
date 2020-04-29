@@ -27,7 +27,7 @@ public class SettingsController {
 
     }
 
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
     public ResponseEntity<?> setSettings(@RequestBody DtoSettings dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
@@ -35,13 +35,13 @@ public class SettingsController {
     }
 
 
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping
     public ResponseEntity<?> getSettings() throws ValidationException {
         return new ResponseEntity<>(settingsService.getSettings(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping("/init")
     public ResponseEntity<?> initSettings() throws ValidationException {
         settingsService.initSettings(authenticationFacade.getUserId());
