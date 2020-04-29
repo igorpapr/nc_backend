@@ -56,8 +56,8 @@ public class AnnouncementController {
 
 
     @GetMapping("/getall")
-    public ResponseEntity<?> getAnnouncements(@RequestParam long start, @RequestParam long amount) throws ValidationException {
-        return new ResponseEntity<>(announcementService.getAllAnnouncements(start, amount), HttpStatus.OK);
+    public ResponseEntity<?> getAnnouncements(@RequestParam long start, @RequestParam long amount, @RequestParam(required = false) String userId) throws ValidationException {
+        return new ResponseEntity<>(announcementService.getAllAnnouncements(start, amount, userId), HttpStatus.OK);
     }
 
 

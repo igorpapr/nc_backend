@@ -36,7 +36,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         byte[] byteArr = {};
         try {
-            if(file != null && !file.isEmpty()) {
+            if (file != null && !file.isEmpty()) {
                 byteArr = file.getBytes();
             }
         } catch (IOException e) {
@@ -61,12 +61,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public List<Announcement> getAllAnnouncements(long start, long amount) {
-        //   if (settingsService.getSettings(authenticationFacade.getUserId()).isSeeAnnouncements()) {
-        return announcementDao.getAllAnnouncements(start, amount);
-        // }
+    public List<Announcement> getAllAnnouncements(long start, long amount, String userId) {
+        if (userId == null || settingsService.getSettings(userId).isSeeAnnouncements()) {
+            return announcementDao.getAllAnnouncements(start, amount);
+        }
 
-        //    return null;
+        return null;
     }
 
     @Override

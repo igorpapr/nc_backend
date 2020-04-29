@@ -13,7 +13,7 @@ public interface AnnouncementService {
 
     Announcement getAnnouncement(String announcementId);
 
-    List<Announcement> getAllAnnouncements(long start, long amount);
+    List<Announcement> getAllAnnouncements(long start, long amount, String userId);
 
     Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement, MultipartFile file);
 
