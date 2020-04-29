@@ -234,8 +234,20 @@ public class QuizController {
     @PostMapping("/setvalidator")
     public ResponseEntity<?> setQuizValidator(@RequestBody String quizId) throws ValidationException {
         return new ResponseEntity<>(quizService.setValidator(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
 
     }
 
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/{quizId}/questions/amount")
+    public ResponseEntity<?> getQuestionsAmountInQuiz(@PathVariable String quizId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuestionsAmountInQuiz(quizId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/{quizId}/questions/page/{page}")
+    public ResponseEntity<?> getQuestionsInPage(@PathVariable String quizId, @PathVariable int page) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuestionsInPage((page - 1) * Constants.AMOUNT_QUESTIONS_ON_PAGE, Constants.AMOUNT_QUESTIONS_ON_PAGE, quizId), HttpStatus.OK);
+    }
 
 }

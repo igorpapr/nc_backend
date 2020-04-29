@@ -48,6 +48,10 @@ public interface QuizDao {
 
     int getQuizzesTotalSize();
 
+    int getQuestionsAmountInQuiz(String quizId);
+
+    List<Question> getQuestionsInPage(int startIndex, int amount , String quizId);
+
     Quiz getUserQuizByTitle(String title, String username);
 
     void validateQuiz(DtoQuiz dtoQuiz);

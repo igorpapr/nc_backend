@@ -117,6 +117,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<Question> getQuestionsInPage(int startIndex, int amount, String quizId) {
+        return quizDao.getQuestionsInPage(startIndex, amount, quizId);
+    }
+
+    @Override
     public List<Map<String, String>> getTagList() {
         return quizDao.getTagList();
     }
@@ -187,6 +192,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public void addQuestionImage(String imageId, String questionId) {
         quizDao.addQuestionImage(imageId, questionId);
+    }
+
+    @Override
+    public int getQuestionsAmountInQuiz(String quizId) {
+        return quizDao.getQuestionsAmountInQuiz(quizId);
     }
 
     private void checkQuizUniqueness(String title, String creatorId) {

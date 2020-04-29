@@ -49,6 +49,7 @@ public class Constants {
     public static final String RECOVER_MAIL_SUBJECT = "Reset password(QuizNet)";
     public static final String RECOVER_MAIL_ARTICLE = "Changing password";
     public static final String RECOVER_MAIL_MESSAGE = "To change your password visit next link: ";
+    public static final int AMOUNT_QUESTIONS_ON_PAGE = 3;
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 

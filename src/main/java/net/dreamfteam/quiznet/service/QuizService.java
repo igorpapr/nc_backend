@@ -37,6 +37,8 @@ public interface QuizService {
 
     List<Question> getQuestionList(String quizId);
 
+    List<Question> getQuestionsInPage(int startIndex, int amount , String quizId);
+
     List<Map<String, String>> getTagList();
 
     List<List<Object>> getCategoryList();
@@ -56,6 +58,8 @@ public interface QuizService {
     void addQuizImage(String imageId, String quizId);
 
     void addQuestionImage(String imageId, String questionId);
+
+    int getQuestionsAmountInQuiz(String quizId);
 
     int getQuizzesTotalSize();
 
