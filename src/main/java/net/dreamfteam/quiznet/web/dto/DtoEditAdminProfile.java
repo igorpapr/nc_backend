@@ -13,8 +13,6 @@ public class DtoEditAdminProfile {
 
     private String id;
 
-    private String image;
-
     private String aboutMe;
 
     private String role;

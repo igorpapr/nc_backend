@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoAdminActivation;
 import net.dreamfteam.quiznet.web.dto.DtoAdminSignUp;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin
@@ -25,10 +27,13 @@ public class AdminController {
 
     final private UserService userService;
     final private IAuthenticationFacade authenticationFacade;
+    final private ImageService imageService;
 
-    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade) {
+    @Autowired
+    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
+        this.imageService = imageService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
@@ -55,11 +60,6 @@ public class AdminController {
             throw new ValidationException("You dont have such capabilities");
         }
 
-        if (field.equals("image")) {
-            otherUser.setImage(editAdminProfile.getImage());
-            userService.update(otherUser);
-        }
-
         if (field.equals("aboutMe")) {
             otherUser.setAboutMe(editAdminProfile.getAboutMe());
             userService.update(otherUser);
@@ -67,6 +67,25 @@ public class AdminController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+    @PostMapping("/edit/image")
+    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
+
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+        User otherUser = userService.getById(userId);
+
+        if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
+            throw new ValidationException("You dont have such capabilities");
+        }
+
+        otherUser.setImage(imageService.saveImage(image));
+
+        userService.update(otherUser);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping
