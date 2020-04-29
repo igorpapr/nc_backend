@@ -164,11 +164,11 @@ public class QuizController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/my")
-    public ResponseEntity<?> getUserQuizList() throws ValidationException {
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/user-list")
+    public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
 
-        return new ResponseEntity<>(quizService.getUserQuizList(authenticationFacade.getUserId()), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
