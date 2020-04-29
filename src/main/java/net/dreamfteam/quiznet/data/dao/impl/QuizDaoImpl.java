@@ -179,7 +179,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter) {
+    public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         String sql = "SELECT q.quiz_id, q.title, q.description, q.image_ref, q.ver_creation_datetime,\n" + "q.creator_id, q.activated, q.validated, q.quiz_lang, q.rating, i.image, u.username\n" + "FROM quizzes q LEFT JOIN images i ON q.image_ref = i.image_id INNER JOIN users u ON q.creator_id = u.user_id \n" + "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
 
@@ -348,7 +348,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<QuizView> getQuizzes(int startIndex, int amount) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, image_ref FROM quizzes ORDER BY rating  LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> QuizView.builder().quiz_id(rs.getString("quiz_id")).title(rs.getString("title")).image_ref(rs.getString("image_ref")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, i.image AS image_content, FROM quizzes q LEFT JOIN images i ON i.image_id = q.image_ref ORDER BY rating  LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> QuizView.builder().quiz_id(rs.getString("quiz_id")).title(rs.getString("title")).image_ref(rs.getString("image_ref")).build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
