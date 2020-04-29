@@ -243,8 +243,8 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     @Transactional
     public Quiz setValidator(String quizId, String adminId) {
-        jdbcTemplate.update("UPDATE quizzes SET validator_id = ? WHERE quiz_id = UUID(?)", adminId, quizId);
-        return getQuiz(quizId, "");
+        jdbcTemplate.update("UPDATE quizzes SET validator_id = uuid(?) WHERE quiz_id = UUID(?)", adminId, quizId);
+        return getQuiz(quizId);
     }
 
     @Override
