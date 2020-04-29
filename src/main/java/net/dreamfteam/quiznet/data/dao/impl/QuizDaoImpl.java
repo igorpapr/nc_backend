@@ -334,6 +334,8 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
+
+
     @Override
     public List<Quiz> getUserQuizList(String userId) {
         try {
@@ -367,6 +369,38 @@ public class QuizDaoImpl implements QuizDao {
             return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes", Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
+        }
+    }
+
+    @Override
+    public int getQuestionsAmountInQuiz(String quizId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM question WHERE quiz_id = uuid(?)", new Object[]{quizId}, Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public List<Question> getQuestionsInPage(int startIndex, int amount, String quizId) {
+        try {
+            List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?) LIMIT ? OFFSET ?",
+                    new Object[]{quizId,amount,startIndex},  (rs, i) -> Question.builder()
+                            .id(rs.getString("question_id"))
+                            .quizId(rs.getString("quiz_id"))
+                            .title(rs.getString("title"))
+                            .content(rs.getString("content"))
+                            .image(rs.getString("image"))
+                            .points(rs.getInt("points"))
+                            .typeId(rs.getInt("type_id"))
+                            .imageContent(rs.getBytes("imgcontent"))
+                            .build());
+            for (int i = 0; i < listQ.size(); i++) {
+                listQ.set(i, loadAnswersForQuestion(listQ.get(i), i));
+            }
+            return listQ;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
