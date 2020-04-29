@@ -13,5 +13,5 @@ public class QuizView {
 
     private String title;
 
-    private String image_ref;
+    private byte[] image_content;
 }
