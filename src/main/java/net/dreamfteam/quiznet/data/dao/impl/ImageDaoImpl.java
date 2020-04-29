@@ -28,7 +28,7 @@ public class ImageDaoImpl implements ImageDao {
     @Override
     public String saveImage(MultipartFile image) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        byte [] byteArr = {};
+        byte[] byteArr = {};
         try {
             byteArr = image.getBytes();
         } catch (IOException e) {
@@ -47,6 +47,9 @@ public class ImageDaoImpl implements ImageDao {
 
     @Override
     public byte[] loadImage(String imageId) {
+        if (imageId == null) {
+            return null;
+        }
         byte[] image = jdbcTemplate.queryForObject(
                 "SELECT image FROM images WHERE image_id = UUID(?)",
                 new Object[]{imageId}, (rs, rowNum) -> rs.getBytes(1));

@@ -83,7 +83,24 @@ public class QuizDaoImpl implements QuizDao {
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+            quiz.setTagIdList(loadTagIdList(quiz.getId()));
+            quiz.setCategoryIdList(loadCategoryIdList(quiz.getId()));
             quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[]{quiz.getCreatorId()}, String.class));
+            return quiz;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Quiz getQuiz(String quizId) {
+        try {
+            Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
+            quiz.setTagNameList(loadTagNameList(quiz.getId()));
+            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+            quiz.setTagIdList(loadTagIdList(quiz.getId()));
+            quiz.setCategoryIdList(loadCategoryIdList(quiz.getId()));
+            quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[] { quiz.getCreatorId() }, String.class));
             return quiz;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -144,40 +161,6 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
-    
-    public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
-        try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) INNER JOIN images i ON q.image_ref = i.image_id WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public int getInvalidQuizzesTotalSize() {
-        try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes WHERE validated = false", Integer.class);
-        } catch (EmptyResultDataAccessException | NullPointerException e) {
-            return 0;
-        }
-    }
-
-    @Override
-    public int getValidQuizzesTotalSize(String adminId) {
-        try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes WHERE validated = true AND validator_id = UUID(?)", new Object[]{adminId}, Integer.class);
-        } catch (EmptyResultDataAccessException | NullPointerException e) {
-            return 0;
-        }
-    }
-
-    @Override
-    @Transactional
-    public Quiz setValidator(String quizId, String adminId) {
-        jdbcTemplate.update("UPDATE quizzes SET validator_id = ? WHERE quiz_id = UUID(?)", adminId, quizId);
-        return getQuiz(quizId, "");
-    }
-
     @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         String sql = "SELECT q.quiz_id, q.title, q.description, q.image_ref, q.ver_creation_datetime,\n" + "q.creator_id, q.activated, q.validated, q.quiz_lang, q.rating, i.image, u.username\n" + "FROM quizzes q LEFT JOIN images i ON q.image_ref = i.image_id INNER JOIN users u ON q.creator_id = u.user_id \n" + "WHERE activated = true AND validated = true AND ";
@@ -228,6 +211,40 @@ public class QuizDaoImpl implements QuizDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+
+    public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
+        try {
+            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int getInvalidQuizzesTotalSize() {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes WHERE validated = false", Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public int getValidQuizzesTotalSize(String adminId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size FROM quizzes WHERE validated = true AND validator_id = UUID(?)", new Object[]{adminId}, Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Quiz setValidator(String quizId, String adminId) {
+        jdbcTemplate.update("UPDATE quizzes SET validator_id = ? WHERE quiz_id = UUID(?)", adminId, quizId);
+        return getQuiz(quizId, "");
     }
 
     @Override
@@ -357,7 +374,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) INNER JOIN images i ON q.image_ref = i.image_id WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) LIMIT ? OFFSET ?;", new Object[]{amount, startIndex, adminId}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -438,6 +455,24 @@ public class QuizDaoImpl implements QuizDao {
 
     private List<String> loadCategoryNameList(String quizId) {
         return jdbcTemplate.query("SELECT c.title FROM categories c " + "INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id WHERE quiz_id = UUID(?)", new Object[]{quizId}, new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getString(1);
+            }
+        });
+    }
+
+    private List<String> loadTagIdList(String quizId) {
+        return jdbcTemplate.query("SELECT tag_id FROM quizzes_tags WHERE quiz_id = UUID(?)", new Object[]{quizId}, new RowMapper<String>() {
+            @Override
+            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getString(1);
+            }
+        });
+    }
+
+    private List<String> loadCategoryIdList(String quizId) {
+        return jdbcTemplate.query("SELECT category_id FROM categs_quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return rs.getString(1);

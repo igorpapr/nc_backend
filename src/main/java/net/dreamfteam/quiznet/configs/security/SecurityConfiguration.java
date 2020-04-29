@@ -9,6 +9,7 @@ import net.dreamfteam.quiznet.service.impl.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsUtils;
 
 /**
  * Main security configuration
@@ -37,10 +39,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 )
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
-    private JwtUserDetailsService jwtUserDetailsService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private JwtTokenProvider jwtTokenProvider;
+    final private JwtAuthenticationEntryPoint unauthorizedHandler;
+    final private JwtUserDetailsService jwtUserDetailsService;
+    final private BCryptPasswordEncoder bCryptPasswordEncoder;
+    final private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     public SecurityConfiguration(JwtAuthenticationEntryPoint unauthorizedHandler, JwtUserDetailsService jwtUserDetailsService,
@@ -70,12 +72,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECUR_LOG_IN_URLS,
                         Constants.SECUR_ACTIVATION_URLS,
                         Constants.SECUR_RECOVER_URLS,
-                        Constants.SECUR_QUIZ_QUESTION_LIST_URLS,
                         Constants.SECUR_QUIZ_TOTAL_SIZE_URLS,
                         Constants.SECUR_QUIZ_LIST_URLS,
-                        Constants.SECUR_QUIZ_URLS,
                         Constants.SECUR_QUIZ_CATEG_LIST_URLS,
-                        Constants.SECUR_QUIZ_TAG_LIST_URLS,
+                        Constants.SECUR_QUIZ_TAGS_URLS,
                         //for Swagger
                         "/v2/api-docs",
                         "/configuration/ui",
@@ -84,7 +84,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/swagger-ui.html",
                         "/webjars/**"
 
-                );
+                )
+                .antMatchers(HttpMethod.GET, Constants.SECUR_QUIZ_URLS,Constants.SECUR_QUIZ_QUESTION_LIST_URLS);
     }
 
     @Override
@@ -97,7 +98,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // without session
                 .and()
-                .authorizeRequests()
+                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .anyRequest().authenticated()//other URLS only authenticated( with token)
                 .and()
                 .anonymous()
@@ -105,6 +106,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
+
+        //http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
 
 
     }

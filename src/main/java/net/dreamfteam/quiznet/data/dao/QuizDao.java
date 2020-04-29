@@ -14,6 +14,8 @@ public interface QuizDao {
 
     Quiz getQuiz(String quizId, String userId);
 
+    Quiz getQuiz(String quizId);
+
     void markAsFavourite(DtoQuiz dtoQuiz);
 
     void markAsPublished(DtoQuiz dtoQuiz);
