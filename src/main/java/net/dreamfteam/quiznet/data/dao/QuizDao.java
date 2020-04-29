@@ -58,6 +58,10 @@ public interface QuizDao {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
+    List<Map<String, String>> searchTag(String term, int amount);
+
+    List<Map<String, String>> searchCategory(String term, int amount);
+
     void addQuizImage(String imageId, String quizId);
 
     void addQuestionImage(String imageId, String questionId);
@@ -69,4 +73,8 @@ public interface QuizDao {
     int getValidQuizzesTotalSize(String adminId);
 
     Quiz setValidator(String quizId, String adminId);
+
+    List<QuizRating> getUserQuizzesRating(String userId, int startIndex, int amount);
+
 }
+

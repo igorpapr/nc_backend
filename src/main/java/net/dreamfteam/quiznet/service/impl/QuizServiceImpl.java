@@ -185,6 +185,16 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<Map<String, String>> searchTag(String term, int amount) {
+        return quizDao.searchTag(term, amount);
+    }
+
+    @Override
+    public List<Map<String, String>> searchCategory(String term, int amount) {
+        return quizDao.searchCategory(term, amount);
+    }
+
+    @Override
     public void addQuizImage(String imageId, String quizId) {
         quizDao.addQuizImage(imageId, quizId);
     }

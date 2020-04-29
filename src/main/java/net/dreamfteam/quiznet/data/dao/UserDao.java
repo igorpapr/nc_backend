@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao;
 
+import net.dreamfteam.quiznet.data.entities.GameHistory;
 import net.dreamfteam.quiznet.data.entities.User;
 
 import java.util.List;
@@ -46,5 +47,5 @@ public interface UserDao {
 
     int userRating(String userId);
 
-
+    List <GameHistory> getUserGameHistory(String userId);
 }

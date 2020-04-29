@@ -55,6 +55,10 @@ public interface QuizService {
 
     List<QuizFiltered> shortListOfQuizzes();
 
+    List<Map<String, String>> searchTag(String term, int amount);
+
+    List<Map<String, String>> searchCategory(String term, int amount);
+
     void addQuizImage(String imageId, String quizId);
 
     void addQuestionImage(String imageId, String questionId);

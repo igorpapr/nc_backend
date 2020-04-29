@@ -17,15 +17,7 @@ import net.dreamfteam.quiznet.web.validators.QuizValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import static java.util.Objects.isNull;
@@ -246,6 +238,16 @@ public class QuizController {
     @GetMapping("/{quizId}/questions/page/{page}")
     public ResponseEntity<?> getQuestionsInPage(@PathVariable String quizId, @PathVariable int page) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuestionsInPage((page - 1) * Constants.AMOUNT_QUESTIONS_ON_PAGE, Constants.AMOUNT_QUESTIONS_ON_PAGE, quizId), HttpStatus.OK);
+    }
+
+    @GetMapping("/search/categories")
+    public ResponseEntity<?> searchCategory(@RequestParam String term, @RequestParam int amount) throws ValidationException {
+        return new ResponseEntity<>(quizService.searchCategory(term, amount), HttpStatus.OK);
+    }
+
+    @GetMapping("/search/tags")
+    public ResponseEntity<?> searchTag(@RequestParam String term, @RequestParam int amount) throws ValidationException {
+        return new ResponseEntity<>(quizService.searchTag(term, amount), HttpStatus.OK);
     }
 
 }

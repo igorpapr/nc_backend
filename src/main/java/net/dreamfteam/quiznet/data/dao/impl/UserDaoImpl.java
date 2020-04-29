@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.data.dao.UserDao;
+import net.dreamfteam.quiznet.data.entities.GameHistory;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.rowmappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,8 +150,29 @@ public class UserDaoImpl implements UserDao {
             return jdbcTemplate.queryForObject("SELECT SUM(gained_rating) FROM user_activities  WHERE user_id = UUID(?)",
                     new Object[]{userId},
                     Integer.class);
-        } catch (EmptyResultDataAccessException | NullPointerException e) {
+        } catch (NullPointerException e) {
             return 0;
+        }
+    }
+
+    @Override
+    public List<GameHistory> getUserGameHistory(String userId) {
+        try {
+        return jdbcTemplate.query("SELECT game_session_id, q.quiz_id, g.game_id, score, is_winner, datetime_start, round_duration, q.title quiz_title, i.image image_content FROM ((users_games ug INNER JOIN games g ON ug.game_id = g.game_id) INNER JOIN quizzes q ON q.quiz_id = g.quiz_id) LEFT JOIN images i ON i. WHERE user_id = uuid(?)", new Object[]{userId},
+                (rs, i) -> GameHistory.builder()
+                        .gameSessionId(rs.getString("game_session_id"))
+                        .quizId(rs.getString("quiz_id"))
+                        .gameId(rs.getString("game_id"))
+                        .score(rs.getInt("score"))
+                        .winner(rs.getBoolean("is_winner"))
+                        .datetimeStart(rs.getDate("datetime_start"))
+                        .roundDuration(rs.getInt("round_duration"))
+                        .quizTitle(rs.getString("quiz_title"))
+                        .quizImage(rs.getBytes("image_content"))
+                        .build()
+        );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 
