@@ -30,7 +30,6 @@ public class AnnouncementController {
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement , @RequestPart(value = "pic", required = false) MultipartFile  profilePic) throws ValidationException {
-        System.out.println(profilePic.toString());
         AnnouncementValidator.validate(dtoAnnouncement);
         return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement, profilePic ), HttpStatus.OK);
     }
