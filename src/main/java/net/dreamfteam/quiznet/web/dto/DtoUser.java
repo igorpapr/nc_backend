@@ -39,6 +39,8 @@ public class DtoUser {
 
     private boolean verified;
 
+    private byte[] imageContent;
+
     private Role role;
 
     public static List<DtoUser> fromUser(List<User> users) {

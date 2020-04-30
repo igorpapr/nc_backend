@@ -43,4 +43,8 @@ public interface UserDao {
     List<User> getBySubStrAndRoleUser(String str);
 
     int deleteIfLinkExpired();
+
+    int userRating(String userId);
+
+
 }

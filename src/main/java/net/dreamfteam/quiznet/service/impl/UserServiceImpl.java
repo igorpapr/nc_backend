@@ -25,9 +25,9 @@ public class UserServiceImpl implements UserService {
     @Value("${reg.url.activate}")
     private String REG_URL_ACTIVATE;
 
-    private MailService mailService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private UserDao userDao;
+    final private MailService mailService;
+    final private BCryptPasswordEncoder bCryptPasswordEncoder;
+    final private UserDao userDao;
 
     @Autowired
     public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao) {

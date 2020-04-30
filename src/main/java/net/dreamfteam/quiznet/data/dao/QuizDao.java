@@ -14,6 +14,8 @@ public interface QuizDao {
 
     Quiz getQuiz(String quizId, String userId);
 
+    Quiz getQuiz(String quizId);
+
     void markAsFavourite(DtoQuiz dtoQuiz);
 
     void markAsPublished(DtoQuiz dtoQuiz);
@@ -45,6 +47,10 @@ public interface QuizDao {
     List<QuizValid> getInvalidQuizzes(int startIndex, int amount , String adminId);
 
     int getQuizzesTotalSize();
+
+    int getQuestionsAmountInQuiz(String quizId);
+
+    List<Question> getQuestionsInPage(int startIndex, int amount , String quizId);
 
     Quiz getUserQuizByTitle(String title, String username);
 
