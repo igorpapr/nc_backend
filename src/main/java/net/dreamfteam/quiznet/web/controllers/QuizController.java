@@ -159,7 +159,7 @@ public class QuizController {
         if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId()))) {
             return ResponseEntity.notFound().build();
         }
-        dtoQuiz.setUserId(authenticationFacade.getUserId());
+        dtoQuiz.setValidator_id(authenticationFacade.getUserId());
         quizService.validateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
