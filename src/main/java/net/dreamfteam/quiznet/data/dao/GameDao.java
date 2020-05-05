@@ -8,13 +8,15 @@ public interface GameDao {
 
     Game getGameByAccessId(String accessId);
 
+    Game getGame(String id);
+
     void startGame(String gameId);
 
     Game updateGame(Game game);
 
     void removeGame(String id);
 
-    Game getGame(String id);
+
 
 
 }

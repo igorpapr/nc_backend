@@ -76,7 +76,8 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public Game getGame(String id) {
-        return null;
+        return jdbcTemplate.queryForObject("SELECT * FROM games WHERE game_id = UUID(?)",
+                new Object[]{id}, new GameMapper());
     }
 
     @Override

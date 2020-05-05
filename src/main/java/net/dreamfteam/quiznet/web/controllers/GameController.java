@@ -30,18 +30,17 @@ public class GameController {
     }
 
     @GetMapping("/{accessId}")
-    public ResponseEntity<?> getValidQuizList(@PathVariable String accessId) {
+    public ResponseEntity<?> getGameByAccessId(@PathVariable String accessId) {
         return new ResponseEntity<>(gameService.getGameByAccessId(accessId), HttpStatus.OK);
     }
 
-//    @PostMapping("start")
-//    public ResponseEntity<?> startGame(@RequestParam String gameId) {
-//        gameService.startGame(gameId);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    @GetMapping("/game/{gameId}")
+    public ResponseEntity<?> getGameById(@PathVariable String gameId) {
+        return new ResponseEntity<>(gameService.getGameById(gameId), HttpStatus.OK);
+    }
 
     @PostMapping("/start")
-    public ResponseEntity<?> getUserQuizList(@RequestParam String gameId){
+    public ResponseEntity<?> startGame(@RequestParam String gameId){
         gameService.startGame(gameId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

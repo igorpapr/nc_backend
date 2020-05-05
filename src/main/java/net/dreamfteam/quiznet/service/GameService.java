@@ -8,6 +8,8 @@ public interface GameService{
 
     Game getGameByAccessId(String accessId);
 
+    Game getGameById(String gameId);
+
     void startGame(String gameId);
 
 }

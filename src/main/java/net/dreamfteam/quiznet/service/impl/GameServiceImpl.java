@@ -43,6 +43,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
+    public Game getGameById(String gameId) {
+        return gameDao.getGame(gameId);
+    }
+
+    @Override
     public void startGame(String gameId) {
         gameDao.startGame(gameId);
     }
