@@ -116,7 +116,7 @@ public class GameDaoImpl implements GameDao {
 
     public Question getQuestion(String gameId) {
         try {
-            Question question = jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image, g.game_id as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id inner join games g on q.quiz_id = g.quiz_id WHERE g.game_id = (select game_id from users_games where game_session_id =uuid(?) limit 1) offset (select count(*) from answers where users_game_id=uuid(?)) limit 1;",
+            Question question = jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id where quiz_id = ( select games.quiz_id from  games where game_id = (select game_id from users_games where game_session_id =uuid(?))) offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;",
                     new Object[]{gameId, gameId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
@@ -134,13 +134,96 @@ public class GameDaoImpl implements GameDao {
     }
 
     @Override
-    public void saveAnswer(Answer answer) {
+    public Answer saveAnswer(Answer answer) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "insert into answers (time_of_answer, users_game_id ) values (?, uuid(?)) returning answer_id;", Statement.RETURN_GENERATED_KEYS);
+            ps.setTimestamp(1, new Timestamp(answer.getTimeOfAnswer().getTime()));
+            ps.setString(2, answer.getSessionId());
+            return ps;
+        }, keyHolder);
 
-        return;
+        answer.setAnswerId(Objects.requireNonNull(keyHolder.getKeys()).get("answer_id").toString());
+
+        switch (answer.getTypeId()) {
+            case 2:
+            case 3:
+                saveAnswerAndScoreSecondThird(answer);
+                break;
+            case 1:
+                saveFirstTypeAnswer(answer);
+                break;
+            case 4:
+                saveFourthAnswer(answer);
+        }
+
+        return answer;
     }
 
     // might be used later for randomized questions
     private Integer getAnsweredQuestionsAmount() {
-        return jdbcTemplate.queryForObject("select count(*) from questions left join games on games.quiz_id = questions.quiz_id where game_id = UUID('d6433167-46e7-4ab9-a8fd-e7d748a183c7') and question_id not in (select question_id from answers);", Integer.class);
+        return jdbcTemplate.queryForObject("select count(*) from questions left join games on games.quiz_id = questions.quiz_id where game_id = UUID(?) and question_id not in (select question_id from answers);", Integer.class);
     }
+
+    private void saveFourthAnswer(Answer answer) {
+        int idx = 1;
+        for (String s :
+                answer.getAnswer()) {
+            jdbcTemplate.update(
+                    "insert into ans_seq_options (answer_id,  seq_pos, option_id) values (uuid(?), ?, " +
+                            "(select seq_options.seq_option_id from seq_options where question_id = uuid(?) and content = ?));",
+                    answer.getAnswerId(), idx++, answer.getQuestionId(), s);
+
+        }
+
+        jdbcTemplate.update("update answers set gained_points = ( select points *(select count(*) from seq_options s" +
+                " join ans_seq_options an on s.seq_option_id = an.option_id where an.seq_pos = s.seq_pos and answer_id = uuid(?) )/ ? from questions where question_id = uuid(?))  where answer_id =uuid(?)", answer.getAnswerId(), answer.getAnswer().size(), answer.getQuestionId(), answer.getAnswerId());
+
+    }
+
+    private void saveAnswerAndScoreSecondThird(Answer answer) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "insert into ans_one_options (answer_id, value , is_correct) values (uuid(?), ?, (select one_val_options.value = ? from one_val_options where one_val_options.question_id = uuid(?) ));", Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, answer.getAnswerId());
+            ps.setString(2, answer.getAnswer().get(0));
+            ps.setString(3, answer.getAnswer().get(0));
+            ps.setString(4, answer.getQuestionId());
+            return ps;
+        }, keyHolder);
+
+        System.out.println(keyHolder.getKeyList());
+        if (Objects.requireNonNull(keyHolder.getKeys()).get("is_correct").toString().equals("true")) {
+            jdbcTemplate.update(
+                    "update answers SET gained_points = (select points from questions where question_id = uuid(?)) where answer_id = uuid(?)",
+                    answer.getQuestionId(), answer.getAnswerId());
+        }
+
+    }
+
+    private void saveFirstTypeAnswer(Answer answer) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "insert into ans_options (answer_id, option_id) values (uuid(?), (select option_id from options where options.content = ? and  options.question_id = uuid(?)));", Statement.RETURN_GENERATED_KEYS);
+
+            ps.setString(1, answer.getAnswerId());
+            ps.setString(2, answer.getAnswer().get(0));
+            ps.setString(3, answer.getQuestionId());
+            ps.setString(3, answer.getQuestionId());
+            return ps;
+        }, keyHolder);
+
+        String optionid = Objects.requireNonNull(keyHolder.getKeys()).get("option_id").toString();
+
+        jdbcTemplate.update("update answers SET gained_points =" +
+                        "    CASE WHEN (select is_correct  from options  where option_id = uuid(?))" +
+                        "THEN (select points from questions where question_id = (select question_id from options  where option_id = uuid(?))) else (0) end where answer_id = uuid(?)",
+                optionid, optionid, answer.getAnswerId());
+
+    }
+
+
 }

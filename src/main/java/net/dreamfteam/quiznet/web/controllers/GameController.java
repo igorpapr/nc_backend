@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.GAME_URLS)
@@ -70,10 +72,10 @@ public class GameController {
     }
 
     @PostMapping("/questions/answer")
-    public ResponseEntity<?> saveAnswers(@RequestParam DtoAnswer dtoAnswer) {
+    public ResponseEntity<?> saveAnswers(@RequestBody DtoAnswer dtoAnswer) {
         AnswerValidator.validate(dtoAnswer);
-        gameService.saveAnswer(dtoAnswer);
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        return new ResponseEntity<>( gameService.saveAnswer(dtoAnswer),HttpStatus.OK);
     }
 
 

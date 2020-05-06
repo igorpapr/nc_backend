@@ -19,5 +19,5 @@ public interface GameService{
 
     Question getQuestion(String gameId);
 
-    void saveAnswer(DtoAnswer dtoAnswer);
+    Answer saveAnswer(DtoAnswer dtoAnswer);
 }

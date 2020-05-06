@@ -5,8 +5,8 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Answer;
 import net.dreamfteam.quiznet.data.entities.Game;
-import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.GameSession;
+import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.web.dto.DtoAnswer;
@@ -42,7 +42,7 @@ public class GameServiceImpl implements GameService {
                 .quizId(dtoGame.getQuizId())
                 .build();
 
-        game =  gameDao.createGame(game);
+        game = gameDao.createGame(game);
 
         // CREATING SESSION OF CREATOR
         GameSession gameSession = GameSession.builder()
@@ -75,7 +75,7 @@ public class GameServiceImpl implements GameService {
                 .build();
 
         gameDao.updateGame(game);
-        gameSessionDao.updateDurationTime(gameDao.calculateDuration(game),game.getId());
+        gameSessionDao.updateDurationTime(gameDao.calculateDuration(game), game.getId());
     }
 
     @Override
@@ -93,23 +93,27 @@ public class GameServiceImpl implements GameService {
         gameDao.startGame(gameId);
     }
 
-    private void checkQuizExistance(String quizId){
-        if(quizDao.getQuiz(quizId) == null){
-            throw new ValidationException("Quiz with id: "+quizId+" not exists");
+    private void checkQuizExistance(String quizId) {
+        if (quizDao.getQuiz(quizId) == null) {
+            throw new ValidationException("Quiz with id: " + quizId + " not exists");
         }
     }
 
-    public Question getQuestion(String gameId){
+    public Question getQuestion(String gameId) {
+        Question question = gameDao.getQuestion(gameId);
+        if (question == null) {
+            throw new NullPointerException("No questions for " + gameId);
+        }
         return quizDao.loadAnswersForQuestion(gameDao.getQuestion(gameId), 0);
     }
 
     @Override
-    public void saveAnswer(DtoAnswer dto) {
+    public Answer saveAnswer(DtoAnswer dto) {
 
-        Answer answer = Answer.builder().answer(dto.getAnswer())
-                .timeOfAnswer(dto.getTimeOfAnswer()).gameId(dto.getSessionId()).questionId(dto.getQuestionId()).build();
+        Answer answer = Answer.builder().answer(dto.getAnswer()).typeId(dto.getTypeId())
+                .timeOfAnswer(dto.getTimeOfAnswer()).sessionId(dto.getSessionId()).questionId(dto.getQuestionId()).build();
 
-        gameDao.saveAnswer(answer);
+       return gameDao.saveAnswer(answer);
     }
 
 

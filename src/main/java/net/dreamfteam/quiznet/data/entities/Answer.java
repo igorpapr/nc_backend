@@ -12,8 +12,10 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode
 public class Answer {
-    String gameId;
-    String questionId;
-    Date timeOfAnswer;
-    List<String> answer;
+    private String answerId;
+    private String sessionId;
+    private String questionId;
+    private int typeId;
+    private Date timeOfAnswer;
+    private List<String> answer;
 }

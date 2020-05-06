@@ -20,7 +20,7 @@ public interface GameDao {
 
     Question getQuestion(String gameId);
 
-    void saveAnswer(Answer answer);
+    Answer saveAnswer(Answer answer);
     int getGameDuration(String gameId);
 
     int calculateDuration(Game game);

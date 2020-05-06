@@ -8,10 +8,15 @@ public class AnswerValidator {
     private static final String EMPTY_PROPERTY_EXCEPTION_MESSAGE = "Field '%s' must be provided";
 
     public static void validate(DtoAnswer dtoAnswer) {
+        System.out.println(dtoAnswer.toString());
         isNotEmpty(dtoAnswer.getSessionId(), "game session id");
-        isNotEmpty(dtoAnswer.getAnswer(), "answer");
+        if (dtoAnswer.getAnswer().size() == 0) {
+            throw new ValidationException("Field answer's size must be greater than zero ");
+
+        }
         isNotEmpty(dtoAnswer.getTimeOfAnswer(), "time of answer");
         isNotEmpty(dtoAnswer.getTypeId(), "type of question");
+
     }
 
     private static void isNotEmpty(Object value, String propertyName) {
