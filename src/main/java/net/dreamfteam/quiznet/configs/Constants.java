@@ -14,12 +14,17 @@ public class Constants {
     public static final String TEST_URLS = "/api/test/**";
     public static final String RECOVER_URLS = "/api/recovery";
     public static final String ADMIN_URLS = "/api/admins";
+    public static final String ANNOUNCEMENT_URLS = "/api/announcement";
+    public static final String SETTING_URLS = "/api/settings";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
     public static final String SECUR_ACTIVATION_URLS = "/api/activation";
     public static final String SECUR_LOG_IN_URLS = "/api/log-in";
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
+    public static final String SECURE_ANNOUNCEMENT_LIST_URLS = "/api/announcement/getall";
+    public static final String SECURE_ANNOUNCEMENT_URLS = "/api/announcement/get/**";
+    public static final String SECURE_ANNOUNCEMENT_SIZE = "/api/announcement/getamount";
     public static final String SECUR_QUIZ_QUESTION_LIST_URLS = "/api/quizzes/questions**";
     public static final String SECUR_QUIZ_TOTAL_SIZE_URLS = "/api/quizzes/totalsize";
     public static final String SECUR_QUIZ_TAGS_URLS = "/api/quizzes/tags";
