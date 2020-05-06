@@ -12,11 +12,12 @@ public interface GameDao {
 
     void startGame(String gameId);
 
-    Game updateGame(Game game);
+    void updateGame(Game game);
 
     void removeGame(String id);
 
+    int getGameDuration(String gameId);
 
-
+    int calculateDuration(Game game);
 
 }
