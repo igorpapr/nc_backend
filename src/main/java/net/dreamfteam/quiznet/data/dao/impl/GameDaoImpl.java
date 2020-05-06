@@ -4,9 +4,7 @@ import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Answer;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
-import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
-import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,14 +14,16 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.*;
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Repository
 public class GameDaoImpl implements GameDao {
 
     private final JdbcTemplate jdbcTemplate;
+
     private final Hashids hashids;
 
     @Autowired
@@ -44,7 +44,7 @@ public class GameDaoImpl implements GameDao {
                     " VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(2, game.getMaxUsersCount());
-            ps.setInt(3,game.getNumberOfQuestions());
+            ps.setInt(3, game.getNumberOfQuestions());
             ps.setInt(4, game.getRoundDuration());
             ps.setBoolean(5, game.isAdditionalPoints());
             ps.setInt(6, game.getBreakTime());
@@ -57,19 +57,24 @@ public class GameDaoImpl implements GameDao {
 
 
         jdbcTemplate.update("UPDATE games SET access_code = ? WHERE game_id = ?",
-                accessId,java.util.UUID.fromString(id));
+                accessId, java.util.UUID.fromString(id));
 
         game.setAccessId(accessId);
         game.setId(id);
         game.setStartDatetime((java.util.Date) Objects.requireNonNull(keyHolder.getKeys()).get("datetime_start"));
 
-
         return game;
     }
 
     @Override
-    public Game updateGame(Game game) {
-        return null;
+    public void updateGame(Game game) {
+        jdbcTemplate.update("UPDATE games SET " +
+                        "datetime_start = ?, max_num_of_users = ?, number_of_questions = ?," +
+                        "round_duration = ?, time_additional_points = ?, break_time = ?," +
+                        " quiz_id = UUID(?) " +
+                        "WHERE game_id = UUID(?)", game.getStartDatetime(), game.getMaxUsersCount(),
+                game.getNumberOfQuestions(), game.getRoundDuration(), game.isAdditionalPoints(),
+                game.getBreakTime(), game.getQuizId(), game.getId());
     }
 
     @Override
@@ -94,15 +99,25 @@ public class GameDaoImpl implements GameDao {
         jdbcTemplate.update("UPDATE games SET access_code = '' WHERE game_id = UUID(?)", gameId);
     }
 
+    @Override
+    public int getGameDuration(String gameId) {
+        return calculateDuration(getGame(gameId));
+    }
 
-    private String generateAccessId(String gameId){
-        return hashids.encodeHex(gameId.substring(0,gameId.indexOf("-")));
+    @Override
+    public int calculateDuration(Game game) {
+        return game.getNumberOfQuestions() * (game.getRoundDuration() + game.getBreakTime());
+    }
+
+
+    private String generateAccessId(String gameId) {
+        return hashids.encodeHex(gameId.substring(0, gameId.indexOf("-")));
     }
 
     public Question getQuestion(String gameId) {
         try {
             Question question = jdbcTemplate.queryForObject("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id left join games g on q.quiz_id = g.quiz_id WHERE g.game_id = UUID(?) and question_id not in (select question_id from answers) LIMIT 1",
-                    new Object[]{gameId},  (rs, i) -> Question.builder()
+                    new Object[]{gameId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
                             .title(rs.getString("title"))
@@ -121,10 +136,10 @@ public class GameDaoImpl implements GameDao {
     @Override
     public void saveAnswer(Answer answer) {
 
-        return ;
+        return;
     }
 
-    private Integer getAnsweredQuestionsAmount(){
+    private Integer getAnsweredQuestionsAmount() {
         return jdbcTemplate.queryForObject("select count(*) from questions left join games on games.quiz_id = questions.quiz_id where game_id = UUID('d6433167-46e7-4ab9-a8fd-e7d748a183c7') and question_id not in (select question_id from answers);", Integer.class);
     }
 }

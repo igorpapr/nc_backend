@@ -17,6 +17,17 @@ public class GameValidator {
         isNotEmpty(game.getQuizId(), "quiz id");
     }
 
+    public static void validateUpdate(DtoGame game) {
+        isNotEmpty(game.getStartDatetime(), "start datetime");
+        isNotEmpty(game.getId(), "game id");
+        isNotEmpty(game.getBreakTime(), "break time");
+        isNotEmpty(game.getMaxUsersCount(), "maximum users number");
+        isNotEmpty(game.getNumberOfQuestions(), "maximum question number");
+        isNotEmpty(game.getRoundDuration(), "round duration");
+        isNotEmpty(game.isAdditionalPoints(), "additional points");
+        isNotEmpty(game.getQuizId(), "quiz id");
+    }
+
 
     private static void isNotEmpty(Object value, String propertyName) {
         if (value == null || StringUtils.isEmpty(value)) {

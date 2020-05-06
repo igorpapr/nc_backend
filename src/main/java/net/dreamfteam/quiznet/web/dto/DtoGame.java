@@ -29,4 +29,6 @@ public class DtoGame {
 
     private String quizId;
 
+    private Date startDatetime;
+
 }
