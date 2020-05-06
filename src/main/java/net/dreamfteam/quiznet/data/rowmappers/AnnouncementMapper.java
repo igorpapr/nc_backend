@@ -14,7 +14,7 @@ public class AnnouncementMapper implements RowMapper<Announcement> {
 
         Announcement announcement = Announcement.builder()
                 .announcementId(resultSet.getString("announcement_id"))
-                .creatorId(resultSet.getString("creator_id"))
+                .creatorId(resultSet.getString("username"))
                 .title(resultSet.getString("title"))
                 .textContent(resultSet.getString("text_content"))
                 .image(resultSet.getBytes("image"))
