@@ -65,12 +65,12 @@ public class GameController {
     }
 
     @GetMapping("/questions/get")
-    public ResponseEntity<?> getQuestions(@PathVariable String gameId) {
-        return new ResponseEntity<>(gameService.getQuestion(gameId), HttpStatus.OK);
+    public ResponseEntity<?> getQuestions(@RequestParam String sessionId) {
+        return new ResponseEntity<>(gameService.getQuestion(sessionId), HttpStatus.OK);
     }
 
     @PostMapping("/questions/answer")
-    public ResponseEntity<?> saveAnswers(@PathVariable DtoAnswer dtoAnswer) {
+    public ResponseEntity<?> saveAnswers(@RequestParam DtoAnswer dtoAnswer) {
         AnswerValidator.validate(dtoAnswer);
         gameService.saveAnswer(dtoAnswer);
         return new ResponseEntity<>(HttpStatus.OK);

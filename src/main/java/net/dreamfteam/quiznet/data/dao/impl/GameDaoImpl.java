@@ -116,8 +116,8 @@ public class GameDaoImpl implements GameDao {
 
     public Question getQuestion(String gameId) {
         try {
-            Question question = jdbcTemplate.queryForObject("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id left join games g on q.quiz_id = g.quiz_id WHERE g.game_id = UUID(?) and question_id not in (select question_id from answers) LIMIT 1",
-                    new Object[]{gameId}, (rs, i) -> Question.builder()
+            Question question = jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image, g.game_id as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id inner join games g on q.quiz_id = g.quiz_id WHERE g.game_id = (select game_id from users_games where game_session_id =uuid(?) limit 1) offset (select count(*) from answers where users_game_id=uuid(?)) limit 1;",
+                    new Object[]{gameId, gameId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
                             .title(rs.getString("title"))
@@ -139,6 +139,7 @@ public class GameDaoImpl implements GameDao {
         return;
     }
 
+    // might be used later for randomized questions
     private Integer getAnsweredQuestionsAmount() {
         return jdbcTemplate.queryForObject("select count(*) from questions left join games on games.quiz_id = questions.quiz_id where game_id = UUID('d6433167-46e7-4ab9-a8fd-e7d748a183c7') and question_id not in (select question_id from answers);", Integer.class);
     }

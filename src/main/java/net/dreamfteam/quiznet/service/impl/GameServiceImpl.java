@@ -105,6 +105,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void saveAnswer(DtoAnswer dto) {
+
         Answer answer = Answer.builder().answer(dto.getAnswer())
                 .timeOfAnswer(dto.getTimeOfAnswer()).gameId(dto.getSessionId()).questionId(dto.getQuestionId()).build();
 
