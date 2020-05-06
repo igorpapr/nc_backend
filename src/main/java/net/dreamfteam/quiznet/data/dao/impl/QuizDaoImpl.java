@@ -426,7 +426,7 @@ public class QuizDaoImpl implements QuizDao {
 
 
 
-    private Question loadAnswersForQuestion(Question question, int i) {
+     public Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):
                 question.setRightOptions(jdbcTemplate.queryForList("SELECT content FROM options WHERE question_id = UUID(?) AND is_correct = true", new Object[]{question.getId()}, String.class));

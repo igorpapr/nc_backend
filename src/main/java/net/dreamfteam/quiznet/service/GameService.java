@@ -1,6 +1,9 @@
 package net.dreamfteam.quiznet.service;
 
+import net.dreamfteam.quiznet.data.entities.Answer;
 import net.dreamfteam.quiznet.data.entities.Game;
+import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 
 public interface GameService{
@@ -12,4 +15,7 @@ public interface GameService{
 
     void startGame(String gameId);
 
+    Question getQuestion(String gameId);
+
+    void saveAnswer(DtoAnswer dtoAnswer);
 }

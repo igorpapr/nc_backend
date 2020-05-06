@@ -3,7 +3,9 @@ package net.dreamfteam.quiznet.web.controllers;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
+import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
+import net.dreamfteam.quiznet.web.validators.AnswerValidator;
 import net.dreamfteam.quiznet.web.validators.GameValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,9 +42,22 @@ public class GameController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<?> startGame(@RequestParam String gameId){
+    public ResponseEntity<?> startGame(@RequestParam String gameId) {
         gameService.startGame(gameId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @GetMapping("/questions/get")
+    public ResponseEntity<?> getQuestions(@PathVariable String gameId) {
+        return new ResponseEntity<>(gameService.getQuestion(gameId), HttpStatus.OK);
+    }
+
+    @PostMapping("/questions/answer")
+    public ResponseEntity<?> saveAnswers(@PathVariable DtoAnswer dtoAnswer) {
+        AnswerValidator.validate(dtoAnswer);
+        gameService.saveAnswer(dtoAnswer);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 }

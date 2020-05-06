@@ -2,9 +2,12 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
+import net.dreamfteam.quiznet.data.entities.Answer;
 import net.dreamfteam.quiznet.data.entities.Game;
+import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
+import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,4 +60,17 @@ public class GameServiceImpl implements GameService {
             throw new ValidationException("Quiz with id: "+quizId+" not exists");
         }
     }
+
+    public Question getQuestion(String gameId){
+        return quizDao.loadAnswersForQuestion(gameDao.getQuestion(gameId), 0);
+    }
+
+    @Override
+    public void saveAnswer(DtoAnswer dto) {
+        Answer answer = Answer.builder().answer(dto.getAnswer())
+                .timeOfAnswer(dto.getTimeOfAnswer()).gameId(dto.getGameId()).questionId(dto.getQuestionId()).build();
+        return gameDao.saveAnswer(answer);
+    }
+
+
 }
