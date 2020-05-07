@@ -53,7 +53,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public Announcement getAnnouncement(String announcementId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id, title, text_content, image, datetime_creation, is_published, datetime_publication from announcements where announcement_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
                     new Object[]{announcementId},
                     new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -65,7 +65,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public List<Announcement> getAllAnnouncements(long start, long amount) {
         try {
-            return jdbcTemplate.query("SELECT announcement_id,  creator_id, title, text_content, image, datetime_creation, is_published, datetime_publication from announcements where datetime_publication < current_timestamp order by datetime_publication desc limit ? offset ? rows ;",
+            return jdbcTemplate.query("SELECT announcement_id, username, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where datetime_publication < current_timestamp order by datetime_publication desc limit ? offset ? rows;",
                     new Object[]{amount, start}, new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;

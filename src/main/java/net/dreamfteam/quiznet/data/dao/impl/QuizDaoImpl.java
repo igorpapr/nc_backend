@@ -357,7 +357,22 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Quiz> getUserQuizList(String userId) {
         try {
-            return jdbcTemplate.query("SELECT * FROM quizzes WHERE creator_id = UUID(?)", new Object[]{userId}, new QuizMapper());
+            return jdbcTemplate.query("SELECT * FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref WHERE creator_id = UUID(?) ", new Object[]{userId},  (rs, i) ->Quiz.builder()
+                    .id(rs.getString("quiz_id"))
+                    .title(rs.getString("title"))
+                    .description(rs.getString("description"))
+                    .imageRef(rs.getString("image_ref"))
+                    .imageContent(rs.getBytes("image"))
+                    .creationDate(rs.getDate("ver_creation_datetime"))
+                    .creatorId(rs.getString("creator_id"))
+                    .activated(rs.getBoolean("activated"))
+                    .validated(rs.getBoolean("validated"))
+                    .published(rs.getBoolean("published"))
+                    .language(rs.getString("quiz_lang"))
+                    .adminComment(rs.getString("admin_commentary"))
+                    .rating(rs.getFloat("rating"))
+                    .isFavourite(false)
+                    .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
