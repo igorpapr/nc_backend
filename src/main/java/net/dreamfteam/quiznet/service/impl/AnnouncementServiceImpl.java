@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -32,21 +31,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement createAnnouncement(DtoAnnouncement ann, MultipartFile file) {
-
-        byte[] byteArr = {};
-        try {
-            if (file != null && !file.isEmpty()) {
-                byteArr = file.getBytes();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Announcement createAnnouncement(DtoAnnouncement ann) {
 
         Announcement announcement = Announcement.builder()
                 .creatorId(authenticationFacade.getUserId())
-                .title(ann.getTitle()).
-                        image(byteArr)
+                .title(ann.getTitle())
                 .textContent(ann.getTextContent())
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
@@ -70,19 +59,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile file) {
+    public Announcement editAnnouncement(DtoEditAnnouncement ann) {
 
-        byte[] byteArr = {};
-        try {
-            byteArr = file.getBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         Announcement announcement = Announcement.builder().announcementId(ann.getAnnouncementId())
                 .creatorId(authenticationFacade.getUserId())
-                .title(ann.getTitle()).
-                        image(byteArr)
+                .title(ann.getTitle())
+                //    image(byteArr)
                 .textContent(ann.getTextContent())
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
@@ -99,5 +82,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     public long getAmount() {
         return announcementDao.getAmount();
+    }
+
+
+    public void uploadPicture(MultipartFile file, String id) {
+        announcementDao.uploadPicture(file, id);
     }
 }

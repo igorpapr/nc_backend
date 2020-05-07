@@ -18,6 +18,4 @@ public class DtoEditAnnouncement {
 
     private String textContent;
 
-    private String image;
-
 }

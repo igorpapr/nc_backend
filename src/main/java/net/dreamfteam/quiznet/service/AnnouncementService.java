@@ -9,16 +9,18 @@ import java.util.List;
 
 public interface AnnouncementService {
 
-    Announcement createAnnouncement(DtoAnnouncement dtoAnnouncement, MultipartFile file);
+    Announcement createAnnouncement(DtoAnnouncement dtoAnnouncement);
 
     Announcement getAnnouncement(String announcementId);
 
     List<Announcement> getAllAnnouncements(long start, long amount, String userId);
 
-    Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement, MultipartFile file);
+    Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement);
 
     void deleteAnnouncementById(String announcementId);
 
     long getAmount();
+
+    void uploadPicture(MultipartFile file, String id);
 
 }
