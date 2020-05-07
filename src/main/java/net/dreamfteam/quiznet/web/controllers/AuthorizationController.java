@@ -45,10 +45,14 @@ public class AuthorizationController {
 
         LoginRequestValidator.validate(loginRequest);
 
-        User currentUser = userService.getByUsername(loginRequest.getUsername());
+        User currentUser = userService.getByEmail(loginRequest.getUsername());
 
         if (currentUser == null) {
-            throw new ValidationException("User Not found with such username" + loginRequest.getUsername());
+            currentUser = userService.getByUsername(loginRequest.getUsername());
+        }
+
+        if (currentUser == null) {
+            throw new ValidationException("User not found with such username or email" + loginRequest.getUsername());
         }
 
         userService.checkCorrectPassword(currentUser, loginRequest.getPassword());

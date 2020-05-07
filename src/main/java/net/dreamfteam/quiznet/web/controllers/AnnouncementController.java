@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AnnouncementService;
 import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
@@ -29,17 +30,24 @@ public class AnnouncementController {
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement , @RequestPart(value = "pic", required = false) MultipartFile  profilePic) throws ValidationException {
+    public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement ) throws ValidationException {
         AnnouncementValidator.validate(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement, profilePic ), HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement), HttpStatus.OK);
     }
 
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement, @RequestPart(value = "pic", required = false) MultipartFile  profilePic) throws ValidationException {
+    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement) throws ValidationException {
         AnnouncementValidator.validateForEdit(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement, profilePic), HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @PostMapping("/edit/image")
+    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("id") String announcementId) {
+        announcementService.uploadPicture(image, announcementId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")

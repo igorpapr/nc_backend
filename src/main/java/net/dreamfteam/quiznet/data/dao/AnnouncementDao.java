@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.Announcement;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface AnnouncementDao {
     void deleteAnnouncementById(String announcementId);
 
     long getAmount();
+
+    void uploadPicture (MultipartFile file, String id );
 }
