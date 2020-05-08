@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.AnnouncementDao;
 import net.dreamfteam.quiznet.data.entities.Announcement;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AnnouncementService;
 import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -31,7 +33,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement createAnnouncement(DtoAnnouncement ann) {
+    public Announcement createAnnouncement(DtoAnnouncement ann, MultipartFile image) {
+
 
         Announcement announcement = Announcement.builder()
                 .creatorId(authenticationFacade.getUserId())
@@ -40,6 +43,16 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
                 .isPublished(true).build();
+
+        if(image != null){
+            try {
+                announcement.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        }else{
+            announcement.setImage(null);
+        }
 
         return announcementDao.createAnnouncement(announcement);
     }

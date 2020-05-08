@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.web.controllers;
 
+import com.google.gson.Gson;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Question;
@@ -10,6 +11,7 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
@@ -90,6 +92,7 @@ public class QuizController {
     @PostMapping("/question-image")
     public ResponseEntity<?> uploadQuestionImage(@RequestParam("img") MultipartFile image, @RequestParam("questionId") String questionId) throws ValidationException {
         quizService.addQuestionImage(imageService.saveImage(image), questionId);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

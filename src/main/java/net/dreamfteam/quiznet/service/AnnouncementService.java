@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface AnnouncementService {
 
-    Announcement createAnnouncement(DtoAnnouncement dtoAnnouncement);
+    Announcement createAnnouncement(DtoAnnouncement dtoAnnouncement, MultipartFile image);
 
     Announcement getAnnouncement(String announcementId);
 

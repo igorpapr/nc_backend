@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.AnnouncementDao;
 import net.dreamfteam.quiznet.data.entities.Announcement;
 import net.dreamfteam.quiznet.data.rowmappers.AnnouncementMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +22,14 @@ import java.util.Objects;
 @Repository
 public class AnnouncementDaoImpl implements AnnouncementDao {
 
+    public static final String INSERT = "INSERT INTO announcements " +
+            "(creator_id, title, text_content, datetime_creation," +
+            " datetime_publication, is_published) VALUES (?,?,?,?,?,?)";
+
+    public static final String INSERT_IMAGE = "INSERT INTO announcements " +
+            "(creator_id, title, text_content, datetime_creation," +
+            " datetime_publication, is_published, image) VALUES (?,?,?,?,?,?,?)";
+
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -34,21 +43,25 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement("INSERT INTO announcements " +
-                            "(creator_id, title, text_content, datetime_creation," +
-                            " datetime_publication, is_published) VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement(ann.getImage() == null ? INSERT : INSERT_IMAGE, Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, java.util.UUID.fromString(ann.getCreatorId()));
             ps.setString(2, ann.getTitle());
             ps.setString(3, ann.getTextContent());
             ps.setTimestamp(4, new Timestamp(ann.getCreationDate().getTime()));
             ps.setTimestamp(5, new Timestamp(ann.getPublicationDate().getTime()));
             ps.setBoolean(6, true);
+            if(ann.getImage() != null){
+                ps.setBytes(7,ann.getImage());
+            }
             return ps;
         }, keyHolder);
 
         ann.setAnnouncementId(Objects.requireNonNull(keyHolder.getKeys()).get("announcement_id").toString());
         return ann;
     }
+
+
+
 
     @Override
     public Announcement getAnnouncement(String announcementId) {
