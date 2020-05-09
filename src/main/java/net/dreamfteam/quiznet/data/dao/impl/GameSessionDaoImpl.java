@@ -58,10 +58,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
                 .winner(false)
                 .creator(false)
                 .savedByUser(true)   // REFACTOR FORM ANONYMOUS
-                .durationTime(gameDao.getGameDuration(game.getId()))
+                .durationTime(0)
                 .build();
 
         return createSession(gameSession);
+    }
+
+    @Override
+    public GameSession getById(String sessionId) {
+        try{
+            return jdbcTemplate.queryForObject("SELECT * " +
+                            "FROM users_games WHERE game_session_id = UUID(?);",
+                    new Object[]{sessionId}, new GameSessionMapper());
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
     }
 
 
@@ -91,9 +102,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
-    public void updateDurationTime(int durationTime, String gameId) {
-        jdbcTemplate.update("UPDATE users_games SET duration_time = ? " +
-                "WHERE game_id = UUID(?)", durationTime, gameId);
+    public void updateSession(GameSession gameSession) {
+        jdbcTemplate.update("UPDATE users_games SET " +
+                        "score = ?, is_winner = ?, duration_time = ? " +
+                        "WHERE game_session_id = UUID(?)",
+                gameSession.getScore(), gameSession.isWinner(), gameSession.getDurationTime(), gameSession.getId());
+        
     }
 
     @Override
