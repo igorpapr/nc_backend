@@ -8,6 +8,9 @@ import net.dreamfteam.quiznet.web.dto.DtoGameSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class GameSessionServiceImpl implements GameSessionService {
 
@@ -40,6 +43,11 @@ public class GameSessionServiceImpl implements GameSessionService {
                         .build();
 
         gameSessionDao.updateSession(gameSession);
+    }
+
+    @Override
+    public List<Map<String,String>> getSessions(String gameId) {
+        return gameSessionDao.getSessions(gameId);
     }
 
 

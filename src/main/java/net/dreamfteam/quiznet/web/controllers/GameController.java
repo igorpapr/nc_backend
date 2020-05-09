@@ -98,6 +98,10 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/sessions/{gameId}")
+    public ResponseEntity<?> getSessions(@PathVariable String gameId){
+        return new ResponseEntity<>(gameSessionService.getSessions(gameId),HttpStatus.OK);
+    }
 
 }
