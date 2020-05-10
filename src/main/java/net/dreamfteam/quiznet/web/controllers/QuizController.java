@@ -236,7 +236,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.setValidator(quizDto.getQuizId(), authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("/{quizId}/questions/amount")
     public ResponseEntity<?> getQuestionsAmountInQuiz(@PathVariable String quizId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuestionsAmountInQuiz(quizId), HttpStatus.OK);
