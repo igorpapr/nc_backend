@@ -62,13 +62,29 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
-        quiz = saveQuiz(quiz);
-        jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
-        List<Question> qlist = getQuestionList(oldQuizId);
-        for (int i = 0; i < qlist.size(); i++) {
-            saveQuestion(qlist.get(i));
+        if(jdbcTemplate.queryForObject("SELECT published FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{oldQuizId}, Boolean.class) == true) {
+            quiz = saveQuiz(quiz);
+            jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
+            List<Question> qlist = getQuestionList(oldQuizId);
+            for (int i = 0; i < qlist.size(); i++) {
+                saveQuestion(qlist.get(i));
+            }
+            System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
+        } else {
+            jdbcTemplate.update("UPDATE quizzes SET title = ?, description = ?, quiz_lang = ? WHERE quiz_id = UUID(?)",
+                    quiz.getTitle(), quiz.getDescription(), quiz.getLanguage(), oldQuizId);
+
+            for (int i = 0; i < quiz.getTagIdList().size(); i++) {
+                jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (UUID(?),UUID(?)) ON CONFLICT DO NOTHING", oldQuizId, quiz.getTagIdList().get(i));
+            }
+            for (int i = 0; i < quiz.getCategoryIdList().size(); i++) {
+                jdbcTemplate.update("INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (UUID(?),UUID(?)) ON CONFLICT DO NOTHING", oldQuizId, quiz.getCategoryIdList().get(i));
+            }
+            quiz.setTagNameList(loadTagNameList(oldQuizId));
+            quiz.setCategoryNameList(loadCategoryNameList(oldQuizId));
+            quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[]{quiz.getCreatorId()}, String.class));
         }
-        System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
+        System.out.println("Updated in db. Quiz id: " + oldQuizId);
         return quiz;
     }
 
