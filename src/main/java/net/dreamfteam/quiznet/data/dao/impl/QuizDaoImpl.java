@@ -125,8 +125,13 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public void markAsFavourite(DtoQuiz dtoQuiz) {
-        jdbcTemplate.update("INSERT INTO favourite_quizzes (user_id, quiz_id) VALUES (UUID(?),UUID(?))", dtoQuiz.getUserId(), dtoQuiz.getQuizId());
-        System.out.println("Quiz marked as favourite for user " + dtoQuiz.getUserId());
+        if(jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{dtoQuiz.getUserId(), dtoQuiz.getQuizId()}, Long.class) >= 1) {
+            jdbcTemplate.update("DELETE FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", dtoQuiz.getUserId(), dtoQuiz.getQuizId());
+            System.out.println("Quiz removed from favourites");
+        } else {
+            jdbcTemplate.update("INSERT INTO favourite_quizzes (user_id, quiz_id) VALUES (UUID(?),UUID(?))", dtoQuiz.getUserId(), dtoQuiz.getQuizId());
+            System.out.println("Quiz marked as favourite for user " + dtoQuiz.getUserId());
+        }
     }
 
     @Override
