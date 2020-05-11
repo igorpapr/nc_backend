@@ -72,7 +72,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile image) {
+    public Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile image, boolean newImage) {
 
 
         Announcement announcement = Announcement.builder().announcementId(ann.getAnnouncementId())
@@ -93,7 +93,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             announcement.setImage(null);
         }
 
-        return announcementDao.editAnnouncement(announcement);
+        return announcementDao.editAnnouncement(announcement, newImage);
     }
 
     @Override

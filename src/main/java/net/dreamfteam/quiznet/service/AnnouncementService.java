@@ -15,7 +15,7 @@ public interface AnnouncementService {
 
     List<Announcement> getAllAnnouncements(long start, long amount, String userId);
 
-    Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement, MultipartFile file);
+    Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile image, boolean newImage);
 
     void deleteAnnouncementById(String announcementId);
 

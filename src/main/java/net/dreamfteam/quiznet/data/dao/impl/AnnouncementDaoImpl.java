@@ -19,14 +19,6 @@ import java.util.Objects;
 @Repository
 public class AnnouncementDaoImpl implements AnnouncementDao {
 
-    public static final String INSERT = "INSERT INTO announcements " +
-            "(creator_id, title, text_content, datetime_creation," +
-            " datetime_publication, is_published) VALUES (?,?,?,?,?,?)";
-
-    public static final String INSERT_IMAGE = "INSERT INTO announcements " +
-            "(creator_id, title, text_content, datetime_creation," +
-            " datetime_publication, is_published, image) VALUES (?,?,?,?,?,?,?)";
-
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -40,16 +32,17 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement(ann.getImage() == null ? INSERT : INSERT_IMAGE, Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement("INSERT INTO announcements " +
+                            "(creator_id, title, text_content, datetime_creation," +
+                            " datetime_publication, is_published, image) VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, java.util.UUID.fromString(ann.getCreatorId()));
             ps.setString(2, ann.getTitle());
             ps.setString(3, ann.getTextContent());
             ps.setTimestamp(4, new Timestamp(ann.getCreationDate().getTime()));
             ps.setTimestamp(5, new Timestamp(ann.getPublicationDate().getTime()));
             ps.setBoolean(6, true);
-            if (ann.getImage() != null) {
-                ps.setBytes(7, ann.getImage());
-            }
+            ps.setBytes(7, ann.getImage());
+
             return ps;
         }, keyHolder);
 
@@ -81,9 +74,20 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     }
 
     @Override
-    public Announcement editAnnouncement(Announcement ann) {
-        jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
-                + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), true , ann.getImage(), ann.getAnnouncementId());
+    public Announcement editAnnouncement(Announcement ann, boolean newImage) {
+
+        if(newImage){
+            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                            + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)",
+                    ann.getCreatorId(),
+                    ann.getTitle(), ann.getTextContent(), true , ann.getImage(), ann.getAnnouncementId());
+        }else{
+            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                            + ",is_published = ? WHERE  announcement_id = UUID(?)",
+                    ann.getCreatorId(),
+                    ann.getTitle(), ann.getTextContent(), true, ann.getAnnouncementId());
+        }
+
         return ann;
     }
 

@@ -47,11 +47,16 @@ public class AnnouncementController {
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<?> editAnnouncement(@RequestParam("obj") String announcement,
-                                              @RequestParam(value = "img", required = false) MultipartFile image) throws ValidationException {
+                                              @RequestParam(value = "img", required = false) MultipartFile image,
+                                              @RequestParam(value = "newimage", required = false) String newImage)
+            throws ValidationException {
+
         DtoEditAnnouncement dtoEditAnnouncement = gson.fromJson(announcement, DtoEditAnnouncement.class);
         AnnouncementValidator.validateForEdit(dtoEditAnnouncement);
 
-        return new ResponseEntity<>(announcementService.editAnnouncement(dtoEditAnnouncement, image), HttpStatus.OK);
+        return new ResponseEntity<>(
+                announcementService.editAnnouncement(dtoEditAnnouncement, image, newImage != null)
+                , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
