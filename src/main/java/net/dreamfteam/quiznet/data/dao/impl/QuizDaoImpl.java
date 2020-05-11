@@ -379,7 +379,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Quiz> getUserQuizList(String userId) {
         try {
-            return jdbcTemplate.query("SELECT * FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref WHERE creator_id = UUID(?) ", new Object[]{userId},  (rs, i) ->Quiz.builder()
+            return jdbcTemplate.query("SELECT quiz_id, title, description, image_ref, image, ver_creation_datetime, creator_id, activated, validated, published, quiz_lang, admin_commentary, rating  FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref WHERE creator_id = UUID(?) ", new Object[]{userId},  (rs, i) ->Quiz.builder()
                     .id(rs.getString("quiz_id"))
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))
