@@ -377,9 +377,9 @@ public class QuizDaoImpl implements QuizDao {
 
 
     @Override
-    public List<Quiz> getUserQuizList(String userId) {
+    public List<Quiz> getUserQuizList(String userId, String thisUserId) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, image_ref, image, ver_creation_datetime, creator_id, activated, validated, published, quiz_lang, admin_commentary, rating  FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref WHERE creator_id = UUID(?) ", new Object[]{userId},  (rs, i) ->Quiz.builder()
+            return jdbcTemplate.query("SELECT q.quiz_id, title, description, image_ref, image, ver_creation_datetime, creator_id, activated, validated, published, quiz_lang, admin_commentary, rating, f.liked  FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref left join (select count(*) as liked, quiz_id  from favourite_quizzes where user_id=uuid(?) group by quiz_id) as f on f.quiz_id=q.quiz_id where creator_id=uuid(?)", new Object[]{thisUserId, userId},  (rs, i) ->Quiz.builder()
                     .id(rs.getString("quiz_id"))
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))
@@ -393,7 +393,7 @@ public class QuizDaoImpl implements QuizDao {
                     .language(rs.getString("quiz_lang"))
                     .adminComment(rs.getString("admin_commentary"))
                     .rating(rs.getFloat("rating"))
-                    .isFavourite(false)
+                    .isFavourite(rs.getInt("liked") > 0)
                     .build());
         } catch (EmptyResultDataAccessException e) {
             return null;

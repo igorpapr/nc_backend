@@ -171,7 +171,7 @@ public class QuizController {
     @GetMapping("/user-list")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
 
-        return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getUserQuizList(userId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
