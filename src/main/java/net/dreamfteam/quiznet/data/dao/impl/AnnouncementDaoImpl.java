@@ -61,7 +61,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public Announcement getAnnouncement(String announcementId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id as username, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
                     new Object[]{announcementId},
                     new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
