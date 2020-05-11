@@ -4,11 +4,9 @@ import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
-import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import net.dreamfteam.quiznet.service.GameSessionService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
-import net.dreamfteam.quiznet.web.validators.AnswerValidator;
 import net.dreamfteam.quiznet.web.validators.GameSessionValidator;
 import net.dreamfteam.quiznet.web.validators.GameValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 @RestController
 @CrossOrigin
@@ -72,14 +68,6 @@ public class GameController {
     public ResponseEntity<?> getQuestions(@RequestParam String sessionId) {
         return new ResponseEntity<>(gameService.getQuestion(sessionId), HttpStatus.OK);
     }
-
-    @PostMapping("/questions/answer")
-    public ResponseEntity<?> saveAnswers(@RequestBody DtoAnswer dtoAnswer) {
-        AnswerValidator.validate(dtoAnswer);
-
-        return new ResponseEntity<>( gameService.saveAnswer(dtoAnswer),HttpStatus.OK);
-    }
-
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/join/{accessId}")
