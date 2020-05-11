@@ -31,6 +31,7 @@ public class Constants {
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quizzes/categories";
     public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
+    public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";

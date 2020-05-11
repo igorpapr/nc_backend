@@ -52,7 +52,7 @@ public class GameServiceImpl implements GameService {
                 .winner(false)
                 .creator(true)
                 .savedByUser(true)   // REFACTOR FORM ANONYMOUS
-                .durationTime(gameDao.calculateDuration(game))
+                .durationTime(0)
                 .build();
 
         gameSessionDao.createSession(gameSession);
@@ -61,7 +61,6 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    @Transactional
     public void updateGame(DtoGame dtoGame) {
         Game game = Game.builder()
                 .id(dtoGame.getId())
@@ -75,7 +74,6 @@ public class GameServiceImpl implements GameService {
                 .build();
 
         gameDao.updateGame(game);
-        gameSessionDao.updateDurationTime(gameDao.calculateDuration(game), game.getId());
     }
 
     @Override
