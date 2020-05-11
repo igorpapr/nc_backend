@@ -81,7 +81,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List<Map<String, String>> getSessions(String gameId) {
         List a = jdbcTemplate
-                .queryForList("SELECT users_games.user_id, username, score, is_winner, is_creator, duration_time " +
+                .queryForList("SELECT users_games.user_id, username, image, score, is_winner, is_creator, duration_time " +
                         "FROM users_games INNER JOIN users ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?) ", new Object[]{gameId});
 
