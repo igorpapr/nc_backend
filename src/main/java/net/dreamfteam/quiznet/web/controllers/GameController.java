@@ -7,7 +7,9 @@ import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.web.dto.DtoAnswer;
 import net.dreamfteam.quiznet.service.GameSessionService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
+import net.dreamfteam.quiznet.web.dto.DtoGameSession;
 import net.dreamfteam.quiznet.web.validators.AnswerValidator;
+import net.dreamfteam.quiznet.web.validators.GameSessionValidator;
 import net.dreamfteam.quiznet.web.validators.GameValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,6 +86,22 @@ public class GameController {
     public ResponseEntity<?> joinGame(@PathVariable String accessId){
         return new ResponseEntity<>(gameSessionService.joinGame(accessId,authenticationFacade.getUserId()),
                 HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/result")
+    public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession){
+        GameSessionValidator.validate(dtoGameSession);
+
+        gameSessionService.setResult(dtoGameSession);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/sessions/{gameId}")
+    public ResponseEntity<?> getSessions(@PathVariable String gameId){
+        return new ResponseEntity<>(gameSessionService.getSessions(gameId),HttpStatus.OK);
     }
 
 }

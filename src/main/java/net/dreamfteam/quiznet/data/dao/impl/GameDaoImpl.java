@@ -77,10 +77,6 @@ public class GameDaoImpl implements GameDao {
                 game.getBreakTime(), game.getQuizId(), game.getId());
     }
 
-    @Override
-    public void removeGame(String id) {
-
-    }
 
     @Override
     public Game getGame(String id) {
@@ -97,16 +93,6 @@ public class GameDaoImpl implements GameDao {
     @Override
     public void startGame(String gameId) {
         jdbcTemplate.update("UPDATE games SET access_code = '' WHERE game_id = UUID(?)", gameId);
-    }
-
-    @Override
-    public int getGameDuration(String gameId) {
-        return calculateDuration(getGame(gameId));
-    }
-
-    @Override
-    public int calculateDuration(Game game) {
-        return game.getNumberOfQuestions() * (game.getRoundDuration() + game.getBreakTime());
     }
 
 

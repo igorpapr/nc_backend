@@ -11,9 +11,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,12 +37,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         GameSession gameSession;
 
-        try{
+        try {
             gameSession = jdbcTemplate.queryForObject("SELECT * " +
-                    "FROM users_games WHERE user_id = UUID(?) AND game_id IN (" +
-                    "SELECT game_id FROM games WHERE access_code = ?);",
+                            "FROM users_games WHERE user_id = UUID(?) AND game_id IN (" +
+                            "SELECT game_id FROM games WHERE access_code = ?);",
                     new Object[]{userId, accessId}, new GameSessionMapper());
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             gameSession = null;
         }
 
@@ -58,10 +61,31 @@ public class GameSessionDaoImpl implements GameSessionDao {
                 .winner(false)
                 .creator(false)
                 .savedByUser(true)   // REFACTOR FORM ANONYMOUS
-                .durationTime(gameDao.getGameDuration(game.getId()))
+                .durationTime(0)
                 .build();
 
         return createSession(gameSession);
+    }
+
+    @Override
+    public GameSession getById(String sessionId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * " +
+                            "FROM users_games WHERE game_session_id = UUID(?);",
+                    new Object[]{sessionId}, new GameSessionMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Map<String, String>> getSessions(String gameId) {
+        List a = jdbcTemplate
+                .queryForList("SELECT users_games.user_id, username, image, score, is_winner, is_creator, duration_time " +
+                        "FROM users_games INNER JOIN users ON users_games.user_id = users.user_id " +
+                        "WHERE game_id = UUID(?) ", new Object[]{gameId});
+
+        return a;
     }
 
 
@@ -91,9 +115,36 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
-    public void updateDurationTime(int durationTime, String gameId) {
-        jdbcTemplate.update("UPDATE users_games SET duration_time = ? " +
-                "WHERE game_id = UUID(?)", durationTime, gameId);
+    @Transactional
+    public void updateSession(GameSession gameSession) {
+        jdbcTemplate.update("UPDATE users_games SET " +
+                        "score = ?, duration_time = ?, finished = true " +
+                        "WHERE game_session_id = UUID(?)",
+                gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
+
+        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
+                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+                        "THEN TRUE " +
+                        "ELSE FALSE END " +
+                        "FROM users_games WHERE game_id IN (" +
+                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
+                new Object[]{gameSession.getId()}, Boolean.class);
+
+
+        if (isGameFinished) {
+            jdbcTemplate.update("UPDATE users_games SET " +
+                            "is_winner = true " +
+                            "WHERE game_session_id IN (" +
+                            "SELECT game_session_id FROM users_games" +
+                            " WHERE game_id IN (" +
+                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
+                            "AND score = (" +
+                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
+                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
+                    gameSession.getId(), gameSession.getId());
+        }
+
+
     }
 
     @Override
