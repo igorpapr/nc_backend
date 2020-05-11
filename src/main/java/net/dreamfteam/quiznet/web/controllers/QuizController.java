@@ -27,7 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.google.gson.*;
+import java.io.IOException;
 import static java.util.Objects.isNull;
 
 @RestController
@@ -38,26 +39,42 @@ public class QuizController {
     final private QuizService quizService;
     final private IAuthenticationFacade authenticationFacade;
     final private ImageService imageService;
+    final private Gson gson;
 
     public QuizController(QuizService quizService, ImageService imageService, UserService userService, IAuthenticationFacade authenticationFacade) {
         this.quizService = quizService;
         this.userService = userService;
         this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
+        this.gson = new Gson();
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public ResponseEntity<?> createQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,  @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+        DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
-        return new ResponseEntity<>(quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId()), HttpStatus.CREATED);
+        Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId());
+        if (image != null) {
+            resQuiz.setImageRef(imageService.saveImage(image));
+            quizService.addQuizImage(resQuiz.getImageRef(), resQuiz.getId());
+            resQuiz.setImageContent(image.getBytes());
+        }
+        return new ResponseEntity<>(resQuiz, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editQuiz(@RequestBody DtoEditQuiz dtoQuiz) throws ValidationException {
-        QuizValidator.validateForEdit(dtoQuiz);
-        return new ResponseEntity<>(quizService.updateQuiz(dtoQuiz), HttpStatus.OK);
+    public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,  @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+        DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
+        QuizValidator.validateForEdit(dtoEditQuiz);
+        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz);
+        if(image != null) {
+            resQuiz.setImageRef(imageService.saveImage(image));
+            quizService.addQuizImage(resQuiz.getImageRef(), resQuiz.getId());
+            resQuiz.setImageContent(image.getBytes());
+        }
+        return new ResponseEntity<>(resQuiz, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
@@ -102,16 +119,30 @@ public class QuizController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/questions")
-    public ResponseEntity<?> createQuestion(@RequestBody Question question) throws ValidationException {
+    public ResponseEntity<?> createQuestion(@RequestParam("obj") String questionStr,  @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+        Question question = gson.fromJson(questionStr, Question.class);
         QuizValidator.validateQuestion(question);
-        return new ResponseEntity<>(quizService.saveQuestion(question), HttpStatus.CREATED);
+        Question resQuestion = quizService.saveQuestion(question);
+        if(image != null) {
+            resQuestion.setImage(imageService.saveImage(image));
+            quizService.addQuestionImage(resQuestion.getImage(), resQuestion.getId());
+            resQuestion.setImageContent(image.getBytes());
+        }
+        return new ResponseEntity<>(resQuestion, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/questions/edit")
-    public ResponseEntity<?> editQuestion(@RequestBody Question question) throws ValidationException {
+    public ResponseEntity<?> editQuestion(@RequestParam("obj") String questionStr,  @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+        Question question = gson.fromJson(questionStr, Question.class);
         QuizValidator.validateQuestion(question);
-        return new ResponseEntity<>(quizService.updateQuestion(question), HttpStatus.OK);
+        Question resQuestion = quizService.updateQuestion(question);
+        if(image != null) {
+            resQuestion.setImage(imageService.saveImage(image));
+            quizService.addQuestionImage(resQuestion.getImage(), resQuestion.getId());
+            resQuestion.setImageContent(image.getBytes());
+        }
+        return new ResponseEntity<>(resQuestion, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")

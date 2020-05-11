@@ -84,6 +84,7 @@ public class QuizDaoImpl implements QuizDao {
             quiz.setTagNameList(loadTagNameList(oldQuizId));
             quiz.setCategoryNameList(loadCategoryNameList(oldQuizId));
             quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[]{quiz.getCreatorId()}, String.class));
+            quiz.setId(oldQuizId);
         }
         System.out.println("Updated in db. Quiz id: " + oldQuizId);
         return quiz;
