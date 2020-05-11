@@ -33,29 +33,25 @@ public class AnnouncementController {
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> createAnnouncement(@RequestParam("obj") String announcement,
-                                                @RequestParam(value = "img", required = false)  MultipartFile image)
+                                                @RequestParam(value = "img", required = false) MultipartFile image)
             throws ValidationException {
 
         DtoAnnouncement dtoAnnouncement = gson.fromJson(announcement, DtoAnnouncement.class);
 
         AnnouncementValidator.validate(dtoAnnouncement);
 
-        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement,image),HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement, image), HttpStatus.OK);
     }
 
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement) throws ValidationException {
-        AnnouncementValidator.validateForEdit(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement), HttpStatus.OK);
-    }
+    public ResponseEntity<?> editAnnouncement(@RequestParam("obj") String announcement,
+                                              @RequestParam(value = "img", required = false) MultipartFile image) throws ValidationException {
+        DtoEditAnnouncement dtoEditAnnouncement = gson.fromJson(announcement, DtoEditAnnouncement.class);
+        AnnouncementValidator.validateForEdit(dtoEditAnnouncement);
 
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/edit/image")
-    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("id") String announcementId) {
-        announcementService.uploadPicture(image, announcementId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(announcementService.editAnnouncement(dtoEditAnnouncement, image), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")

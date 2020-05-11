@@ -15,12 +15,10 @@ public interface AnnouncementService {
 
     List<Announcement> getAllAnnouncements(long start, long amount, String userId);
 
-    Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement);
+    Announcement editAnnouncement(DtoEditAnnouncement dtoAnnouncement, MultipartFile file);
 
     void deleteAnnouncementById(String announcementId);
 
     long getAmount();
-
-    void uploadPicture(MultipartFile file, String id);
 
 }

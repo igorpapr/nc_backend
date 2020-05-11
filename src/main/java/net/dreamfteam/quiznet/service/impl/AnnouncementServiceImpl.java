@@ -44,13 +44,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .publicationDate(Calendar.getInstance().getTime())
                 .isPublished(true).build();
 
-        if(image != null){
+        if (image != null) {
             try {
                 announcement.setImage(image.getBytes());
             } catch (IOException e) {
                 throw new ValidationException("Broken image");
             }
-        }else{
+        } else {
             announcement.setImage(null);
         }
 
@@ -72,17 +72,26 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public Announcement editAnnouncement(DtoEditAnnouncement ann) {
+    public Announcement editAnnouncement(DtoEditAnnouncement ann, MultipartFile image) {
 
 
         Announcement announcement = Announcement.builder().announcementId(ann.getAnnouncementId())
                 .creatorId(authenticationFacade.getUserId())
                 .title(ann.getTitle())
-                //    image(byteArr)
                 .textContent(ann.getTextContent())
                 .creationDate(Calendar.getInstance().getTime())
                 .publicationDate(Calendar.getInstance().getTime())
                 .isPublished(true).build();
+
+        if (image != null) {
+            try {
+                announcement.setImage(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        } else {
+            announcement.setImage(null);
+        }
 
         return announcementDao.editAnnouncement(announcement);
     }
@@ -97,8 +106,4 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return announcementDao.getAmount();
     }
 
-
-    public void uploadPicture(MultipartFile file, String id) {
-        announcementDao.uploadPicture(file, id);
-    }
 }

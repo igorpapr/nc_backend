@@ -3,16 +3,13 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.AnnouncementDao;
 import net.dreamfteam.quiznet.data.entities.Announcement;
 import net.dreamfteam.quiznet.data.rowmappers.AnnouncementMapper;
-import net.dreamfteam.quiznet.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -50,8 +47,8 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
             ps.setTimestamp(4, new Timestamp(ann.getCreationDate().getTime()));
             ps.setTimestamp(5, new Timestamp(ann.getPublicationDate().getTime()));
             ps.setBoolean(6, true);
-            if(ann.getImage() != null){
-                ps.setBytes(7,ann.getImage());
+            if (ann.getImage() != null) {
+                ps.setBytes(7, ann.getImage());
             }
             return ps;
         }, keyHolder);
@@ -59,8 +56,6 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
         ann.setAnnouncementId(Objects.requireNonNull(keyHolder.getKeys()).get("announcement_id").toString());
         return ann;
     }
-
-
 
 
     @Override
@@ -88,7 +83,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public Announcement editAnnouncement(Announcement ann) {
         jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
-                + ",is_published = ?  WHERE  announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), true, ann.getAnnouncementId());
+                + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), true , ann.getImage(), ann.getAnnouncementId());
         return ann;
     }
 
@@ -107,18 +102,4 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
         }
     }
 
-    @Override
-    public void uploadPicture(MultipartFile file, String id) {
-        byte[] byteArr = {};
-        try {
-            byteArr = file.getBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        jdbcTemplate.update("UPDATE announcements SET"
-                + " image = ?  WHERE  announcement_id = UUID(?)", byteArr, id);
-
-
-    }
 }

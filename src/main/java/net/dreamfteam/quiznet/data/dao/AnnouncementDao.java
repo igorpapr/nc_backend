@@ -19,5 +19,4 @@ public interface AnnouncementDao {
 
     long getAmount();
 
-    void uploadPicture (MultipartFile file, String id );
 }
