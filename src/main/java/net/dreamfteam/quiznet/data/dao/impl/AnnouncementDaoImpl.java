@@ -9,9 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -36,13 +34,15 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
             PreparedStatement ps = connection
                     .prepareStatement("INSERT INTO announcements " +
                             "(creator_id, title, text_content, datetime_creation," +
-                            " datetime_publication, is_published) VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                            " datetime_publication, is_published, image) VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, java.util.UUID.fromString(ann.getCreatorId()));
             ps.setString(2, ann.getTitle());
             ps.setString(3, ann.getTextContent());
             ps.setTimestamp(4, new Timestamp(ann.getCreationDate().getTime()));
             ps.setTimestamp(5, new Timestamp(ann.getPublicationDate().getTime()));
             ps.setBoolean(6, true);
+            ps.setBytes(7, ann.getImage());
+
             return ps;
         }, keyHolder);
 
@@ -50,10 +50,11 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
         return ann;
     }
 
+
     @Override
     public Announcement getAnnouncement(String announcementId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id as username, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
                     new Object[]{announcementId},
                     new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -73,9 +74,20 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     }
 
     @Override
-    public Announcement editAnnouncement(Announcement ann) {
-        jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
-                + ",is_published = ?  WHERE  announcement_id = UUID(?)", ann.getCreatorId(), ann.getTitle(), ann.getTextContent(), true, ann.getAnnouncementId());
+    public Announcement editAnnouncement(Announcement ann, boolean newImage) {
+
+        if(newImage){
+            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                            + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)",
+                    ann.getCreatorId(),
+                    ann.getTitle(), ann.getTextContent(), true , ann.getImage(), ann.getAnnouncementId());
+        }else{
+            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                            + ",is_published = ? WHERE  announcement_id = UUID(?)",
+                    ann.getCreatorId(),
+                    ann.getTitle(), ann.getTextContent(), true, ann.getAnnouncementId());
+        }
+
         return ann;
     }
 
@@ -94,18 +106,4 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
         }
     }
 
-    @Override
-    public void uploadPicture(MultipartFile file, String id) {
-        byte[] byteArr = {};
-        try {
-            byteArr = file.getBytes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        jdbcTemplate.update("UPDATE announcements SET"
-                + " image = ?  WHERE  announcement_id = UUID(?)", byteArr, id);
-
-
-    }
 }
