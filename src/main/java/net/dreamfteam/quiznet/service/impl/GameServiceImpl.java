@@ -102,7 +102,4 @@ public class GameServiceImpl implements GameService {
         return quizDao.loadAnswersForQuestion(gameDao.getQuestion(gameId), 0);
     }
 
-
-
-
 }

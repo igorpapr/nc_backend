@@ -91,5 +91,4 @@ public class GameController {
     public ResponseEntity<?> getSessions(@PathVariable String gameId){
         return new ResponseEntity<>(gameSessionService.getSessions(gameId),HttpStatus.OK);
     }
-
 }

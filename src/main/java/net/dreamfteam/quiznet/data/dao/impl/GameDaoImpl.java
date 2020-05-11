@@ -119,9 +119,5 @@ public class GameDaoImpl implements GameDao {
     }
 
 
-    // might be used later for randomized questions
-    private Integer getAnsweredQuestionsAmount() {
-        return jdbcTemplate.queryForObject("select count(*) from questions left join games on games.quiz_id = questions.quiz_id where game_id = UUID(?) and question_id not in (select question_id from answers);", Integer.class);
-    }
 
 }
