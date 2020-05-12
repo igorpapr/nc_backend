@@ -51,7 +51,8 @@ public class QuizController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,  @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+    public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,
+                                        @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
         DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
         Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId());
