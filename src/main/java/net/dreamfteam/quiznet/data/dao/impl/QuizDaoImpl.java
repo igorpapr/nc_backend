@@ -407,7 +407,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<QuizView> getQuizzes(int startIndex, int amount) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, i.image AS image_content FROM quizzes q LEFT JOIN images i ON i.image_id = q.image_ref WHERE validated = true AND activated = true AND published = true ORDER BY rating DESC LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, (rs, i) -> QuizView.builder().quiz_id(rs.getString("quiz_id")).title(rs.getString("title")).image_content(rs.getBytes("image_content")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, i.image AS image_content FROM quizzes q LEFT JOIN images i ON i.image_id = q.image_ref WHERE validated = true AND activated = true AND published = true ORDER BY rating DESC LIMIT ? OFFSET ? ;", new Object[]{amount, startIndex}, new QuizViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
