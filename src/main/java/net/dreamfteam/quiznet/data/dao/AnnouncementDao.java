@@ -13,11 +13,10 @@ public interface AnnouncementDao {
 
     List<Announcement> getAllAnnouncements(long start, long amount);
 
-    Announcement editAnnouncement(Announcement announcement);
+    Announcement editAnnouncement(Announcement announcement, boolean newImage);
 
     void deleteAnnouncementById(String announcementId);
 
     long getAmount();
 
-    void uploadPicture (MultipartFile file, String id );
 }

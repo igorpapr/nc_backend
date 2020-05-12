@@ -40,7 +40,7 @@ public interface QuizDao {
 
     List<List<Object>> getCategoryList();
 
-    List<Quiz> getUserQuizList(String userId);
+    List<Quiz> getUserQuizList(String userId, String thisUserId);
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
