@@ -12,9 +12,9 @@ import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile img) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException;
 
-    Quiz updateQuiz(DtoEditQuiz quiz);
+    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image, boolean newImage);
 
     Quiz getQuiz(String quizId);
 
@@ -30,9 +30,9 @@ public interface QuizService {
 
     void deactivateQuiz(DtoQuiz dtoQuiz);
 
-    Question saveQuestion(Question newQuestion);
+    Question saveQuestion(Question newQuestion, MultipartFile image);
 
-    Question updateQuestion(Question newQuestion);
+    Question updateQuestion(Question newQuestion, MultipartFile image);
 
     void deleteQuestion(Question question);
 
@@ -44,7 +44,7 @@ public interface QuizService {
 
     List<List<Object>> getCategoryList();
 
-    List<Quiz> getUserQuizList(String userId);
+    List<Quiz> getUserQuizList(String userId, String thisUserId);
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
@@ -56,9 +56,7 @@ public interface QuizService {
 
     List<QuizFiltered> shortListOfQuizzes();
 
-    void addQuizImage(String imageId, String quizId);
-
-    void addQuestionImage(String imageId, String questionId);
+    List<QuizView> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
 
