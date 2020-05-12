@@ -5,13 +5,14 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile img) throws ValidationException;
 
     Quiz updateQuiz(DtoEditQuiz quiz);
 

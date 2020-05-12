@@ -11,6 +11,7 @@ import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Calendar;
 import java.util.List;
@@ -30,11 +31,26 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException {
+    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile img) throws ValidationException {
 
         newQuiz.setCreatorId(currentUserId);
         checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
-        Quiz quiz = Quiz.builder().title(newQuiz.getTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(newQuiz.getCreatorId()).language(newQuiz.getLanguage()).description(newQuiz.getDescription()).imageRef(newQuiz.getImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(newQuiz.getTagList()).categoryIdList(newQuiz.getCategoryList()).build();
+        Quiz quiz = Quiz.builder()
+                .title(newQuiz.getTitle())
+                .creationDate(Calendar.getInstance().getTime())
+                .creatorId(newQuiz.getCreatorId())
+                .language(newQuiz.getLanguage())
+                .description(newQuiz.getDescription())
+                .imageRef(newQuiz.getImageRef())
+                .validated(false).activated(false)
+                .published(false)
+                .isFavourite(false)
+                .tagIdList(newQuiz.getTagList())
+                .categoryIdList(newQuiz.getCategoryList())
+                .build();
+
+
+
 
         quiz = quizDao.saveQuiz(quiz);
 
