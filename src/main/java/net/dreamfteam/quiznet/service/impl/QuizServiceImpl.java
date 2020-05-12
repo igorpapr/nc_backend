@@ -188,6 +188,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<QuizView> getSuggestionsQuizList(String userId, int amount){
+        return quizDao.getSuggestionsQuizListByCategoriesAndTags(userId, amount);
+    }
+
+    @Override
     public void addQuizImage(String imageId, String quizId) {
         quizDao.addQuizImage(imageId, quizId);
     }
