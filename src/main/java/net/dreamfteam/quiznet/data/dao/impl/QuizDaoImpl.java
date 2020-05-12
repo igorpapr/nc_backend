@@ -67,7 +67,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz updateQuiz(Quiz quiz, String oldQuizId, boolean newImage) {
+    public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
         if (jdbcTemplate.queryForObject("SELECT published FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{oldQuizId}, Boolean.class) == true) {
             quiz = saveQuiz(quiz);
             jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime)" +
@@ -80,15 +80,9 @@ public class QuizDaoImpl implements QuizDao {
             }
             System.out.println("Updated in db. New quiz id: " + quiz.getId() + "Old quiz id: " + oldQuizId);
         } else {
-            if (newImage) {
-                jdbcTemplate.update("UPDATE quizzes SET " +
-                                "title = ?, description = ?, quiz_lang = ?, image = ? WHERE quiz_id = UUID(?)",
-                        quiz.getTitle(), quiz.getDescription(), quiz.getLanguage(), quiz.getImageContent(), oldQuizId);
-            } else {
-                jdbcTemplate.update("UPDATE quizzes SET " +
-                                "title = ?, description = ?, quiz_lang = ? WHERE quiz_id = UUID(?)",
-                        quiz.getTitle(), quiz.getDescription(), quiz.getLanguage(), oldQuizId);
-            }
+            jdbcTemplate.update("UPDATE quizzes SET " +
+                            "title = ?, description = ?, quiz_lang = ?, image = ? WHERE quiz_id = UUID(?)",
+                    quiz.getTitle(), quiz.getDescription(), quiz.getLanguage(), quiz.getImageContent(), oldQuizId);
 
             for (int i = 0; i < quiz.getTagIdList().size(); i++) {
                 jdbcTemplate.update("INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (UUID(?),UUID(?)) ON CONFLICT DO NOTHING", oldQuizId, quiz.getTagIdList().get(i));
@@ -307,12 +301,6 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public void addQuestionImage(byte[] image, String questionId) {
-        jdbcTemplate.update("UPDATE questions SET img = ? WHERE question_id = UUID(?)", image, questionId);
-        System.out.println("Question image saved in db");
-    }
-
-    @Override
     public void removeQuestionImage(String questionId) {
         jdbcTemplate.update("UPDATE questions SET img = NULL WHERE question_id = UUID(?)", questionId);
         System.out.println("Question image saved in db");
@@ -321,16 +309,17 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public String saveQuestion(Question question) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement("INSERT INTO questions (quiz_id, title, content, points, type_id) VALUES (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-                ps.setObject(1, java.util.UUID.fromString(question.getQuizId()));
-                ps.setString(2, question.getTitle());
-                ps.setString(3, question.getContent());
-                ps.setInt(4, question.getPoints());
-                ps.setInt(5, question.getTypeId());
-                return ps;
-            }
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement("INSERT INTO questions (quiz_id, title, content," +
+                    " points, type_id, img) VALUES (?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+
+            ps.setObject(1, java.util.UUID.fromString(question.getQuizId()));
+            ps.setString(2, question.getTitle());
+            ps.setString(3, question.getContent());
+            ps.setInt(4, question.getPoints());
+            ps.setInt(5, question.getTypeId());
+            ps.setBytes(6, question.getImageContent());
+            return ps;
         }, keyHolder);
         System.out.println("Question added in DB. Its ID in database is: " + keyHolder.getKeys().get("question_id"));
         return keyHolder.getKeys().get("question_id").toString();
@@ -371,7 +360,7 @@ public class QuizDaoImpl implements QuizDao {
         try {
 
             List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, " +
-                            "q.image, q.points, q.type_id as imgcontent " +
+                            "q.image, q.points, q.type_id, q.img " +
                             "FROM questions q WHERE q.quiz_id = UUID(?)",
 
                     new Object[]{quizId}, (rs, i) -> Question.builder()
@@ -382,7 +371,7 @@ public class QuizDaoImpl implements QuizDao {
                             .image(rs.getString("image"))
                             .points(rs.getInt("points"))
                             .typeId(rs.getInt("type_id"))
-                            .imageContent(rs.getBytes("image"))
+                            .imageContent(rs.getBytes("img"))
                             .build());
 
             for (int i = 0; i < listQ.size(); i++) {
@@ -418,7 +407,15 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Quiz> getUserQuizList(String userId, String thisUserId) {
         try {
-            return jdbcTemplate.query("SELECT * FROM quizzes WHERE creator_id = UUID(?) ", new Object[]{userId}, (rs, i) -> Quiz.builder()
+            return jdbcTemplate.query("SELECT q.quiz_id, title, description, image, " +
+                    "ver_creation_datetime, creator_id, activated, validated, published, " +
+                    "quiz_lang, admin_commentary, rating, f.liked  " +
+                    "FROM quizzes as q left join " +
+                    "(select count(*) as liked, quiz_id  " +
+                    "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
+                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?)",
+
+                    new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
                     .id(rs.getString("quiz_id"))
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))

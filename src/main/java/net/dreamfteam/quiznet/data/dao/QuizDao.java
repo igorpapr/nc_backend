@@ -10,7 +10,7 @@ import java.util.Map;
 public interface QuizDao {
     Quiz saveQuiz(Quiz quiz);
 
-    Quiz updateQuiz(Quiz quiz, String quizId, boolean newImage);
+    Quiz updateQuiz(Quiz quiz, String quizId);
 
     Quiz getQuiz(String quizId, String userId);
 
@@ -59,8 +59,6 @@ public interface QuizDao {
     void validateQuiz(DtoQuiz dtoQuiz);
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
-
-    void addQuestionImage(byte[] image, String questionId);
 
     void removeQuestionImage(String questionId);
 

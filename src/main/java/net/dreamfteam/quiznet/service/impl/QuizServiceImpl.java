@@ -64,7 +64,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz updateQuiz(DtoEditQuiz dtoQuiz, MultipartFile image, boolean newImage) {
+    public Quiz updateQuiz(DtoEditQuiz dtoQuiz, MultipartFile image) {
         Quiz quiz = Quiz.builder()
                 .title(dtoQuiz.getNewTitle())
                 .creationDate(Calendar.getInstance().getTime())
@@ -89,7 +89,7 @@ public class QuizServiceImpl implements QuizService {
             quiz.setImageContent(null);
         }
 
-        return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId(), newImage);
+        return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override
@@ -131,15 +131,17 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Question saveQuestion(Question newQuestion, MultipartFile image) {
-        newQuestion.setId(quizDao.saveQuestion(newQuestion));
-
-        if (image != null) {
+        if(image != null){
             try {
-                quizDao.addQuestionImage(image.getBytes(), newQuestion.getId());
+                newQuestion.setImageContent(image.getBytes());
             } catch (IOException e) {
                 throw new ValidationException("Broken image");
             }
+        }else{
+            newQuestion.setImageContent(null);
         }
+
+        newQuestion.setId(quizDao.saveQuestion(newQuestion));
 
         saveAnsw(newQuestion);
         return newQuestion;
@@ -148,17 +150,21 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Question updateQuestion(Question newQuestion, MultipartFile image) {
         quizDao.deleteQuestion(newQuestion);
-        newQuestion.setId(quizDao.saveQuestion(newQuestion));
 
         if(image != null){
             try {
-                quizDao.addQuestionImage(image.getBytes(), newQuestion.getId());
+                newQuestion.setImageContent(image.getBytes());
             } catch (IOException e) {
                 throw new ValidationException("Broken image");
             }
+        }else{
+            newQuestion.setImageContent(null);
         }
 
+        newQuestion.setId(quizDao.saveQuestion(newQuestion));
+
         saveAnsw(newQuestion);
+
         return newQuestion;
     }
 

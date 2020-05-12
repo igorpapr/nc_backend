@@ -14,7 +14,7 @@ public interface QuizService {
 
     Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException;
 
-    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image, boolean newImage);
+    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image);
 
     Quiz getQuiz(String quizId);
 

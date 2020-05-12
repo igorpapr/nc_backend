@@ -62,12 +62,11 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,
-                                      @RequestParam(value = "img", required = false)  MultipartFile image,
-                                      @RequestParam(value = "newimage", required = false) String newImage)
+                                      @RequestParam(value = "img", required = false)  MultipartFile image)
             throws ValidationException, IOException {
         DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
         QuizValidator.validateForEdit(dtoEditQuiz);
-        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz, image, newImage != null);
+        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz, image);
 
         return new ResponseEntity<>(resQuiz, HttpStatus.OK);
     }
