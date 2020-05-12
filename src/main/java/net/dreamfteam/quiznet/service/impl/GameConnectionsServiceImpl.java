@@ -2,40 +2,30 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.service.GameConnectionsService;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.ReplayProcessor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class GameConnectionsServiceImpl implements GameConnectionsService {
 
-    public static final List<SseEmitter> emitters = Collections.synchronizedList(new ArrayList<>());
+    private Map<String, ReplayProcessor<ServerSentEvent<String>>> sse = Collections.synchronizedMap(new HashMap<>());
 
     @Override
-    public SseEmitter initSseEmitters() {
-
-        SseEmitter emitter = new SseEmitter();
-        emitters.add(emitter);
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        return emitter;
+    public Flux<ServerSentEvent<String>> subscribe(String key) {
+        if (sse.get(key) == null) sse.put(key, ReplayProcessor.create());
+        return sse.get(key);
     }
 
+
     @Override
-    public void sendSseEventsToUI(String notification) {
-        List<SseEmitter> sseEmitterListToRemove = new ArrayList<>();
-        GameConnectionsServiceImpl.emitters.forEach((SseEmitter emitter) -> {
-            try {
-                emitter.send(notification, MediaType.APPLICATION_JSON);
-            } catch (IOException e) {
-                emitter.complete();
-                sseEmitterListToRemove.add(emitter);
-                e.printStackTrace();
-            }
-        });
-        GameConnectionsServiceImpl.emitters.removeAll(sseEmitterListToRemove);
+    public void sendMsg(String key, String msg) {
+        ServerSentEvent<String> event = ServerSentEvent.builder(msg).build();
+        sse.get(key).onNext(event);
     }
 }

@@ -1,10 +1,11 @@
 package net.dreamfteam.quiznet.service;
 
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.http.codec.ServerSentEvent;
+import reactor.core.publisher.Flux;
 
 public interface GameConnectionsService {
 
-    public SseEmitter initSseEmitters();
-    public void sendSseEventsToUI(String notification);
+    public Flux<ServerSentEvent<String>> subscribe(String key);
+    public void sendMsg(String key, String notification);
 
 }

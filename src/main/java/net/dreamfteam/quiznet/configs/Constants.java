@@ -33,7 +33,7 @@ public class Constants {
     public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
-    public static final String SECUR_SSE_URLS = "/api/sse";
+    public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
 
 
     public static final String SECRET_MD5 = "SecretQuiz";
