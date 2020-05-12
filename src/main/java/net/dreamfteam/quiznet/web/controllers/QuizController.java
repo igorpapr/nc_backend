@@ -225,6 +225,12 @@ public class QuizController {
         return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/suggestions-list")
+    public ResponseEntity<?> getSuggestionsQuizList() {
+    	return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST));
+    }
+
     @GetMapping
     public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam(required = false) String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);

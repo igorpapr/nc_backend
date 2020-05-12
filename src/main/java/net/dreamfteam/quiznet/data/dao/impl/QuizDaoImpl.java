@@ -388,6 +388,41 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
+    public List<QuizMediaView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount){
+        try{
+            String sql =  "SELECT q1.quiz_id, q1.title, q1.description, category_id, tag_id, q1.rating " +
+                          "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
+                          "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
+                          "WHERE (category_id IN (SELECT cq.category_id " + // 3 categories with most of games played by the user
+                          "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
+                          "                                                           ON g.game_id = ug.game_id) " +
+                          "                                                           ON g.quiz_id = cq.quiz_id " +
+                          "                        WHERE ug.user_id = ? " + //UserId here
+                          "                        GROUP BY cq.category_id " +
+                          "                        ORDER BY COUNT(g.game_id) DESC " +
+                          "                        LIMIT 3) " +
+                          "      OR qt1.tag_id IN (SELECT qt3.tag_id " + //3 tags with most of games played by the user
+                          "                        FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
+                          "                                                          ON g3.game_id = ug3.game_id) " +
+                          "                                                          ON g3.quiz_id = qt3.quiz_id " +
+                          "                        WHERE ug3.user_id = ? " + //Same userId here
+                          "                        GROUP BY qt3.tag_id " +
+                          "                        ORDER BY COUNT(g3.game_id) DESC" +
+                          "                        LIMIT 3) " +
+                          "      ) " +
+                          "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " + //excluding quizzes which the user has already played before
+                          "                            FROM games g2 INNER JOIN users_games ug2 ON g2.game_id = ug2.game_id " +
+                          "                            WHERE ug2.user_id = ?) " +
+                          "      AND q1.activated = true " + //only available to play
+                          "ORDER BY q1.rating DESC " + //order by overall rating
+                          "LIMIT ?;" ; //first X rows
+            return jdbcTemplate.queryForList(sql, new Object[]{userId, userId, amount}, new QuizMediaViewMapper());
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+    }
+
+    @Override
     public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) AND published = true LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
