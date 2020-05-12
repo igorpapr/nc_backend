@@ -30,4 +30,8 @@ public class QuizValid {
     private String adminComment;
 
     private byte[] imageContent;
+
+    private boolean published;
+
+    private boolean activated;
 }

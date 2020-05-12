@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
+import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,7 +242,7 @@ public class QuizDaoImpl implements QuizDao {
 
     public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, published, activated FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, new QuizValidMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -414,7 +415,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
         try {
-            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) AND published = true LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder().id(rs.getString("quiz_id")).title(rs.getString("title")).description(rs.getString("description")).imageContent(rs.getBytes("image_content")).creationDate(rs.getDate("ver_creation_datetime")).creatorId(rs.getString("creator_id")).username(rs.getString("username")).language(rs.getString("quiz_lang")).adminComment(rs.getString("admin_commentary")).build());
+            return jdbcTemplate.query("SELECT quiz_id, title, description, i.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, published, activated  FROM (quizzes q INNER JOIN users u ON q.creator_id = u.user_id) LEFT JOIN images i ON q.image_ref = i.image_id WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) AND published = true LIMIT ? OFFSET ?;", new Object[]{adminId, amount, startIndex}, new QuizValidMapper() );
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
