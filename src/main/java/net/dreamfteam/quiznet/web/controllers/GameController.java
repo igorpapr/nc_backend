@@ -2,15 +2,18 @@ package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
+import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.GameConnectionsService;
 import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.service.GameSessionService;
+import net.dreamfteam.quiznet.service.SseService;
+import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
 import net.dreamfteam.quiznet.web.validators.GameSessionValidator;
 import net.dreamfteam.quiznet.web.validators.GameValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,14 +27,18 @@ public class GameController {
     private final GameService gameService;
     private final GameSessionService gameSessionService;
     private final IAuthenticationFacade authenticationFacade;
-    private final GameConnectionsService gameConnectionsService;
+    private final SseService<User> gameConnectorSseService;
+    private final SseService<User> readyForGameSseService;
+    private final UserService userService;
 
     @Autowired
-    public GameController(GameService gameService, GameSessionService gameSessionService, IAuthenticationFacade authenticationFacade, GameConnectionsService gameConnectionsService) {
+    public GameController(GameService gameService, GameSessionService gameSessionService, IAuthenticationFacade authenticationFacade, ApplicationContext context, UserService userService) {
         this.gameService = gameService;
         this.gameSessionService = gameSessionService;
         this.authenticationFacade = authenticationFacade;
-        this.gameConnectionsService = gameConnectionsService;
+        this.gameConnectorSseService = (SseService<User>) context.getBean("gameConnector");
+        this.readyForGameSseService = (SseService<User>) context.getBean("readyForGame");
+        this.userService = userService;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -69,10 +76,13 @@ public class GameController {
         return new ResponseEntity<>(gameService.getQuestion(sessionId), HttpStatus.OK);
     }
 
+
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/join/{accessId}")
     public ResponseEntity<?> joinGame(@PathVariable String accessId) {
-        gameConnectionsService.sendMsg(gameService.getGameByAccessId(accessId).getId(),authenticationFacade.getUserId());
+        // TODO change users param
+        gameConnectorSseService.send(gameService.getGameByAccessId(accessId).getId(),
+                userService.getById(authenticationFacade.getUserId()));
         return new ResponseEntity<>(gameSessionService.joinGame(accessId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
@@ -80,9 +90,7 @@ public class GameController {
     @PostMapping("/result")
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
-
         gameSessionService.setResult(dtoGameSession);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -90,5 +98,14 @@ public class GameController {
     @GetMapping("/sessions/{gameId}")
     public ResponseEntity<?> getSessions(@PathVariable String gameId) {
         return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/game/{gameId}/ready")
+    public ResponseEntity<?> setReady(@PathVariable String gameId) {
+        // TODO change users param
+        readyForGameSseService.send(gameId,
+                userService.getById(authenticationFacade.getUserId()));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
