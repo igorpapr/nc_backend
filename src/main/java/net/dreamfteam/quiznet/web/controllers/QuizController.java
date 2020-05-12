@@ -8,7 +8,6 @@ import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
-import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
@@ -39,19 +38,16 @@ public class QuizController {
     final private QuizService quizService;
     final private IAuthenticationFacade authenticationFacade;
     final private ImageService imageService;
-    final private NotificationService notificationService;
 
 
     public QuizController(QuizService quizService,
                           ImageService imageService,
                           UserService userService,
-                          IAuthenticationFacade authenticationFacade,
-                          NotificationService notificationService) {
+                          IAuthenticationFacade authenticationFacade) {
         this.quizService = quizService;
         this.userService = userService;
         this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
-        this.notificationService = notificationService;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -225,7 +221,6 @@ public class QuizController {
 
     @GetMapping("/quiz-list/page/{page}")
     public ResponseEntity<?> getQuizList(@PathVariable int page) throws ValidationException {
-        notificationService.sendSseEventsToUI("RABOTAET");
         return new ResponseEntity<>(quizService.getQuizzes((page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE, Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
     }
 

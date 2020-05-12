@@ -24,7 +24,6 @@ public class GameSessionServiceImpl implements GameSessionService {
             throw new ValidationException("Sorry, no slots are available");
         }
 
-
         return gameSessionDao.getSessionByAccessId(accessId, userId);
     }
 }
