@@ -1,7 +1,10 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
+import net.dreamfteam.quiznet.data.entities.UserView;
 
+import java.util.Date;
 import java.util.List;
 
 public interface UserDao {
@@ -44,7 +47,17 @@ public interface UserDao {
 
     int deleteIfLinkExpired();
 
-    int userRating(String userId);
+    List<UserView> getFriendsByUserId(int startIndex, int amount, String userId);
 
+    int getFriendsTotalSize(String userId);
 
+    List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId);
+
+    int getFriendInvitationsTotalSize(String userId);
+
+    void addFriendInvitation(String parentId, String targetId);
+
+    void acceptInvitation(String parentId, String targetId);
+
+    void rejectInvitation(String parentId, String targetId);
 }

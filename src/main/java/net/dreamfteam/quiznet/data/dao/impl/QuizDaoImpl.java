@@ -437,8 +437,8 @@ public class QuizDaoImpl implements QuizDao {
                           "                        GROUP BY qt3.tag_id " +
                           "                        ORDER BY COUNT(g3.game_id) DESC" +
                           "                        LIMIT 3) " +
-                          "      ) " +
-                          "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " + //excluding quizzes which the user has already played before
+                          "      ) " + //excluding quizzes which the user has already played before
+                          "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
                           "                            FROM games g2 INNER JOIN users_games ug2 " +
                                                                     "ON g2.game_id = ug2.game_id " +
                           "                            WHERE ug2.user_id = uuid(?)) " +
