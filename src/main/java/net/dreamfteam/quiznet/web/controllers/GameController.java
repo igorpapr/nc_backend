@@ -63,7 +63,6 @@ public class GameController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
-        sseService.send(gameId,"start");
         gameService.startGame(gameId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -77,7 +76,6 @@ public class GameController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/join/{accessId}")
     public ResponseEntity<?> joinGame(@PathVariable String accessId) {
-        sseService.send(gameService.getGameByAccessId(accessId).getId(),"join", authenticationFacade.getUserId());
         return new ResponseEntity<>(gameSessionService.joinGame(accessId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
