@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,11 +25,13 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final GameDao gameDao;
+    private final SseService sseService;
 
     @Autowired
-    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate, GameDao gameDao) {
+    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate, GameDao gameDao, SseService sseService) {
         this.jdbcTemplate = jdbcTemplate;
         this.gameDao = gameDao;
+        this.sseService = sseService;
     }
 
     @Override
@@ -122,6 +125,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
 
+
         boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
                         "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
                         "THEN TRUE " +
@@ -142,6 +146,8 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
                             "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
                     gameSession.getId(), gameSession.getId());
+
+            sseService.send(gameSession.getGameId(),"finished",gameSession.getGameId());
         }
 
 

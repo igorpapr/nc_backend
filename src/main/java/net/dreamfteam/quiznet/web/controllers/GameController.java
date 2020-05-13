@@ -30,7 +30,10 @@ public class GameController {
     private final SseService sseService;
 
     @Autowired
-    public GameController(GameService gameService, GameSessionService gameSessionService, IAuthenticationFacade authenticationFacade, SseService sseService) {
+    public GameController(GameService gameService,
+                          GameSessionService gameSessionService,
+                          IAuthenticationFacade authenticationFacade,
+                          SseService sseService) {
         this.gameService = gameService;
         this.gameSessionService = gameSessionService;
         this.authenticationFacade = authenticationFacade;
@@ -88,8 +91,6 @@ public class GameController {
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
         gameSessionService.setResult(dtoGameSession);
-        sseService.send(gameSessionService.getGameIdBySessionId(dtoGameSession.getSessionId()),
-                "finished",dtoGameSession.getSessionId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -97,12 +98,6 @@ public class GameController {
     @GetMapping("/sessions/{gameId}")
     public ResponseEntity<?> getSessions(@PathVariable String gameId) {
         return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/session/{sessionId}")
-    public ResponseEntity<?> getSession(@PathVariable String sessionId) {
-        return new ResponseEntity<>(gameSessionService.getSession(sessionId), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
