@@ -8,6 +8,7 @@ import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
+import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,15 @@ public class GameServiceImpl implements GameService {
     private final GameDao gameDao;
     private final QuizDao quizDao;
     private final GameSessionDao gameSessionDao;
+    private final SseService sseService;
+
 
     @Autowired
-    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, GameSessionDao gameSessionDao) {
+    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, GameSessionDao gameSessionDao, SseService sseService) {
         this.gameDao = gameDao;
         this.quizDao = quizDao;
         this.gameSessionDao = gameSessionDao;
+        this.sseService = sseService;
     }
 
     @Override
@@ -85,6 +89,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void startGame(String gameId) {
+        sseService.send(gameId,"start");
         gameDao.startGame(gameId);
     }
 
