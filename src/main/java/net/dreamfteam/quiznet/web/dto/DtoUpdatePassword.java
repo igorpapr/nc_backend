@@ -13,8 +13,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DtoUpdatePassword {
 
+    private String currentPassword;
+
     private String newPassword;
 
-    private String currentPassword;
 }
 
