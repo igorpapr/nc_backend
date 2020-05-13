@@ -23,4 +23,16 @@ public class AuthenticationFacade implements IAuthenticationFacade {
         return null;
     }
 
+    @Override
+    public String getUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication instanceof UsernamePasswordAuthenticationToken) {
+            JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+            return jwtUser.getUsername();
+        }
+
+        return null;
+    }
+
 }

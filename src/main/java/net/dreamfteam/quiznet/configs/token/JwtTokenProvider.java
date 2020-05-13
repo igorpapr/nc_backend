@@ -9,6 +9,7 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.data.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static net.dreamfteam.quiznet.configs.Constants.EXPIRATION_TIME;
 import static net.dreamfteam.quiznet.configs.Constants.SECRET;
@@ -53,7 +55,7 @@ public class JwtTokenProvider {
         String userId = jwtUser.getId();
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", (userId));
+        claims.put("id", userId);
         claims.put("username", jwtUser.getUsername());
         claims.put("email", jwtUser.getEmail());
         claims.put("role", jwtUser.getRole().name());
@@ -67,9 +69,39 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String provideTokenForAnonym(String username) {
+
+        Date now = new Date(System.currentTimeMillis());
+
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+
+        Map<String, Object> claims = new HashMap<>();
+
+        String id = "-" + UUID.randomUUID();
+
+        claims.put("username", username);
+        claims.put("role", Role.ROLE_ANONYM.name());
+        claims.put("id", id);
+
+        return Jwts.builder()
+                .setSubject(id)
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
+    }
+
+
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(getUsernameFromJwt(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+
+        UserDetails userDetails;
+
+        if (isAnonym(token)) {
+            userDetails = JwtUserFactory.anonymUser(getUsernameFromJwt(token), getUserIdFromJwt(token));
+        } else userDetails = userDetailsService.loadUserByUsername(getUsernameFromJwt(token));
+
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public boolean validateToken(String token) {
@@ -98,15 +130,20 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public Long getUserIdFromJwt(String token) {
+    public String getUserIdFromJwt(String token) {
         Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
-        String id = (String) claims.get("id");
-
-        return Long.parseLong(id);
+        return (String) claims.get("id");
     }
 
     public String getUsernameFromJwt(String token) {
         Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+
         return (String) claims.get("username");
+    }
+
+    private boolean isAnonym(String token) {
+        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+        return claims.get("role").equals(Role.ROLE_ANONYM.name());
+
     }
 }
