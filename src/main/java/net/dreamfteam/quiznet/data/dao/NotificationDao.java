@@ -8,7 +8,9 @@ import java.util.Map;
 public interface NotificationDao {
     List<Notification> getUnseenByUserId(String userId);
 
-    void insert(Notification notification);
+    Notification getById(String notifId);
+
+    String insert(Notification notification);
 
     void updateSeen(String userId);
 

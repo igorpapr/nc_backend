@@ -1,6 +1,5 @@
 package net.dreamfteam.quiznet.data.dao;
 
-import net.dreamfteam.quiznet.data.entities.Answer;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
 
@@ -18,6 +17,5 @@ public interface GameDao {
 
     Question getQuestion(String gameId);
 
-    Answer saveAnswer(Answer answer);
 
 }

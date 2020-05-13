@@ -62,7 +62,7 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
-        if(jdbcTemplate.queryForObject("SELECT published FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{oldQuizId}, Boolean.class) == true) {
+        if (jdbcTemplate.queryForObject("SELECT published FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{oldQuizId}, Boolean.class) == true) {
             quiz = saveQuiz(quiz);
             jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
             List<Question> qlist = getQuestionList(oldQuizId);
@@ -93,7 +93,7 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz = jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId}, new QuizMapper());
-            if(userId != null) {
+            if (userId != null) {
                 if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{userId, quiz.getId()}, Long.class) >= 1) {
                     quiz.setFavourite(true);
                 }
@@ -117,7 +117,7 @@ public class QuizDaoImpl implements QuizDao {
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
             quiz.setTagIdList(loadTagIdList(quiz.getId()));
             quiz.setCategoryIdList(loadCategoryIdList(quiz.getId()));
-            quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[] { quiz.getCreatorId() }, String.class));
+            quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)", new Object[]{quiz.getCreatorId()}, String.class));
             return quiz;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -126,7 +126,7 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public void markAsFavourite(DtoQuiz dtoQuiz) {
-        if(jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{dtoQuiz.getUserId(), dtoQuiz.getQuizId()}, Long.class) >= 1) {
+        if (jdbcTemplate.queryForObject("SELECT count(*) FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", new Object[]{dtoQuiz.getUserId(), dtoQuiz.getQuizId()}, Long.class) >= 1) {
             jdbcTemplate.update("DELETE FROM favourite_quizzes WHERE user_id = UUID(?) AND quiz_id = UUID(?)", dtoQuiz.getUserId(), dtoQuiz.getQuizId());
             System.out.println("Quiz removed from favourites");
         } else {
@@ -211,10 +211,12 @@ public class QuizDaoImpl implements QuizDao {
             }
         }
 
-        sql = sql.substring(0, sql.length()-4);
-        if(quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
+        sql = sql.substring(0, sql.length() - 4);
+        if (quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
             sql = sql + "ORDER BY rating DESC LIMIT ? OFFSET ?";
-        } else {sql = sql + " ORDER BY ver_creation_datetime DESC LIMIT ? OFFSET ?";}
+        } else {
+            sql = sql + " ORDER BY ver_creation_datetime DESC LIMIT ? OFFSET ?";
+        }
         System.out.println("FILTERED");
         try {
             List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{amount, startIndex}, (rs, i) -> QuizFiltered.builder()
@@ -335,7 +337,7 @@ public class QuizDaoImpl implements QuizDao {
         try {
 
             List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?)",
-                    new Object[]{quizId},  (rs, i) -> Question.builder()
+                    new Object[]{quizId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
                             .title(rs.getString("title"))
@@ -375,11 +377,10 @@ public class QuizDaoImpl implements QuizDao {
     }
 
 
-
     @Override
-    public List<Quiz> getUserQuizList(String userId) {
+    public List<Quiz> getUserQuizList(String userId, String thisUserId) {
         try {
-            return jdbcTemplate.query("SELECT * FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref WHERE creator_id = UUID(?) ", new Object[]{userId},  (rs, i) ->Quiz.builder()
+            return jdbcTemplate.query("SELECT q.quiz_id, title, description, image_ref, image, ver_creation_datetime, creator_id, activated, validated, published, quiz_lang, admin_commentary, rating, f.liked  FROM quizzes as q LEFT JOIN images i ON i.image_id = q.image_ref left join (select count(*) as liked, quiz_id  from favourite_quizzes where user_id=uuid(?) group by quiz_id) as f on f.quiz_id=q.quiz_id where creator_id=uuid(?)", new Object[]{thisUserId, userId},  (rs, i) ->Quiz.builder()
                     .id(rs.getString("quiz_id"))
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))
@@ -393,12 +394,13 @@ public class QuizDaoImpl implements QuizDao {
                     .language(rs.getString("quiz_lang"))
                     .adminComment(rs.getString("admin_commentary"))
                     .rating(rs.getFloat("rating"))
-                    .isFavourite(false)
+                    .isFavourite(rs.getInt("liked") > 0)
                     .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
+
 
     @Override
     public List<QuizView> getQuizzes(int startIndex, int amount) {
@@ -441,7 +443,7 @@ public class QuizDaoImpl implements QuizDao {
     public List<Question> getQuestionsInPage(int startIndex, int amount, String quizId) {
         try {
             List<Question> listQ = jdbcTemplate.query("SELECT q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id WHERE q.quiz_id = UUID(?) LIMIT ? OFFSET ?",
-                    new Object[]{quizId,amount,startIndex},  (rs, i) -> Question.builder()
+                    new Object[]{quizId, amount, startIndex}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
                             .title(rs.getString("title"))
@@ -461,9 +463,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
 
-
-
-     public Question loadAnswersForQuestion(Question question, int i) {
+    public Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):
                 question.setRightOptions(jdbcTemplate.queryForList("SELECT content FROM options WHERE question_id = UUID(?) AND is_correct = true", new Object[]{question.getId()}, String.class));

@@ -7,9 +7,7 @@ import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.ImageService;
-import net.dreamfteam.quiznet.service.QuizService;
-import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.service.*;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
@@ -34,12 +32,16 @@ import static java.util.Objects.isNull;
 @CrossOrigin
 @RequestMapping(Constants.QUIZ_URLS)
 public class QuizController {
-    final private UserService userService;
-    final private QuizService quizService;
-    final private IAuthenticationFacade authenticationFacade;
-    final private ImageService imageService;
+    private final UserService userService;
+    private final QuizService quizService;
+    private final IAuthenticationFacade authenticationFacade;
+    private final ImageService imageService;
 
-    public QuizController(QuizService quizService, ImageService imageService, UserService userService, IAuthenticationFacade authenticationFacade) {
+
+    public QuizController(QuizService quizService,
+                          ImageService imageService,
+                          UserService userService,
+                          IAuthenticationFacade authenticationFacade) {
         this.quizService = quizService;
         this.userService = userService;
         this.imageService = imageService;
@@ -90,6 +92,7 @@ public class QuizController {
     @PostMapping("/question-image")
     public ResponseEntity<?> uploadQuestionImage(@RequestParam("img") MultipartFile image, @RequestParam("questionId") String questionId) throws ValidationException {
         quizService.addQuestionImage(imageService.saveImage(image), questionId);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -159,8 +162,10 @@ public class QuizController {
         if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId()))) {
             return ResponseEntity.notFound().build();
         }
+
         dtoQuiz.setValidator_id(authenticationFacade.getUserId());
         quizService.validateQuiz(dtoQuiz);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -168,7 +173,7 @@ public class QuizController {
     @GetMapping("/user-list")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
 
-        return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getUserQuizList(userId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")

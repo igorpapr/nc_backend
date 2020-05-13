@@ -12,4 +12,8 @@ public interface GameSessionService {
     void setResult(DtoGameSession dtoGameSession);
 
     List<Map<String,String>> getSessions(String gameId);
+
+    GameSession getSession(String sessionId);
+
+    String getGameIdBySessionId(String sessionId);
 }

@@ -1,12 +1,13 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
+import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
+import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,16 @@ import java.util.Map;
 @Service
 public class QuizServiceImpl implements QuizService {
 
-    private QuizDao quizDao;
-    private ImageService imageService;
+    private final QuizDao quizDao;
+    private final ImageService imageService;
+    private final NotificationService notificationService;
 
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ImageService imageService) {
+    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, NotificationService notificationService) {
         this.quizDao = quizDao;
         this.imageService = imageService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(String quizId) {
         Quiz quiz = quizDao.getQuiz(quizId);
-        if(quiz.getImageRef() != null) {
+        if (quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }
         return quiz;
@@ -60,7 +63,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(String quizId, String userId) {
         Quiz quiz = quizDao.getQuiz(quizId, userId);
-        if(quiz.getImageRef() != null) {
+        if (quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }
         return quiz;
@@ -78,7 +81,13 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
+
         quizDao.validateQuiz(quiz);
+
+        notificationService.insert(DtoNotification.builder()
+                .content("Your quiz "+ quiz.getTitle()+" was validated")
+                .userId(quiz.getCreatorId())
+                .build());
     }
 
     @Override
@@ -132,8 +141,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<Quiz> getUserQuizList(String userId) {
-        return quizDao.getUserQuizList(userId);
+    public List<Quiz> getUserQuizList(String userId, String thisUserId) {
+        return quizDao.getUserQuizList(userId, thisUserId);
     }
 
     @Override
@@ -143,7 +152,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
-        return quizDao.getInvalidQuizzes(startIndex, amount,adminId);
+        return quizDao.getInvalidQuizzes(startIndex, amount, adminId);
     }
 
     @Override
@@ -169,7 +178,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz setValidator(String quizId, String adminId) {
-        Quiz quiz = quizDao.setValidator(quizId,adminId);
+        Quiz quiz = quizDao.setValidator(quizId, adminId);
         if (quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }

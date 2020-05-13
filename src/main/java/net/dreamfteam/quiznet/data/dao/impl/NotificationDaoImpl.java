@@ -11,9 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class NotificationDaoImpl implements NotificationDao {
@@ -36,16 +34,26 @@ public class NotificationDaoImpl implements NotificationDao {
     }
 
     @Override
-    public void insert(Notification notification) {
+    public Notification getById(String notifId) {
+        return jdbcTemplate.queryForObject(
+                "SELECT * " +
+                        "FROM user_notifications " +
+                        "WHERE notif_id = UUID(?);", new Object[]{notifId}, new NotificationMapper());
+    }
+
+    @Override
+    public String insert(Notification notification) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO user_notifications " +
-                    "(content, user_id, image) " +
+                    "(content, user_id) " +
                     "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, notification.getContent());
             ps.setObject(2, java.util.UUID.fromString(notification.getUserId()));
-            ps.setBytes(3, notification.getImage());
             return ps;
-        });
+        }, keyHolder);
+
+        return String.valueOf(keyHolder.getKeys().get("notif_id"));
     }
 
     @Override

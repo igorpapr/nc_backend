@@ -10,7 +10,9 @@ import java.util.List;
 public interface NotificationService {
     List<Notification> getUnseenByUserId(String userId);
 
-    void insert(DtoNotification dtoNotification, MultipartFile image) throws ValidationException;
+    Notification getById(String notifId);
+
+    void insert(DtoNotification dtoNotification);
 
     void updateSeen(String userId);
 

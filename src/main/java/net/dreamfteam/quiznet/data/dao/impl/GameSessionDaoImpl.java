@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -79,13 +78,14 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
-    public List<Map<String, String>> getSessions(String gameId) {
-        List a = jdbcTemplate
-                .queryForList("SELECT users_games.user_id, username, image, score, is_winner, is_creator, duration_time " +
-                        "FROM users_games INNER JOIN users ON users_games.user_id = users.user_id " +
-                        "WHERE game_id = UUID(?) ", new Object[]{gameId});
-
-        return a;
+    public List getSessions(String gameId) {
+        return jdbcTemplate
+                .queryForList("SELECT users_games.user_id, username, images.image, score, " +
+                        "is_winner, is_creator, duration_time " +
+                        "FROM users_games INNER JOIN " +
+                        "(users LEFT JOIN images ON users.image = images.image_id) " +
+                        "ON users_games.user_id = users.user_id " +
+                        "WHERE game_id = UUID(?);", gameId);
     }
 
 
@@ -159,5 +159,11 @@ public class GameSessionDaoImpl implements GameSessionDao {
                 "WHERE access_code = ?;", new Object[]{accessId}, Integer.class);
 
         return playersJoined != allSlots;
+    }
+
+    @Override
+    public String getGameId(String sessionId) {
+        return jdbcTemplate.queryForObject("SELECT game_id FROM users_games WHERE game_session_id = UUID(?);",
+                new Object[]{sessionId}, String.class);
     }
 }

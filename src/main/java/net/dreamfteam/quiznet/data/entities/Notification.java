@@ -16,6 +16,5 @@ public class Notification {
     private String userId;
     private String content;
     private Date date;
-    private byte[] image;
     private boolean seen;
 }

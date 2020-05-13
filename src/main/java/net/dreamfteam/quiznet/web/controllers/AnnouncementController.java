@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
+import com.google.gson.Gson;
 import net.dreamfteam.quiznet.configs.Constants;
-import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AnnouncementService;
 import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
@@ -20,34 +20,43 @@ import static java.util.Objects.isNull;
 @CrossOrigin
 @RequestMapping(Constants.ANNOUNCEMENT_URLS)
 public class AnnouncementController {
-    private AnnouncementService announcementService;
+
+    private final AnnouncementService announcementService;
+    private final Gson gson;
 
     @Autowired
-    public AnnouncementController(AnnouncementService announcementService) {
+    public AnnouncementController(AnnouncementService announcementService, Gson gson) {
         this.announcementService = announcementService;
-
+        this.gson = gson;
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<?> createAnnouncement(@RequestBody DtoAnnouncement dtoAnnouncement ) throws ValidationException {
+    public ResponseEntity<?> createAnnouncement(@RequestParam("obj") String announcement,
+                                                @RequestParam(value = "img", required = false) MultipartFile image)
+            throws ValidationException {
+
+        DtoAnnouncement dtoAnnouncement = gson.fromJson(announcement, DtoAnnouncement.class);
+
         AnnouncementValidator.validate(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement), HttpStatus.OK);
+
+        return new ResponseEntity<>(announcementService.createAnnouncement(dtoAnnouncement, image), HttpStatus.OK);
     }
 
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editAnnouncement(@RequestBody DtoEditAnnouncement dtoAnnouncement) throws ValidationException {
-        AnnouncementValidator.validateForEdit(dtoAnnouncement);
-        return new ResponseEntity<>(announcementService.editAnnouncement(dtoAnnouncement), HttpStatus.OK);
-    }
+    public ResponseEntity<?> editAnnouncement(@RequestParam("obj") String announcement,
+                                              @RequestParam(value = "img", required = false) MultipartFile image,
+                                              @RequestParam(value = "newimage", required = false) String newImage)
+            throws ValidationException {
 
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/edit/image")
-    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("id") String announcementId) {
-        announcementService.uploadPicture(image, announcementId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        DtoEditAnnouncement dtoEditAnnouncement = gson.fromJson(announcement, DtoEditAnnouncement.class);
+        AnnouncementValidator.validateForEdit(dtoEditAnnouncement);
+
+        return new ResponseEntity<>(
+                announcementService.editAnnouncement(dtoEditAnnouncement, image, newImage != null)
+                , HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")

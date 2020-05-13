@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.dao.NotificationDao;
 import net.dreamfteam.quiznet.data.entities.Notification;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.NotificationService;
+import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationDao notificationDao;
+    private final SseService sseService;
 
     @Autowired
-    public NotificationServiceImpl(NotificationDao notificationDao) {
+    public NotificationServiceImpl(NotificationDao notificationDao, SseService sseService) {
         this.notificationDao = notificationDao;
+        this.sseService = sseService;
     }
 
     @Override
@@ -28,25 +31,21 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void insert(DtoNotification dtoNotification, MultipartFile image) throws ValidationException {
+    public Notification getById(String notifId) {
+        return notificationDao.getById(notifId);
+    }
+
+    @Override
+    public void insert(DtoNotification dtoNotification){
         Notification notification =
                 Notification.builder()
                         .content(dtoNotification.getContent())
                         .userId(dtoNotification.getUserId())
                         .build();
 
-        if (image != null) {
-            try {
-                notification.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new ValidationException("Broken image");
-            }
-        } else {
-            notification.setImage(null);
-        }
 
-        notificationDao.insert(notification);
-
+        sseService.send(dtoNotification.getUserId(),"sent",
+                notificationDao.insert(notification));
     }
 
     @Override

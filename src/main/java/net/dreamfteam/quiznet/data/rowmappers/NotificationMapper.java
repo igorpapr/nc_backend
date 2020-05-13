@@ -13,7 +13,6 @@ public class NotificationMapper implements RowMapper<Notification> {
                 .content(resultSet.getString("content"))
                 .id(resultSet.getString("notif_id"))
                 .date(resultSet.getDate("date_time"))
-                .image(resultSet.getBytes("image"))
                 .seen(resultSet.getBoolean("seen"))
                 .userId(resultSet.getString("user_id"))
                 .build();
