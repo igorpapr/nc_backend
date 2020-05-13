@@ -97,6 +97,12 @@ public class GameController {
         return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
     }
 
+//    @PreAuthorize("hasRole('USER')")
+//    @GetMapping("/session/{sessionId}")
+//    public ResponseEntity<?> getSession(@PathVariable String sessionId) {
+//        return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
+//    }
+
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/game/{gameId}/ready")
     public ResponseEntity<?> setReady(@PathVariable String gameId) {
