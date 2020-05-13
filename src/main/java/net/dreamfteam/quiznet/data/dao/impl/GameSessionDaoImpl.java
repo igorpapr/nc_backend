@@ -99,7 +99,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                 .queryForList("SELECT users_games.user_id, users_games.username, images.image, score, " +
                         "is_winner, is_creator, duration_time " +
                         "FROM users_games INNER JOIN " +
-                        "(users LEFT JOIN images ON users.image = images.image_id) " +
+                        "(users LEFT JOIN images ON UUID(users.image) = images.image_id) " +
                         "ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?);", gameId);
     }
