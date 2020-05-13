@@ -8,6 +8,7 @@ public class Constants {
 
     //URLS
     public static final String QUIZ_URLS = "/api/quizzes";
+    public static final String ACCOUNT_URLS = "api/account";
     public static final String GAME_URLS = "/api/games";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";
@@ -41,6 +42,8 @@ public class Constants {
     public static final int AMOUNT_QUIZ_ON_PAGE = 16;
     public static final int AMOUNT_VALID_QUIZ_ON_PAGE = 6;
     public static final int AMOUNT_SUGGESTIONS_QUIZ_LIST = 3;
+    public static final int AMOUNT_FRIENDS_ON_PAGE = 8;
+    public static final int AMOUNT_INVITATIONS_ON_PAGE = 8;
 
     //Registration messages
     public static final String REG_MAIL_SUBJECT = "Profile registration(QuizNet)";
@@ -60,4 +63,6 @@ public class Constants {
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
+    //Achievement ids
+    public static final int ACHIEVEMENT_FIRST_GAME_ID = 1;
 }

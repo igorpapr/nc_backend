@@ -20,42 +20,5 @@ public class UserLoginSuccessResponse {
     private boolean success;
 
     private String token;
-
-    private String id;
-
-    private String email;
-
-    private String username;
-
-    private Date creationDate;
-
-    private Date lastTimeOnline;
-
-    private String image;
-
-    private String aboutMe;
-
-    private boolean online;
-
-    private boolean activated;
-
-    private boolean verified;
-
-    private Role role;
-
-    public static UserLoginSuccessResponse fromUser(User user) {
-        return UserLoginSuccessResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .creationDate(user.getCreationDate())
-                .lastTimeOnline(user.getLastTimeOnline())
-                .image(user.getImage())
-                .aboutMe(user.getAboutMe())
-                .online(user.isOnline())
-                .activated(user.isActivated())
-                .verified(user.isVerified())
-                .role(user.getRole()).build();
-    }
-
+    
 }
