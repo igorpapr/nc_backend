@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
@@ -26,11 +27,14 @@ public class UserController {
     final private UserService userService;
     final private ImageService imageService;
     final private IAuthenticationFacade authenticationFacade;
+    final private AchievementService achievementService;
 
-    public UserController(UserService userService, ImageService imageService, IAuthenticationFacade authenticationFacade) {
+    public UserController(UserService userService, ImageService imageService,
+                          IAuthenticationFacade authenticationFacade, AchievementService achievementService) {
         this.userService = userService;
         this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
+        this.achievementService = achievementService;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -148,5 +152,12 @@ public class UserController {
         throws ValidationException {
         userService.proceedInvitation(authenticationFacade.getUserId(), targetId, toAccept);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/achievements")
+    public ResponseEntity<?> getUserAchievements(@PathVariable String userId) throws ValidationException{
+        System.out.println(userId);
+        return new ResponseEntity<>(achievementService.getUserAchievements(userId), HttpStatus.OK);
+
     }
 }

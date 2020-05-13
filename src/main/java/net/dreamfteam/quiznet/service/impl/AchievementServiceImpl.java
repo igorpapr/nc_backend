@@ -4,9 +4,12 @@ import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
+import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.service.AchievementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AchievementServiceImpl implements AchievementService {
@@ -35,7 +38,18 @@ public class AchievementServiceImpl implements AchievementService {
 		}
 	}
 
+	@Override
+	public void checkPlayedTenOfDifferentQuizzes(String sessionId) {
 
+	}
 
+	@Override
+	public void checkPlayedTenOfDifferentQuizzesOfCategory(String sessionId) {
 
+	}
+
+	@Override
+	public List<UserAchievement> getUserAchievements(String userId) {
+		return achievementDao.getUserAchievements(userId);
+	}
 }
