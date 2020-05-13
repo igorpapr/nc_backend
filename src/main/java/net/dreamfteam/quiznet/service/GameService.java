@@ -5,7 +5,7 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 
 public interface GameService{
-    Game createGame(DtoGame game, String userId);
+    Game createGame(DtoGame game, String userId, String username);
 
     void updateGame(DtoGame game);
 

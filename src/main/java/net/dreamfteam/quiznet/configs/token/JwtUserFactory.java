@@ -30,6 +30,16 @@ public class JwtUserFactory {
 
     }
 
+    public static JwtUser anonymUser(String username, String id) {
+        return JwtUser.builder()
+                .id(id)
+                .username(username)
+                .role(Role.ROLE_ANONYM)
+                .authorities(mapToGrantedAuthorities(Role.ROLE_ANONYM))
+                .build();
+
+    }
+
     private static List<GrantedAuthority> mapToGrantedAuthorities(Role role) {
         List<GrantedAuthority> roles = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority(role.toString()));

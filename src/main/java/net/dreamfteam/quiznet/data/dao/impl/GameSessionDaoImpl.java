@@ -35,38 +35,51 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
-    public GameSession getSessionByAccessId(String accessId, String userId) {
+    public GameSession getSessionByAccessId(String accessId, String userId, String username) {
 
         GameSession gameSession;
 
         try {
             gameSession = jdbcTemplate.queryForObject("SELECT * " +
-                            "FROM users_games WHERE user_id = UUID(?) AND game_id IN (" +
+                            "FROM users_games WHERE username = ? AND game_id IN (" +
                             "SELECT game_id FROM games WHERE access_code = ?);",
-                    new Object[]{userId, accessId}, new GameSessionMapper());
+                    new Object[]{username, accessId}, new GameSessionMapper());
         } catch (EmptyResultDataAccessException e) {
             gameSession = null;
         }
 
+        Game game;
+        String name = username;
 
         //IF SESSION CREATED
-        if (gameSession != null) {
+        if (gameSession != null && !userId.startsWith("-")) {
             return gameSession;
+        }else if(gameSession != null && userId.startsWith("-")){
+            name = name + "(Another)";
         }
 
-        Game game = gameDao.getGameByAccessId(accessId);
+
+
+        game = gameDao.getGameByAccessId(accessId);
+
+
 
         gameSession = GameSession.builder()
-                .userId(userId)
+                .userId(userId.startsWith("-") ? null : userId)
+                .username(name)
                 .gameId(game.getId())
                 .score(0)
                 .winner(false)
                 .creator(false)
-                .savedByUser(true)   // REFACTOR FORM ANONYMOUS
+                .savedByUser(!userId.startsWith("-"))   // REFACTOR FORM ANONYMOUS
                 .durationTime(0)
                 .build();
 
-        return createSession(gameSession);
+        gameSession = createSession(gameSession);
+
+        sseService.send(game.getId(),"join", name);
+
+        return gameSession;
     }
 
     @Override
@@ -83,7 +96,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.user_id, username, images.image, score, " +
+                .queryForList("SELECT users_games.user_id, users_games.username, images.image, score, " +
                         "is_winner, is_creator, duration_time " +
                         "FROM users_games INNER JOIN " +
                         "(users LEFT JOIN images ON users.image = images.image_id) " +
@@ -171,5 +184,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public String getGameId(String sessionId) {
         return jdbcTemplate.queryForObject("SELECT game_id FROM users_games WHERE game_session_id = UUID(?);",
                 new Object[]{sessionId}, String.class);
+    }
+
+    @Override
+    public void removePlayer(String sessionId) {
+        jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);",sessionId);
     }
 }

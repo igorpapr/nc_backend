@@ -40,22 +40,15 @@ public class GameController {
         this.sseService = sseService;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @PostMapping
     public ResponseEntity<?> createGame(@RequestBody DtoGame dtoGame) throws ValidationException {
         GameValidator.validate(dtoGame);
 
-        return new ResponseEntity<>(gameService.createGame(dtoGame, authenticationFacade.getUserId()), HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit")
-    public ResponseEntity<?> updateGame(@RequestBody DtoGame dtoGame) throws ValidationException {
-        GameValidator.validateUpdate(dtoGame);
-
-        gameService.updateGame(dtoGame);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(
+                gameService.createGame(dtoGame,
+                        authenticationFacade.getUserId(), authenticationFacade.getUsername()),
+                HttpStatus.CREATED);
     }
 
     @GetMapping("/game/{gameId}")
@@ -63,12 +56,11 @@ public class GameController {
         return new ResponseEntity<>(gameService.getGameById(gameId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @PostMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
-        System.out.println("TYTSt");
-        sseService.send(gameId,"start");
         gameService.startGame(gameId);
+        sseService.send(gameId,"start");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -78,15 +70,18 @@ public class GameController {
     }
 
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @GetMapping("/join/{accessId}")
     public ResponseEntity<?> joinGame(@PathVariable String accessId) {
-        // TODO change users param
-        sseService.send(gameService.getGameByAccessId(accessId).getId(),"join", authenticationFacade.getUserId());
-        return new ResponseEntity<>(gameSessionService.joinGame(accessId, authenticationFacade.getUserId()), HttpStatus.OK);
+
+        return new ResponseEntity<>(
+                gameSessionService.joinGame(accessId,
+                        authenticationFacade.getUserId(),
+                        authenticationFacade.getUsername()),
+                HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @PostMapping("/result")
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
@@ -94,17 +89,22 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @GetMapping("/sessions/{gameId}")
     public ResponseEntity<?> getSessions(@PathVariable String gameId) {
         return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @PostMapping("/game/{gameId}/ready")
-    public ResponseEntity<?> setReady(@PathVariable String gameId) {
-        // TODO change users param
-        sseService.send(gameId,"ready", authenticationFacade.getUserId());
+    public ResponseEntity<?> setReady(@PathVariable String gameId, @RequestParam String sessionId) {
+        sseService.send(gameId,"ready", sessionId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
+    @DeleteMapping("/remove/{sessionId}")
+    public ResponseEntity<?> remove(@PathVariable String sessionId) {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

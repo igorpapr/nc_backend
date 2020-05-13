@@ -74,5 +74,10 @@ public class ActivationServiceImpl implements ActivationService {
         return tokenProvider.provideToken(user.getUsername());
     }
 
+    @Override
+    public String getAnonymToken(String username) {
+        return tokenProvider.provideTokenForAnonym(username);
+    }
+
 
 }

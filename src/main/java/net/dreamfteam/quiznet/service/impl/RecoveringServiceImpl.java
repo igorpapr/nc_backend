@@ -6,7 +6,7 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.RecoveringService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +74,7 @@ public class RecoveringServiceImpl implements RecoveringService {
     }
 
     @Override
-    public void changePassword(@RequestBody DtoChangePassword passwordDto) {
+    public void changePassword(@RequestBody DtoForgotPassword passwordDto) {
         User user = userService.getByRecoverUrl(passwordDto.getRecoverUrl());
 
         if (user == null) {

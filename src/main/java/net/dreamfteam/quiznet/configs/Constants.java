@@ -3,12 +3,14 @@ package net.dreamfteam.quiznet.configs;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class Constants {
 
     //URLS
     public static final String QUIZ_URLS = "/api/quizzes";
     public static final String GAME_URLS = "/api/games";
+    public static final String ACCOUNT_URLS = "api/account";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";
     public static final String TEST_URLS = "/api/test/**";
@@ -17,6 +19,7 @@ public class Constants {
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
     public static final String SSE_URLS = "/api/sse";
+
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
@@ -32,9 +35,10 @@ public class Constants {
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quizzes/categories";
     public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
+
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
     public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
-
+    public static final String SECUR_ANONYM = "/api/anonym**";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
@@ -43,7 +47,6 @@ public class Constants {
     public static final long EXPIRATION_TIME = 300_000_000; //30 000 seconds
     public static final int AMOUNT_QUIZ_ON_PAGE = 16;
     public static final int AMOUNT_VALID_QUIZ_ON_PAGE = 6;
-
 
     //Registration messages
     public static final String REG_MAIL_SUBJECT = "Profile registration(QuizNet)";
