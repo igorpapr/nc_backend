@@ -201,7 +201,7 @@ public class QuizDaoImpl implements QuizDao {
         String sql = "SELECT q.quiz_id, q.title, q.description, q.ver_creation_datetime, " +
                 "q.creator_id, q.activated, q.validated, q.quiz_lang, q.rating, q.image, u.username " +
                 "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
-                "WHERE activated = true AND validated = true; ";
+                "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
 
             sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
