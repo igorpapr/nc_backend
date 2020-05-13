@@ -113,8 +113,8 @@ public class GameSessionDaoImpl implements GameSessionDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO users_games" +
                     "(user_id, game_id, score," +
-                    "is_winner, is_creator, saved_by_user, duration_time)" +
-                    " VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "is_winner, is_creator, saved_by_user, duration_time, username)" +
+                    " VALUES (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, UUID.fromString(gameSession.getUserId()));
             ps.setObject(2, UUID.fromString(gameSession.getGameId()));
             ps.setInt(3, gameSession.getScore());
@@ -122,6 +122,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
             ps.setBoolean(5, gameSession.isCreator());
             ps.setBoolean(6, gameSession.isSavedByUser());
             ps.setObject(7, gameSession.getDurationTime());
+            ps.setString(8,gameSession.getUsername());
             return ps;
         }, keyHolder);
 
