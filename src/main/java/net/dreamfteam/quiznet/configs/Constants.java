@@ -8,6 +8,7 @@ public class Constants {
 
     //URLS
     public static final String QUIZ_URLS = "/api/quizzes";
+    public static final String ACCOUNT_URLS = "api/account";
     public static final String GAME_URLS = "/api/games";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";

@@ -57,12 +57,10 @@ public class AuthorizationController {
 
         userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
 
-        UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.fromUser(currentUser);
-
-        successResponse.setToken(activationService.isUserVerified(currentUser));
-        successResponse.setOnline(true);
-        successResponse.setSuccess(true);
-
+        UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.builder()
+                .token(activationService.isUserVerified(currentUser))
+                .success(true).build();
+        
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 

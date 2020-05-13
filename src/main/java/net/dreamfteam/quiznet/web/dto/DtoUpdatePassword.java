@@ -11,9 +11,11 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DtoChangePassword {
+public class DtoUpdatePassword {
 
-    private String recoverUrl;
+    private String currentPassword;
 
-    private String password;
+    private String newPassword;
+
 }
+
