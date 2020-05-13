@@ -27,18 +27,14 @@ public class GameController {
     private final GameService gameService;
     private final GameSessionService gameSessionService;
     private final IAuthenticationFacade authenticationFacade;
-    private final SseService<User> gameConnectorSseService;
-    private final SseService<User> readyForGameSseService;
-    private final UserService userService;
+    private final SseService sseService;
 
     @Autowired
-    public GameController(GameService gameService, GameSessionService gameSessionService, IAuthenticationFacade authenticationFacade, ApplicationContext context, UserService userService) {
+    public GameController(GameService gameService, GameSessionService gameSessionService, IAuthenticationFacade authenticationFacade, SseService sseService) {
         this.gameService = gameService;
         this.gameSessionService = gameSessionService;
         this.authenticationFacade = authenticationFacade;
-        this.gameConnectorSseService = (SseService<User>) context.getBean("gameConnector");
-        this.readyForGameSseService = (SseService<User>) context.getBean("readyForGame");
-        this.userService = userService;
+        this.sseService = sseService;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -67,6 +63,8 @@ public class GameController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
+        System.out.println("TYTSt");
+        sseService.send(gameId,"start");
         gameService.startGame(gameId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -81,8 +79,7 @@ public class GameController {
     @GetMapping("/join/{accessId}")
     public ResponseEntity<?> joinGame(@PathVariable String accessId) {
         // TODO change users param
-        gameConnectorSseService.send(gameService.getGameByAccessId(accessId).getId(),
-                userService.getById(authenticationFacade.getUserId()));
+        sseService.send(gameService.getGameByAccessId(accessId).getId(),"join", authenticationFacade.getUserId());
         return new ResponseEntity<>(gameSessionService.joinGame(accessId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
@@ -104,8 +101,7 @@ public class GameController {
     @PostMapping("/game/{gameId}/ready")
     public ResponseEntity<?> setReady(@PathVariable String gameId) {
         // TODO change users param
-        readyForGameSseService.send(gameId,
-                userService.getById(authenticationFacade.getUserId()));
+        sseService.send(gameId,"ready", authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

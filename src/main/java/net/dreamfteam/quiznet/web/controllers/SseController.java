@@ -19,16 +19,13 @@ import reactor.core.publisher.Flux;
 public class SseController {
 
 
-    private final SseService<User> gameConnectorSseService;
-    private final SseService<User> readyForGameSseService;
+    private final SseService sseService;
 
 
     @Autowired
-    public SseController(ApplicationContext context) {
-        this.gameConnectorSseService = (SseService<User>) context.getBean("gameConnector");
-        this.readyForGameSseService = (SseService<User>) context.getBean("readyForGame");
+    public SseController(SseService sseService) {
+        this.sseService = sseService;
     }
-
 
     // handle normal "Async timeout", to avoid logging warn messages every 30s per client...
     @ExceptionHandler(value = AsyncRequestTimeoutException.class)
@@ -36,14 +33,8 @@ public class SseController {
         return null; // "SSE timeout..OK";
     }
 
-    @GetMapping(path = "/stream/game-connector/{key}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<User>> gameConnectorFlux(@PathVariable String key) {
-        return gameConnectorSseService.subscribe(key);
+    @GetMapping(path = "/stream/{key}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent> gameConnectorFlux(@PathVariable String key) {
+        return sseService.subscribe(key);
     }
-
-    @GetMapping(path = "/stream/users-ready/{key}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<User>> readyForGameFlux(@PathVariable String key) {
-        return readyForGameSseService.subscribe(key);
-    }
-
 }
