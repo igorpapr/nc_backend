@@ -63,4 +63,6 @@ public class Constants {
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
+    //Achievement ids
+    public static final int ACHIEVEMENT_FIRST_GAME_ID = 1;
 }
