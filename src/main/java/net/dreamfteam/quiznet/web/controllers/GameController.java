@@ -105,6 +105,7 @@ public class GameController {
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @DeleteMapping("/remove/{sessionId}")
     public ResponseEntity<?> remove(@PathVariable String sessionId) {
+        gameSessionService.removePlayer(sessionId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
