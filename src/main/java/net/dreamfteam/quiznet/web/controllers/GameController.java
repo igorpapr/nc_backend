@@ -88,6 +88,8 @@ public class GameController {
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
         gameSessionService.setResult(dtoGameSession);
+        sseService.send(gameSessionService.getGameIdBySessionId(dtoGameSession.getSessionId()),
+                "finished",dtoGameSession.getSessionId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -97,11 +99,11 @@ public class GameController {
         return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
     }
 
-//    @PreAuthorize("hasRole('USER')")
-//    @GetMapping("/session/{sessionId}")
-//    public ResponseEntity<?> getSession(@PathVariable String sessionId) {
-//        return new ResponseEntity<>(gameSessionService.getSessions(gameId), HttpStatus.OK);
-//    }
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/session/{sessionId}")
+    public ResponseEntity<?> getSession(@PathVariable String sessionId) {
+        return new ResponseEntity<>(gameSessionService.getSession(sessionId), HttpStatus.OK);
+    }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/game/{gameId}/ready")

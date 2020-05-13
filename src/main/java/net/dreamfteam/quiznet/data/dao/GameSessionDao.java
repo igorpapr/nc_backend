@@ -17,4 +17,6 @@ public interface GameSessionDao {
     void updateSession(GameSession gameSession);
 
     boolean gameHasAvailableSlots(String accessId);
+
+    String getGameId(String sessionId);
 }

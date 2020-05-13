@@ -50,5 +50,15 @@ public class GameSessionServiceImpl implements GameSessionService {
         return gameSessionDao.getSessions(gameId);
     }
 
+    @Override
+    public GameSession getSession(String sessionId) {
+        return gameSessionDao.getById(sessionId);
+    }
+
+    @Override
+    public String getGameIdBySessionId(String sessionId) {
+        return gameSessionDao.getGameId(sessionId);
+    }
+
 
 }

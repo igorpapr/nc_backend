@@ -160,4 +160,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         return playersJoined != allSlots;
     }
+
+    @Override
+    public String getGameId(String sessionId) {
+        return jdbcTemplate.queryForObject("SELECT game_id FROM users_games WHERE game_session_id = UUID(?);",
+                new Object[]{sessionId}, String.class);
+    }
 }
