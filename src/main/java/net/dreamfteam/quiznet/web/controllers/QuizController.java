@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.web.controllers;
 
+import com.google.gson.Gson;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Question;
@@ -90,6 +91,7 @@ public class QuizController {
     @PostMapping("/question-image")
     public ResponseEntity<?> uploadQuestionImage(@RequestParam("img") MultipartFile image, @RequestParam("questionId") String questionId) throws ValidationException {
         quizService.addQuestionImage(imageService.saveImage(image), questionId);
+
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -128,7 +130,7 @@ public class QuizController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/markaspublished")
     public ResponseEntity<?> setAsPublished(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         quizService.markAsPublished(dtoQuiz);
@@ -159,7 +161,7 @@ public class QuizController {
         if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId()))) {
             return ResponseEntity.notFound().build();
         }
-        dtoQuiz.setUserId(authenticationFacade.getUserId());
+        dtoQuiz.setValidator_id(authenticationFacade.getUserId());
         quizService.validateQuiz(dtoQuiz);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -168,7 +170,7 @@ public class QuizController {
     @GetMapping("/user-list")
     public ResponseEntity<?> getUserQuizList(@RequestParam String userId) throws ValidationException {
 
-        return new ResponseEntity<>(quizService.getUserQuizList(userId), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getUserQuizList(userId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
@@ -225,6 +227,12 @@ public class QuizController {
         return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/suggestions-list")
+    public ResponseEntity<?> getSuggestionsQuizList() {
+    	return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST), HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam(required = false) String userId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
@@ -232,10 +240,20 @@ public class QuizController {
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/setvalidator")
-    public ResponseEntity<?> setQuizValidator(@RequestBody String quizId) throws ValidationException {
-        return new ResponseEntity<>(quizService.setValidator(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
-
+    public ResponseEntity<?> setQuizValidator(@RequestBody DtoQuiz quizDto) throws ValidationException {
+        return new ResponseEntity<>(quizService.setValidator(quizDto.getQuizId(), authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/{quizId}/questions/amount")
+    public ResponseEntity<?> getQuestionsAmountInQuiz(@PathVariable String quizId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuestionsAmountInQuiz(quizId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/{quizId}/questions/page/{page}")
+    public ResponseEntity<?> getQuestionsInPage(@PathVariable String quizId, @PathVariable int page) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuestionsInPage((page - 1) * Constants.AMOUNT_QUESTIONS_ON_PAGE, Constants.AMOUNT_QUESTIONS_ON_PAGE, quizId), HttpStatus.OK);
+    }
 
 }

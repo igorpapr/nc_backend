@@ -1,6 +1,5 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
@@ -51,7 +50,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(String quizId) {
         Quiz quiz = quizDao.getQuiz(quizId);
-        if(quiz.getImageRef() != null) {
+        if (quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }
         return quiz;
@@ -60,7 +59,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(String quizId, String userId) {
         Quiz quiz = quizDao.getQuiz(quizId, userId);
-        if(quiz.getImageRef() != null) {
+        if (quiz.getImageRef() != null) {
             quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
         }
         return quiz;
@@ -117,6 +116,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<Question> getQuestionsInPage(int startIndex, int amount, String quizId) {
+        return quizDao.getQuestionsInPage(startIndex, amount, quizId);
+    }
+
+    @Override
     public List<Map<String, String>> getTagList() {
         return quizDao.getTagList();
     }
@@ -127,8 +131,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<Quiz> getUserQuizList(String userId) {
-        return quizDao.getUserQuizList(userId);
+    public List<Quiz> getUserQuizList(String userId, String thisUserId) {
+        return quizDao.getUserQuizList(userId, thisUserId);
     }
 
     @Override
@@ -138,7 +142,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
-        return quizDao.getInvalidQuizzes(startIndex, amount,adminId);
+        return quizDao.getInvalidQuizzes(startIndex, amount, adminId);
     }
 
     @Override
@@ -164,7 +168,11 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Quiz setValidator(String quizId, String adminId) {
-        return quizDao.setValidator(quizId,adminId);
+        Quiz quiz = quizDao.setValidator(quizId, adminId);
+        if (quiz.getImageRef() != null) {
+            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
+        }
+        return quiz;
     }
 
     @Override
@@ -180,6 +188,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<QuizView> getSuggestionsQuizList(String userId, int amount){
+        return quizDao.getSuggestionsQuizListByCategoriesAndTags(userId, amount);
+    }
+
+    @Override
     public void addQuizImage(String imageId, String quizId) {
         quizDao.addQuizImage(imageId, quizId);
     }
@@ -187,6 +200,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public void addQuestionImage(String imageId, String questionId) {
         quizDao.addQuestionImage(imageId, questionId);
+    }
+
+    @Override
+    public int getQuestionsAmountInQuiz(String quizId) {
+        return quizDao.getQuestionsAmountInQuiz(quizId);
     }
 
     private void checkQuizUniqueness(String title, String creatorId) {

@@ -40,13 +40,19 @@ public interface QuizDao {
 
     List<List<Object>> getCategoryList();
 
-    List<Quiz> getUserQuizList(String userId);
+    List<Quiz> getUserQuizList(String userId, String thisUserId);
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<QuizValid> getInvalidQuizzes(int startIndex, int amount , String adminId);
+    List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
+
+    List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
     int getQuizzesTotalSize();
+
+    int getQuestionsAmountInQuiz(String quizId);
+
+    List<Question> getQuestionsInPage(int startIndex, int amount, String quizId);
 
     Quiz getUserQuizByTitle(String title, String username);
 
@@ -65,4 +71,6 @@ public interface QuizDao {
     int getValidQuizzesTotalSize(String adminId);
 
     Quiz setValidator(String quizId, String adminId);
+
+    Question loadAnswersForQuestion(Question question, int i);
 }
