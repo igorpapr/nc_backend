@@ -15,6 +15,7 @@ public class QuizMapper implements RowMapper<Quiz> {
                 .title(rs.getString("title"))
                 .description(rs.getString("description"))
                 .imageRef(rs.getString("image_ref"))
+                .imageContent(rs.getBytes("image")) // NOT A REFERENCE(REAL IMAGE)
                 .creationDate(rs.getDate("ver_creation_datetime"))
                 .creatorId(rs.getString("creator_id"))
                 .activated(rs.getBoolean("activated"))

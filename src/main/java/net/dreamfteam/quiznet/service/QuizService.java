@@ -5,15 +5,16 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException;
 
-    Quiz updateQuiz(DtoEditQuiz quiz);
+    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image);
 
     Quiz getQuiz(String quizId);
 
@@ -29,9 +30,9 @@ public interface QuizService {
 
     void deactivateQuiz(DtoQuiz dtoQuiz);
 
-    Question saveQuestion(Question newQuestion);
+    Question saveQuestion(Question newQuestion, MultipartFile image);
 
-    Question updateQuestion(Question newQuestion);
+    Question updateQuestion(Question newQuestion, MultipartFile image);
 
     void deleteQuestion(Question question);
 
@@ -56,10 +57,6 @@ public interface QuizService {
     List<QuizFiltered> shortListOfQuizzes();
 
     List<QuizView> getSuggestionsQuizList(String userId, int amount);
-
-    void addQuizImage(String imageId, String quizId);
-
-    void addQuestionImage(String imageId, String questionId);
 
     int getQuestionsAmountInQuiz(String quizId);
 

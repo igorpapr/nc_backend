@@ -60,9 +60,7 @@ public interface QuizDao {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
-    void addQuizImage(String imageId, String quizId);
-
-    void addQuestionImage(String imageId, String questionId);
+    void removeQuestionImage(String questionId);
 
     List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
 
