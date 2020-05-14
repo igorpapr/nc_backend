@@ -10,16 +10,16 @@ import java.util.Date;
 @Setter
 @EqualsAndHashCode
 public class FriendsActivity {
-	String activityId;
+	private String activityId;
 
-	String content;
+	private String content;
 
-	Date datetime;
+	private Date datetime;
 
 	//Id of the person owner of this activity
-	String userId;
+	private String userId;
 
-	String username;
+	private String username;
 
-	byte[] imageContent;
+	private byte[] imageContent;
 }

@@ -7,4 +7,6 @@ import java.util.List;
 public interface ActivityDao {
 
 	List<FriendsActivity> getFriendsActivitiesList(String userId);
+
+	void addActivity();
 }
