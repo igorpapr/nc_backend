@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
+import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.service.AchievementService;
@@ -57,9 +58,16 @@ public class AchievementServiceImpl implements AchievementService {
 
 	}
 
+
+
 	@Override
 	public List<UserAchievement> getUserAchievements(String userId) {
 		return achievementDao.getUserAchievements(userId);
+	}
+
+	@Override
+	public void checkOnStartGameAchievements(String gameId) {
+		checkPlayedAmountOfGamesCreatedByUser(gameId);
 	}
 
 	private void checkFirstGameOfUserAchievement(String userId) {
@@ -82,7 +90,7 @@ public class AchievementServiceImpl implements AchievementService {
 
 	//Repeatable achievement
 	private void checkPlayedTenOfDifferentQuizzesOfCategory(String userId, String gameId) {
-		UserCategoryAchievementInfo info = gameDao.getGamesInCategoryInfo(userId, gameId);
+		UserCategoryAchievementInfo info = gameDao.getUserGamesInCategoryInfo(userId, gameId);
 		if (info != null){
 			int amount = info.getAmountPlayed();
 			if(amount > 0 && ((amount % 10) == 0)){ //works on every tenth game
@@ -103,6 +111,21 @@ public class AchievementServiceImpl implements AchievementService {
 	}
 
 
+	private void checkPlayedAmountOfGamesCreatedByUser(String gameId){
+		QuizCreatorFullStatistics stats = gameDao.getAmountOfPlayedGamesCreatedByCreatorOfGame(gameId);
+		if (stats != null){
+			int amount = stats.getAmountGamesPlayedAllQuizzes();
+			String creatorId = stats.getCreatorId();
+			if (amount == 15){
+				addAchievementForUser(creatorId, Constants.ACHIEVEMENT_POPULAR_CREATOR_ID, false);
+			} else if (amount == 30){
+				addAchievementForUser(creatorId, Constants.ACHIEVEMENT_EXTREMELY_POPULAR_ID, false);
+			} else if (amount == 50){
+				addAchievementForUser(creatorId, Constants.ACHIEVEMENT_MASTERPIECE_CREATOR_ID, false);
+			}
+		}
+	}
+
 	private void addAchievementForUser(String userId, int achievementId, boolean repeatable){
 		int resAssigning = 0;
 		if (repeatable){//For future use
@@ -114,4 +137,5 @@ public class AchievementServiceImpl implements AchievementService {
 			//add to notifications and activities
 		}
 	}
+
 }

@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 
 public interface GameDao {
@@ -18,5 +19,7 @@ public interface GameDao {
 
     Question getQuestion(String gameId);
 
-    UserCategoryAchievementInfo getGamesInCategoryInfo(String userId, String gameId);
+    UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId);
+
+    QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId);
 }

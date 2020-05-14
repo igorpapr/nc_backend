@@ -12,4 +12,6 @@ public interface AchievementService {
 
 	List<UserAchievement> getUserAchievements(String userId);
 
+	void checkOnStartGameAchievements(String gameId);
+
 }

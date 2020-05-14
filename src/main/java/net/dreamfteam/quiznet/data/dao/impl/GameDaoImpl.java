@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
 import org.hashids.Hashids;
@@ -121,7 +122,7 @@ public class GameDaoImpl implements GameDao {
 
     //Get info about the number of games played by user of some category by given game id
     @Override
-    public UserCategoryAchievementInfo getGamesInCategoryInfo(String userId, String gameId) {
+    public UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId) {
         try {
             UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
                     "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
@@ -139,6 +140,31 @@ public class GameDaoImpl implements GameDao {
                             .categoryId(rs.getString("category_id"))
                             .categoryTitle(rs.getString("title"))
                             .build());
+            return info;
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    //For achievements: returns the number of all games with quizzes that created the creator of given gameId
+    @Override
+    public QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId) {
+        try {
+            QuizCreatorFullStatistics info = jdbcTemplate
+                    .queryForObject("SELECT COUNT(*) AS amount, q.creator_id AS creator " +
+                            "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
+                            "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
+                                                "FROM quizzes q1 " +
+                                                "WHERE q1.creator_id = (SELECT creator_id " +
+                                                                        "FROM quizzes qq INNER JOIN games gg " +
+                                                                        "ON qq.quiz_id = gg.quiz_id " +
+                                                                        "WHERE gg.game_id = uuid(?))) " +
+                                    "GROUP BY q.creator_id;",
+                    new Object[]{gameId},
+                            (rs, i) -> QuizCreatorFullStatistics.builder()
+                                    .creatorId(rs.getString("creator"))
+                                    .amountGamesPlayedAllQuizzes(rs.getInt("amount"))
+                                    .build());
             return info;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;

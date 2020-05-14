@@ -75,5 +75,8 @@ public class Constants {
     public static final int ACHIEVEMENT_OTHERS_CATEGORY_ID = 9;
     public static final int ACHIEVEMENT_SANDBOX_ID = 10;
     public static final int ACHIEVEMENT_SPECIALIST_CREATOR_ID = 11;
+    public static final int ACHIEVEMENT_POPULAR_CREATOR_ID = 12;
+    public static final int ACHIEVEMENT_EXTREMELY_POPULAR_ID = 13;
+    public static final int ACHIEVEMENT_MASTERPIECE_CREATOR_ID = 14;
 
 }
