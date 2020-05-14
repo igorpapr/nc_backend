@@ -42,4 +42,9 @@ public class ActivityDaoImpl implements ActivityDao {
 			return null;
 		}
 	}
+
+	@Override
+	public void addActivity() {
+
+	}
 }
