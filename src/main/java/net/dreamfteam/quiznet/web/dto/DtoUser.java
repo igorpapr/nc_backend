@@ -41,6 +41,13 @@ public class DtoUser {
 
     private byte[] imageContent;
 
+    private boolean isFriend;
+
+    private boolean outgoingRequest;
+
+    private boolean incomingRequest;
+
+
     private Role role;
 
     public static List<DtoUser> fromUser(List<User> users) {
@@ -61,6 +68,11 @@ public class DtoUser {
                 .online(user.isOnline())
                 .activated(user.isActivated())
                 .verified(user.isVerified())
-                .role(user.getRole()).build();
+                .role(user.getRole())
+                .isFriend(user.isFriend())
+                .incomingRequest(user.isIncomingRequest())
+                .outgoingRequest(user.isOutgoingRequest())
+                .build();
+
     }
 }

@@ -45,4 +45,9 @@ public class User {
 
     private Role role;
 
+    private boolean isFriend;
+
+    private boolean outgoingRequest;
+
+    private boolean incomingRequest;
 }
