@@ -91,16 +91,11 @@ public class AuthorizationController {
 
     @PostMapping("/anonym")
     public ResponseEntity<UserLoginSuccessResponse> getAnonymToken(@RequestParam("username") String username) {
-        if(authenticationFacade.getUsername() != null){
             UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.builder()
                     .token(activationService.getAnonymToken(username))
                     .success(true).build();
 
             return new ResponseEntity<>(successResponse, HttpStatus.OK);
-        }else{
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-
     }
 
 }

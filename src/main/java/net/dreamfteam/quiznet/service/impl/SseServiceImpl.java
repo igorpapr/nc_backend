@@ -30,7 +30,7 @@ public class SseServiceImpl implements SseService {
 
     @Override
     public void send(String key, String event) {
-        ServerSentEvent ssEvent = ServerSentEvent.builder().event(event).build();
+        ServerSentEvent ssEvent = ServerSentEvent.builder(event).event(event).build();
         sse.get(key).onNext(ssEvent);
     }
 

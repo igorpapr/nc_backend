@@ -96,9 +96,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.user_id, users_games.username, images.image, score, " +
+                .queryForList("SELECT users_games.game_session_id, users_games.user_id, users_games.username, images.image, score, " +
                         "is_winner, is_creator, duration_time " +
-                        "FROM users_games INNER JOIN " +
+                        "FROM users_games LEFT JOIN " +
                         "(users LEFT JOIN images ON UUID(users.image) = images.image_id) " +
                         "ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?);", gameId);
@@ -115,7 +115,8 @@ public class GameSessionDaoImpl implements GameSessionDao {
                     "(user_id, game_id, score," +
                     "is_winner, is_creator, saved_by_user, duration_time, username)" +
                     " VALUES (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-            ps.setObject(1, UUID.fromString(gameSession.getUserId()));
+            ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
+                            UUID.fromString(gameSession.getUserId()));
             ps.setObject(2, UUID.fromString(gameSession.getGameId()));
             ps.setInt(3, gameSession.getScore());
             ps.setBoolean(4, gameSession.isWinner());

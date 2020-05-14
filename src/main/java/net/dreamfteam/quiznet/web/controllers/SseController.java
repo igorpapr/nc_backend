@@ -34,7 +34,7 @@ public class SseController {
     }
 
     @GetMapping(path = "/stream/{key}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent> gameConnectorFlux(@PathVariable String key) {
+    public Flux<ServerSentEvent> sseFlux(@PathVariable String key) {
         return sseService.subscribe(key);
     }
 }
