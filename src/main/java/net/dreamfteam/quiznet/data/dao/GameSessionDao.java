@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface GameSessionDao {
-    GameSession getSessionByAccessId(String accessId, String userId);
+    GameSession getSessionByAccessId(String accessId, String userId, String username);
 
     GameSession getById(String sessionId);
 
@@ -17,6 +17,10 @@ public interface GameSessionDao {
     void updateSession(GameSession gameSession);
 
     boolean gameHasAvailableSlots(String accessId);
+
+    String getGameId(String sessionId);
+
+    void removePlayer(String sessionId);
 
     int getNumberOfSessionsOfUser(String userId);
 

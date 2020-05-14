@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
@@ -16,7 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.websocket.server.PathParam;
@@ -29,15 +36,18 @@ public class AuthorizationController {
     @Value("${activation.redirect.url}")
     private String ACTIVATION_REDIRECT_URL;
 
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+    private final IAuthenticationFacade authenticationFacade;
+
     final private UserService userService;
     final private ActivationService activationService;
 
     @Autowired
-    public AuthorizationController(UserService userService, ActivationService activationService, SettingsService settingsService) {
+    public AuthorizationController(UserService userService, ActivationService activationService, SettingsService settingsService, IAuthenticationFacade authenticationFacade) {
         this.userService = userService;
         this.activationService = activationService;
         this.settingsService = settingsService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @PostMapping("/log-in")
@@ -60,7 +70,7 @@ public class AuthorizationController {
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.builder()
                 .token(activationService.isUserVerified(currentUser))
                 .success(true).build();
-        
+
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
@@ -78,5 +88,15 @@ public class AuthorizationController {
 
         return new RedirectView(ACTIVATION_REDIRECT_URL + activationService.verifyUser(key));
     }
+
+    @PostMapping("/anonym")
+    public ResponseEntity<UserLoginSuccessResponse> getAnonymToken(@RequestParam("username") String username) {
+            UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.builder()
+                    .token(activationService.getAnonymToken(username))
+                    .success(true).build();
+
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+    }
+
 }
 
