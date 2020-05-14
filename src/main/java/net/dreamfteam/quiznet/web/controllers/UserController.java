@@ -74,6 +74,8 @@ public class UserController {
 
         if (currentUser.getRole().ordinal() < user.getRole().ordinal()) {
             throw new ValidationException("You dont have such capabilities");
+        } else if (currentUser.getRole().ordinal() == 0){
+             userService.getFriendsRelations(user, currentUser.getId());
         }
 
         DtoUser dtoUser = DtoUser.fromUser(user);

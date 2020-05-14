@@ -12,7 +12,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,7 +62,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAllByRoleUser() {
         return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE roles.role_id = 1",
+                        "WHERE roles.role_id = 1 and is_activated = true order by is_online desc, last_time_online desc",
                 new UserMapper()
         );
     }
@@ -71,7 +70,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getBySubStr(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE LOWER(username) LIKE LOWER(?)",
+                        "WHERE LOWER(username) LIKE LOWER(?) order by role asc, is_online desc, last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -80,7 +79,7 @@ public class UserDaoImpl implements UserDao {
     public List<User> getBySubStrAndRoleUser(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
                         "WHERE LOWER(username) LIKE LOWER(?)" +
-                        "AND roles.role_id = 1 ",
+                        "AND roles.role_id = 1  ORDER BY is_online desc, last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -163,12 +162,12 @@ public class UserDaoImpl implements UserDao {
     public List<UserView> getFriendsByUserId(int startIndex, int amount, String userId) {
         try {
             return jdbcTemplate.query("SELECT user_id, username, last_time_online, is_online, i.image AS image_content " +
-                                            "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                                            "WHERE user_id IN (SELECT friend_id " +
-                                                              "FROM friends " +
-                                                              "WHERE (parent_id = uuid(?) OR friend_id = uuid(?))" +
-                                                              "AND accepted_datetime IS NOT NULL) " +
-                                            "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
+                    "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
+                    "WHERE user_id IN (SELECT friend_id " +
+                    "FROM friends " +
+                    "WHERE (parent_id = uuid(?) OR friend_id = uuid(?))" +
+                    "AND accepted_datetime IS NOT NULL) " +
+                    "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -178,11 +177,11 @@ public class UserDaoImpl implements UserDao {
     public int getFriendsTotalSize(String userId) {
         try {
             return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
-                                                    "FROM friends " +
-                                                    "WHERE (parent_id = uuid(?) " +
-                                                     "OR friend_id = uuid(?))" +
-                                                    "AND accepted_datetime IS NOT NULL;",
-                    new Object[]{userId,userId},
+                            "FROM friends " +
+                            "WHERE (parent_id = uuid(?) " +
+                            "OR friend_id = uuid(?))" +
+                            "AND accepted_datetime IS NOT NULL;",
+                    new Object[]{userId, userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
@@ -194,7 +193,7 @@ public class UserDaoImpl implements UserDao {
         try {
             return jdbcTemplate.query("SELECT user_id, username, invite_datetime, i.image AS image_content " +
                     "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                                 "INNER JOIN friends f ON u.user_id = f.friend_id " +
+                    "INNER JOIN friends f ON u.user_id = f.friend_id " +
                     "WHERE f.friend_id = uuid(?) " +
                     "AND f.accepted_datetime IS NULL " +
                     "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
@@ -228,13 +227,32 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void acceptInvitation(String parentId, String targetId) {
         jdbcTemplate.update("UPDATE friends " +
-                                "SET accepted_datetime = CURRENT_TIMESTAMP " +
-                                "WHERE parent_id = uuid(?) AND friend_id = uuid(?);",targetId,parentId);
+                "SET accepted_datetime = CURRENT_TIMESTAMP " +
+                "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", targetId, parentId);
     }
 
     @Override
     public void rejectInvitation(String parentId, String targetId) {
         jdbcTemplate.update("DELETE FROM friends " +
-                                "WHERE parent_id = uuid(?) AND friend_id = uuid(?)", targetId,parentId);
+                "WHERE parent_id = uuid(?) AND friend_id = uuid(?)", targetId, parentId);
     }
+
+    @Override
+    public User getFriendsRelations(User targetUser, String thisUserId) {
+        try {
+            return jdbcTemplate.queryForObject("select f.parent_id = uuid(?) as outgoing ," +
+                            " f.friend_id = uuid(?) as incoming , f.accepted_datetime IS NOT NULL as friend from friends f WHERE  (f.parent_id in ( UUID(?), UUID(?)) and f.friend_id in ( UUID(?), UUID(?)))",
+                    new Object[]{thisUserId, thisUserId, thisUserId, targetUser.getId(), thisUserId, targetUser.getId()},
+                    (ps, i) -> {
+                        targetUser.setFriend(ps.getBoolean("friend"));
+                        targetUser.setIncomingRequest(ps.getBoolean("incoming"));
+                        targetUser.setOutgoingRequest(ps.getBoolean("outgoing"));
+                        return targetUser;
+
+                    });
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return targetUser;
+        }
+    }
+
 }

@@ -28,6 +28,8 @@ public interface UserService {
 
     void update(User user);
 
+    User getFriendsRelations(User targetUser, String thiUserId);
+
     void checkCorrectPassword(User user, String password);
 
     List<User> getBySubStr(String substr, Role role);

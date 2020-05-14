@@ -4,7 +4,6 @@ import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
 import net.dreamfteam.quiznet.data.entities.UserView;
 
-import java.util.Date;
 import java.util.List;
 
 public interface UserDao {
@@ -60,4 +59,7 @@ public interface UserDao {
     void acceptInvitation(String parentId, String targetId);
 
     void rejectInvitation(String parentId, String targetId);
+
+    User getFriendsRelations(User targetUser, String thisUser);
+
 }
