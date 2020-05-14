@@ -12,6 +12,7 @@ import lombok.Setter;
 public class GameSession {
     private String id;
     private String userId;
+    private String username;
     private String gameId;
     private int score;
     private boolean winner;

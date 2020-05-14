@@ -162,4 +162,5 @@ public class UserController {
         return new ResponseEntity<>(achievementService.getUserAchievements(userId), HttpStatus.OK);
 
     }
+
 }

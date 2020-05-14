@@ -69,6 +69,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .ignoring()
                 .antMatchers(
                         Constants.SECUR_SIGN_UP_URLS,
+                        Constants.SECUR_ANONYM,
                         Constants.SECUR_LOG_IN_URLS,
                         Constants.SECUR_ACTIVATION_URLS,
                         Constants.SECUR_RECOVER_URLS,
@@ -80,7 +81,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECURE_ANNOUNCEMENT_SIZE,
                         Constants.SECUR_QUIZ_TAGS_URLS,
                         Constants.SECUR_SHORT_QUIZ_LIST_URLS,
-
+                        Constants.SECUR_SSE_URLS,
                         //for Swagger
                         "/v2/api-docs",
                         "/configuration/ui",
@@ -90,7 +91,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/webjars/**"
 
                 )
-                .antMatchers(HttpMethod.GET, Constants.SECUR_QUIZ_URLS,Constants.SECUR_QUIZ_QUESTION_LIST_URLS);
+                .antMatchers(HttpMethod.GET, Constants.SECUR_QUIZ_URLS, Constants.SECUR_QUIZ_QUESTION_LIST_URLS);
     }
 
     @Override
