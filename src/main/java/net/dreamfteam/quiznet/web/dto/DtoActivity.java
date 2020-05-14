@@ -14,8 +14,6 @@ public class DtoActivity {
 
 	private String content;
 
-	private Date datetime;
-
 	private String userId;
 
 
