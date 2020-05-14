@@ -11,6 +11,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class DtoGameSession {
     private String sessionId;
+    private String gameId;
     private int score;
     private int durationTime;
 }

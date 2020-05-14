@@ -8,4 +8,6 @@ public interface ActivationService {
     String verifyUser(String activationUrl);
 
     String isUserVerified(User user);
+
+    String getAnonymToken(String username);
 }
