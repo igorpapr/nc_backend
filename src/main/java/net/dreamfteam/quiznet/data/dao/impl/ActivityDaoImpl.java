@@ -3,7 +3,6 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.ActivityDao;
 import net.dreamfteam.quiznet.data.entities.FriendsActivity;
 import net.dreamfteam.quiznet.data.rowmappers.ActivityMapper;
-import net.dreamfteam.quiznet.data.rowmappers.UserFriendInvitationMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
