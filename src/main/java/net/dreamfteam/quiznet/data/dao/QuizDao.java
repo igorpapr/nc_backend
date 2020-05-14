@@ -71,4 +71,6 @@ public interface QuizDao {
     Quiz setValidator(String quizId, String adminId);
 
     Question loadAnswersForQuestion(Question question, int i);
+
+    int getAmountSuccessCreated(String userId);
 }

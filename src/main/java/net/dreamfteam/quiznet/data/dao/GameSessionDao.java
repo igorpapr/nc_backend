@@ -19,4 +19,6 @@ public interface GameSessionDao {
     boolean gameHasAvailableSlots(String accessId);
 
     int getNumberOfSessionsOfUser(String userId);
+
+    int getNumberOfQuizzesPlayedByUser(String userId);
 }

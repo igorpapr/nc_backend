@@ -566,6 +566,21 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
+    //Get amount of quizzes, user had created and they were successfully validated
+    @Override
+    public int getAmountSuccessCreated(String userId) {
+        try {
+            return jdbcTemplate
+                    .queryForObject("SELECT COUNT(*) " +
+                                         "FROM quizzes " +
+                                         "WHERE creator_id = uuid(?) " +
+                                         "AND validated = true " +
+                                         "AND published = true;",
+                            new Object[]{userId}, Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
 
     public Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {

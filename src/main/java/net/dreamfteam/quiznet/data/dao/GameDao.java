@@ -16,6 +16,4 @@ public interface GameDao {
     void updateGame(Game game);
 
     Question getQuestion(String gameId);
-
-
 }
