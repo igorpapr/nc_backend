@@ -133,6 +133,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getFriendsRelations(User targetUser, String thiUserId) {
+        return userDao.getFriendsRelations(targetUser, thiUserId);
+    }
+
+    @Override
     public void checkCorrectPassword(User user, String password) {
         boolean matches = bCryptPasswordEncoder.matches(password, user.getPassword());
         if (!matches) {
