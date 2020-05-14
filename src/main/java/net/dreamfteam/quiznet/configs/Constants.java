@@ -17,6 +17,7 @@ public class Constants {
     public static final String ADMIN_URLS = "/api/admins";
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
+    public static final String ACTIVITIES_URLS = "/api/activities";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
