@@ -10,6 +10,8 @@ import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.service.AchievementService;
+import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
