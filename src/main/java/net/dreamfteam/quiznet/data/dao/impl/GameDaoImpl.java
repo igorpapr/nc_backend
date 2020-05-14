@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,5 +119,29 @@ public class GameDaoImpl implements GameDao {
         }
     }
 
-
+    //Get info about the number of games played by user of some category by given game id
+    @Override
+    public UserCategoryAchievementInfo getGamesInCategoryInfo(String userId, String gameId) {
+        try {
+            UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
+                        "FROM users_games ug INNER JOIN games g1 ON ug.game_id = g1.game_id " +
+                        "    INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
+                            "INNER JOIN categories c ON cq1.category_id = c.category_id " +
+                        "WHERE cq1.category_id = " +
+                        "                  (SELECT category_id " +
+                        "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
+                        "                  WHERE game_id = uuid(?)) " +
+                        "      AND ug.user_id = uuid(?) " +
+                        "GROUP BY cq1.category_id, c.title;", new Object[]{gameId, userId},
+                    (rs, i) -> UserCategoryAchievementInfo.builder()
+                            .amountPlayed(rs.getInt("amount"))
+                            .categoryId(rs.getString("category_id"))
+                            .categoryTitle(rs.getString("title"))
+                            .build());
+            return info;
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
 }

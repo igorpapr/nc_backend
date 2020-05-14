@@ -2,17 +2,14 @@ package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
-import net.dreamfteam.quiznet.data.entities.UserAchievementInfo;
+import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.UserAchievementMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 public class AchievementDaoImpl implements AchievementDao {
@@ -59,17 +56,6 @@ public class AchievementDaoImpl implements AchievementDao {
 								"WHERE ua.user_id = uuid(?);",
 							new Object[]{userId}, new UserAchievementMapper());
 		} catch (EmptyResultDataAccessException e) {
-			return null;
-		}
-	}
-
-	//Get info about the number of games played by user of some category by given game id
-	@Override
-	public UserAchievementInfo getCategoryAchievementInfo(String userId, String gameId) {
-		try {
-			return null;
-			//return jdbcTemplate.query("SELECT ", new Object[]{userId, gameId}, )
-		} catch (EmptyResultDataAccessException | NullPointerException e) {
 			return null;
 		}
 	}

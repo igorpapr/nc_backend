@@ -7,14 +7,13 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class UserAchievementInfo {
+public class UserCategoryAchievementInfo {
 
-	private int achievement_id;
+	private String categoryId;
 
-	private String category_id;
-
-	private String userId;
+	String categoryTitle;
 
 	private int amountPlayed;
+
 
 }

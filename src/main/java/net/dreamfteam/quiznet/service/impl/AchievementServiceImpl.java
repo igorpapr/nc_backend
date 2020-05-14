@@ -2,29 +2,32 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
+import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
-import net.dreamfteam.quiznet.data.entities.UserAchievementInfo;
+import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.service.AchievementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 @Service
 public class AchievementServiceImpl implements AchievementService {
 
 	private final GameSessionDao gameSessionDao;
 	private final AchievementDao achievementDao;
 	private final QuizDao quizDao;
+	private final GameDao gameDao;
 
 	@Autowired
-	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao, QuizDao quizDao) {
+	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao,
+	                              QuizDao quizDao, GameDao gameDao) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
 		this.quizDao = quizDao;
+		this.gameDao = gameDao;
 	}
 
 	@Override
@@ -37,8 +40,7 @@ public class AchievementServiceImpl implements AchievementService {
 			checkPlayedAmountOfDifferentQuizzes(userId);
 
 			//Repeatable achievements
-			UserAchievementInfo dto = achievementDao.getCategoryAchievementInfo(userId, gameSession.getGameId());
-			checkPlayedTenOfDifferentQuizzesOfCategory(userId, dto);
+			checkPlayedTenOfDifferentQuizzesOfCategory(userId, gameSession.getGameId());
 
 		}
 	}
@@ -47,9 +49,9 @@ public class AchievementServiceImpl implements AchievementService {
 	public void checkQuizCreationAchievements(String userId) {
 		int amountCreatedValidated = quizDao.getAmountSuccessCreated(userId);
 
-		if(amountCreatedValidated >= 1 && amountCreatedValidated <= 10){
+		if(amountCreatedValidated == 1){
 			addAchievementForUser(userId, Constants.ACHIEVEMENT_SANDBOX_ID, false);
-		} else if (amountCreatedValidated >= 10){
+		} else if (amountCreatedValidated == 10){
 			addAchievementForUser(userId, Constants.ACHIEVEMENT_SPECIALIST_CREATOR_ID, false);
 		}
 
@@ -69,25 +71,41 @@ public class AchievementServiceImpl implements AchievementService {
 
 	private void checkPlayedAmountOfDifferentQuizzes(String userId) {
 		int amountOfQuizzesPlayed = gameSessionDao.getNumberOfQuizzesPlayedByUser(userId);
-		//10 or more
-		if (amountOfQuizzesPlayed >= 10 && amountOfQuizzesPlayed < 25){
+		if (amountOfQuizzesPlayed == 10){
 			addAchievementForUser(userId, Constants.ACHIEVEMENT_FRESHMAN_ID, false);
-		//25 or more
-		} else if (amountOfQuizzesPlayed >= 25 && amountOfQuizzesPlayed < 50){
-			addAchievementForUser(userId, Constants.ACHIEVEMENT_CASUAL_ID,false);
-		//50 or more
-		} else if (amountOfQuizzesPlayed >= 50){
-			addAchievementForUser(userId, Constants.ACHIEVEMENT_EXPERT_ID,false);
+		} else if (amountOfQuizzesPlayed == 25){
+			addAchievementForUser(userId, Constants.ACHIEVEMENT_CASUAL_ID, false);
+		} else if (amountOfQuizzesPlayed == 50){
+			addAchievementForUser(userId, Constants.ACHIEVEMENT_EXPERT_ID, false);
 		}
 	}
 
-	private void checkPlayedTenOfDifferentQuizzesOfCategory(String userId, UserAchievementInfo info) {
+	//Repeatable achievement
+	private void checkPlayedTenOfDifferentQuizzesOfCategory(String userId, String gameId) {
+		UserCategoryAchievementInfo info = gameDao.getGamesInCategoryInfo(userId, gameId);
+		if (info != null){
+			int amount = info.getAmountPlayed();
+			if(amount > 0 && ((amount % 10) == 0)){ //works on every tenth game
+				String catTitle = info.getCategoryTitle();
+				if (catTitle.equals("Geography")){
+					addAchievementForUser(userId, Constants.ACHIEVEMENT_GEOGRAPHY_CATEGORY_ID,true);
+				} else if (catTitle.equals("Ukraine")){
+					addAchievementForUser(userId, Constants.ACHIEVEMENT_UKRAINE_CATEGORY_ID, true);
+				} else if (catTitle.equals("History")){
+					addAchievementForUser(userId, Constants.ACHIEVEMENT_HISTORY_CATEGORY_ID, true);
+				} else if (catTitle.equals("Science")){
+					addAchievementForUser(userId, Constants.ACHIEVEMENT_SCIENCE_CATEGORY_ID, true);
+				} else if (catTitle.equals("Other")){
+					addAchievementForUser(userId, Constants.ACHIEVEMENT_OTHERS_CATEGORY_ID, true);
+				}
+			}
+		}
 	}
 
 
 	private void addAchievementForUser(String userId, int achievementId, boolean repeatable){
 		int resAssigning = 0;
-		if (repeatable){
+		if (repeatable){//For future use
 			resAssigning = achievementDao.assignAchievementRepeating(userId, achievementId);
 		} else {
 			resAssigning = achievementDao.assignAchievement(userId, achievementId);

@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
-import net.dreamfteam.quiznet.data.entities.UserAchievementInfo;
+import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 
 import java.util.List;
 
@@ -12,7 +12,5 @@ public interface AchievementDao {
 	int assignAchievement(String userId, int achievementId);
 
 	List<UserAchievement> getUserAchievements(String userId);
-
-	UserAchievementInfo getCategoryAchievementInfo(String userId, String gameId);
 
 }
