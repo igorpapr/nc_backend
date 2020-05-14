@@ -15,7 +15,6 @@ public class DtoEditQuiz {
     private String quizId;
     private String newTitle;
     private String newDescription;
-    private String newImageRef;
     private String newLanguage;
     private List<String> newTagList;
     private List<String> newCategoryList;

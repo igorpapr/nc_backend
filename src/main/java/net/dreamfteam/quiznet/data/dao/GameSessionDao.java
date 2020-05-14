@@ -21,4 +21,6 @@ public interface GameSessionDao {
     String getGameId(String sessionId);
 
     void removePlayer(String sessionId);
+
+    int getNumberOfSessionsOfUser(String userId);
 }

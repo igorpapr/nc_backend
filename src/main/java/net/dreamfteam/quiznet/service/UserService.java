@@ -1,8 +1,7 @@
 package net.dreamfteam.quiznet.service;
 
 
-import net.dreamfteam.quiznet.data.entities.Role;
-import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 
 import java.util.List;
@@ -29,8 +28,21 @@ public interface UserService {
 
     void update(User user);
 
+    User getFriendsRelations(User targetUser, String thiUserId);
+
     void checkCorrectPassword(User user, String password);
 
     List<User> getBySubStr(String substr, Role role);
 
+    int getFriendsTotalSize(String userId);
+
+    List<UserView> getFriendsListByUserId(int startIndex, int amount, String userId);
+
+    List<UserFriendInvitation> getFriendInvitationsListByUserId(int startIndex, int amount, String userId);
+
+    int getFriendInvitationsTotalSize(String userId);
+
+    void inviteToBecomeFriends(String parentId, String targetId);
+
+    void proceedInvitation(String parentId, String targetId, boolean toAccept);
 }

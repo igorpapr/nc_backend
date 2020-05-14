@@ -8,14 +8,13 @@ import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import static java.util.Objects.isNull;
 
 @RestController
@@ -39,31 +39,40 @@ public class QuizController {
     final private UserService userService;
     final private QuizService quizService;
     final private IAuthenticationFacade authenticationFacade;
-    final private ImageService imageService;
+    final private Gson gson;
 
 
-    public QuizController(QuizService quizService,
-                          ImageService imageService,
-                          UserService userService,
-                          IAuthenticationFacade authenticationFacade) {
+    @Autowired
+    public QuizController(QuizService quizService, UserService userService,
+                          IAuthenticationFacade authenticationFacade, Gson gson) {
+
         this.quizService = quizService;
         this.userService = userService;
-        this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
+        this.gson = gson;
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public ResponseEntity<?> createQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,
+                                        @RequestParam(value = "img", required = false)  MultipartFile image) throws ValidationException, IOException {
+        DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
-        return new ResponseEntity<>(quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId()), HttpStatus.CREATED);
+        Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId(),image);
+
+        return new ResponseEntity<>(resQuiz, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
-    public ResponseEntity<?> editQuiz(@RequestBody DtoEditQuiz dtoQuiz) throws ValidationException {
-        QuizValidator.validateForEdit(dtoQuiz);
-        return new ResponseEntity<>(quizService.updateQuiz(dtoQuiz), HttpStatus.OK);
+    public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,
+                                      @RequestParam(value = "img", required = false)  MultipartFile image)
+            throws ValidationException, IOException {
+        DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
+        QuizValidator.validateForEdit(dtoEditQuiz);
+        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz, image);
+
+        return new ResponseEntity<>(resQuiz, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
@@ -86,21 +95,6 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/quiz-image")
-    public ResponseEntity<?> uploadQuizImage(@RequestParam("img") MultipartFile image, @RequestParam("quizId") String quizId) throws ValidationException {
-        quizService.addQuizImage(imageService.saveImage(image), quizId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/question-image")
-    public ResponseEntity<?> uploadQuestionImage(@RequestParam("img") MultipartFile image, @RequestParam("questionId") String questionId) throws ValidationException {
-        quizService.addQuestionImage(imageService.saveImage(image), questionId);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/filter-quiz-list/page/{page}")
     public ResponseEntity<?> getFilteredQuizList(@PathVariable int page, @RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
 
@@ -109,16 +103,26 @@ public class QuizController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/questions")
-    public ResponseEntity<?> createQuestion(@RequestBody Question question) throws ValidationException {
+    public ResponseEntity<?> createQuestion(@RequestParam("obj") String questionStr,
+                                            @RequestParam(value = "img", required = false)  MultipartFile image)
+            throws ValidationException, IOException {
+
+        Question question = gson.fromJson(questionStr, Question.class);
         QuizValidator.validateQuestion(question);
-        return new ResponseEntity<>(quizService.saveQuestion(question), HttpStatus.CREATED);
+        Question resQuestion = quizService.saveQuestion(question, image);
+
+        return new ResponseEntity<>(resQuestion, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/questions/edit")
-    public ResponseEntity<?> editQuestion(@RequestBody Question question) throws ValidationException {
+    public ResponseEntity<?> editQuestion(@RequestParam("obj") String questionStr,
+                                          @RequestParam(value = "img", required = false)  MultipartFile image)
+                                          throws ValidationException {
+        Question question = gson.fromJson(questionStr, Question.class);
         QuizValidator.validateQuestion(question);
-        return new ResponseEntity<>(quizService.updateQuestion(question), HttpStatus.OK);
+        Question resQuestion = quizService.updateQuestion(question, image);
+        return new ResponseEntity<>(resQuestion, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -230,6 +234,12 @@ public class QuizController {
     @GetMapping("/short-list")
     public ResponseEntity<?> getShortQuizList() throws ValidationException {
         return new ResponseEntity<>(quizService.shortListOfQuizzes(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/suggestions-list")
+    public ResponseEntity<?> getSuggestionsQuizList() {
+    	return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST), HttpStatus.OK);
     }
 
     @GetMapping

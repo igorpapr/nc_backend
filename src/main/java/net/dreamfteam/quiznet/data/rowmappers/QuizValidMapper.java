@@ -1,30 +1,28 @@
 package net.dreamfteam.quiznet.data.rowmappers;
 
-
 import net.dreamfteam.quiznet.data.entities.Quiz;
+import net.dreamfteam.quiznet.data.entities.QuizValid;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class QuizMapper implements RowMapper<Quiz> {
+public class QuizValidMapper implements RowMapper<QuizValid> {
     @Override
-    public Quiz mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Quiz quiz = Quiz.builder()
+    public QuizValid mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+        QuizValid quiz = QuizValid.builder()
                 .id(rs.getString("quiz_id"))
                 .title(rs.getString("title"))
                 .description(rs.getString("description"))
-                .imageRef(rs.getString("image_ref"))
-                .imageContent(rs.getBytes("image")) // NOT A REFERENCE(REAL IMAGE)
+                .imageContent(rs.getBytes("image_content"))
                 .creationDate(rs.getDate("ver_creation_datetime"))
                 .creatorId(rs.getString("creator_id"))
-                .activated(rs.getBoolean("activated"))
-                .validated(rs.getBoolean("validated"))
-                .published(rs.getBoolean("published"))
+                .username(rs.getString("username"))
                 .language(rs.getString("quiz_lang"))
                 .adminComment(rs.getString("admin_commentary"))
-                .rating(rs.getFloat("rating"))
-                .isFavourite(false)
+                .published(rs.getBoolean("published"))
+                .activated(rs.getBoolean("activated"))
                 .build();
 
         return quiz;

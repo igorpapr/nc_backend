@@ -190,6 +190,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
     @Override
     public void removePlayer(String sessionId) {
-        jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);",sessionId);
+        jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
+    }
+
+    //For achievements: returns number of all finished game sessions of user
+    @Override
+    public int getNumberOfSessionsOfUser(String userId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) " +
+                                                    "FROM users_games " +
+                                                    "WHERE user_id = uuid(?) " +
+                                                    "AND finished = TRUE;",
+                    new Object[]{userId},
+                    Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
     }
 }
