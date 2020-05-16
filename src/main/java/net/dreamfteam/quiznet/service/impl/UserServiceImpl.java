@@ -162,14 +162,31 @@ public class UserServiceImpl implements UserService {
         return userDao.getFriendsByUserId(startIndex, amount, userId);
     }
 
+    /* Returns friend invitations list by user id.
+    * Parameter "isIncoming":
+    * - true - when the request is aimed on the incoming invitations list;
+    * - false - when the request is aimed on the outgoing invitations list.
+    * */
     @Override
-    public List<UserFriendInvitation> getFriendInvitationsListByUserId(int startIndex, int amount, String userId) {
-        return userDao.getFriendInvitationsByUserId(startIndex, amount, userId);
+    public List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId,
+                                                                   boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingByUserId(startIndex, amount, userId);
+        }
+        return userDao.getFriendInvitationsOutgoingByUserId(startIndex, amount, userId);
     }
 
+    /* Returns the size of invitations list by user id.
+     * Parameter "isIncoming":
+     * - true - when the request is aimed on the incoming invitations list size;
+     * - false - when the request is aimed on the outgoing invitations list size.
+     * */
     @Override
-    public int getFriendInvitationsTotalSize(String userId) {
-        return userDao.getFriendInvitationsTotalSize(userId);
+    public int getFriendInvitationsTotalSize(String userId, boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingTotalSize(userId);
+        }
+        return userDao.getFriendInvitationsOutgoingTotalSize(userId);
     }
 
     @Override
