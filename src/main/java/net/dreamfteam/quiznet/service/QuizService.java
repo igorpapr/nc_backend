@@ -68,4 +68,7 @@ public interface QuizService {
 
     Quiz setValidator(String quizId, String adminId);
 
+    List<Quiz> getUserFavouriteList(String userId);
+
+
 }

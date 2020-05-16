@@ -42,6 +42,8 @@ public interface QuizDao {
 
     List<Quiz> getUserQuizList(String userId, String thisUserId);
 
+    List<Quiz> getUserFavouriteList(String userId);
+
     List<QuizView> getQuizzes(int startIndex, int amount);
 
     List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);

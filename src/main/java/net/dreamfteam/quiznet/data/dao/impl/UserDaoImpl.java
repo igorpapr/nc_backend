@@ -79,7 +79,7 @@ public class UserDaoImpl implements UserDao {
     public List<User> getBySubStrAndRoleUser(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
                         "WHERE LOWER(username) LIKE LOWER(?)" +
-                        "AND roles.role_id = 1  ORDER BY is_online desc, last_time_online desc",
+                        "AND roles.role_id = 1 and is_activated = true ORDER BY is_online desc, last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -163,7 +163,7 @@ public class UserDaoImpl implements UserDao {
         try {
             return jdbcTemplate.query("SELECT user_id, username, last_time_online, is_online, i.image AS image_content " +
                     "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                    "WHERE user_id IN (SELECT friend_id " +
+                    "WHERE user_id IN (SELECT friend_id, user_id " +
                     "FROM friends " +
                     "WHERE (parent_id = uuid(?) OR friend_id = uuid(?))" +
                     "AND accepted_datetime IS NOT NULL) " +
