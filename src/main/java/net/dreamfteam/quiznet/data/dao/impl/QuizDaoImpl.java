@@ -414,7 +414,7 @@ public class QuizDaoImpl implements QuizDao {
                     "FROM quizzes as q left join " +
                     "(select count(*) as liked, quiz_id  " +
                     "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
-                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?)",
+                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by rating desc, published desc, activated desc ",
 
                     new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
                     .id(rs.getString("quiz_id"))
@@ -438,7 +438,7 @@ public class QuizDaoImpl implements QuizDao {
     public List<Quiz> getUserFavouriteList(String userId) {
         return jdbcTemplate.query("select  quiz_id, title, description, image," +
                         "ver_creation_datetime, activated, validated, published," +
-                        "quiz_lang , rating  from quizzes where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?))", new Object[]{userId},
+                        "quiz_lang , rating  from quizzes where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?)) order by rating desc, published desc, activated desc ", new Object[]{userId},
                 (rs, i) -> Quiz.builder()
                         .id(rs.getString("quiz_id"))
                         .title(rs.getString("title"))
