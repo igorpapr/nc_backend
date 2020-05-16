@@ -236,6 +236,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<Quiz> getUserFavouriteList(String userId) {
+        return quizDao.getUserFavouriteList(userId);
+    }
+
+    @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }

@@ -261,4 +261,14 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getQuestionsInPage((page - 1) * Constants.AMOUNT_QUESTIONS_ON_PAGE, Constants.AMOUNT_QUESTIONS_ON_PAGE, quizId), HttpStatus.OK);
     }
 
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/user-fav-list")
+    public ResponseEntity<?> getUserFavouriteQuizList() throws ValidationException {
+
+        return new ResponseEntity<>(quizService.getUserFavouriteList(authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+
+
 }
