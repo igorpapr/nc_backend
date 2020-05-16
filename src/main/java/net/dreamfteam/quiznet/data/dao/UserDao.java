@@ -54,12 +54,14 @@ public interface UserDao {
 
     int getFriendInvitationsTotalSize(String userId);
 
-    void addFriendInvitation(String parentId, String targetId);
+    void addFriendInvitation(String parentId, String targetId, boolean toInvite);
 
     void acceptInvitation(String parentId, String targetId);
 
     void rejectInvitation(String parentId, String targetId);
 
     User getFriendsRelations(User targetUser, String thisUser);
+
+    void removeFriend(String targetId, String thisId);
 
 }

@@ -143,13 +143,14 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/friends/invite")
-    public ResponseEntity<?> inviteToBecomeFriends(@RequestParam String targetId) throws ValidationException{
-        userService.inviteToBecomeFriends(authenticationFacade.getUserId(), targetId);
+    public ResponseEntity<?> inviteToBecomeFriends(@RequestParam String targetId, boolean toInvite) throws ValidationException{
+        userService.inviteToBecomeFriends(authenticationFacade.getUserId(), targetId, toInvite);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/friends/proceed")
+    @PostMapping("/friends/process")
     public ResponseEntity<?> proceedInvitation(@RequestParam String targetId, @RequestParam boolean toAccept)
         throws ValidationException {
         userService.proceedInvitation(authenticationFacade.getUserId(), targetId, toAccept);
@@ -162,5 +163,14 @@ public class UserController {
         return new ResponseEntity<>(achievementService.getUserAchievements(userId), HttpStatus.OK);
 
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/friends/remove")
+    public ResponseEntity<?> proceedInvitation(@RequestParam String targetId) throws ValidationException {
+        userService.removeFriend(targetId, authenticationFacade.getUserId());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
 
 }

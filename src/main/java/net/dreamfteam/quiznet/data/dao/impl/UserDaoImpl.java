@@ -217,11 +217,16 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void addFriendInvitation(String parentId, String targetId) {
+    public void addFriendInvitation(String parentId, String targetId, boolean toInvite) {
+        if(toInvite) {
         jdbcTemplate.update("INSERT INTO friends (parent_id, friend_id, invite_datetime) " +
                         "VALUES (UUID(?), UUID(?), CURRENT_TIMESTAMP);",
                 parentId, targetId
-        );
+        );} else {
+            jdbcTemplate.update("delete from friends where friend_id in ( UUID(?), UUID(?)) and parent_id in ( UUID(?), UUID(?));",
+                    parentId, targetId,  parentId, targetId);
+        }
+
     }
 
     @Override
@@ -253,6 +258,12 @@ public class UserDaoImpl implements UserDao {
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return targetUser;
         }
+    }
+
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        jdbcTemplate.update("update friends set accepted_datetime = null, parent_id = UUID(?), friend_id=UUID(?)" +
+                "where parent_id in ( UUID(?), UUID(?)) and friend_id in ( UUID(?), UUID(?))", targetId, thisId, targetId, thisId, targetId, thisId);
     }
 
 }

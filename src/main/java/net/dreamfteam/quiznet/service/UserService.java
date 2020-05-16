@@ -42,7 +42,9 @@ public interface UserService {
 
     int getFriendInvitationsTotalSize(String userId);
 
-    void inviteToBecomeFriends(String parentId, String targetId);
+    void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite);
 
     void proceedInvitation(String parentId, String targetId, boolean toAccept);
+
+    void removeFriend( String targetId, String thisId);
 }

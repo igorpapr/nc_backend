@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void inviteToBecomeFriends(String parentId, String targetId) throws ValidationException{
+    public void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite) throws ValidationException{
         if(parentId.equals(targetId)){
             throw new ValidationException("Can't invite to friends yourself");
         }
@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService {
             System.out.println("Friend invitation target has bad role: " + target.getRole());
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
-        userDao.addFriendInvitation(parentId, targetId);
+        userDao.addFriendInvitation(parentId, targetId, toInvite);
     }
 
     @Override
@@ -205,5 +205,12 @@ public class UserServiceImpl implements UserService {
             userDao.rejectInvitation(parentId, targetId);
         }
     }
+
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        userDao.removeFriend(targetId, thisId);
+    }
+
+
 }
 
