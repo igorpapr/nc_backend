@@ -62,4 +62,6 @@ public interface UserDao {
 
     User getFriendsRelations(User targetUser, String thisUser);
 
+    void removeFriend(String targetId, String thisId);
+
 }

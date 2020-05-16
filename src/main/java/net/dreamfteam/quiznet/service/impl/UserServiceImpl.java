@@ -205,5 +205,12 @@ public class UserServiceImpl implements UserService {
             userDao.rejectInvitation(parentId, targetId);
         }
     }
+
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        userDao.removeFriend(targetId, thisId);
+    }
+
+
 }
 

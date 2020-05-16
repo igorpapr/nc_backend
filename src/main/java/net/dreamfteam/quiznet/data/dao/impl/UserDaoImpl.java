@@ -255,4 +255,10 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        jdbcTemplate.update("update friends set accepted_datetime = null, parent_id = UUID(?), friend_id=UUID(?)" +
+                "where parent_id in ( UUID(?), UUID(?)) and friend_id in ( UUID(?), UUID(?))", targetId, thisId, targetId, thisId, targetId, thisId);
+    }
+
 }

@@ -163,4 +163,12 @@ public class UserController {
 
     }
 
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/friends/remove")
+    public ResponseEntity<?> proceedInvitation(@RequestParam String targetId) throws ValidationException {
+        userService.removeFriend(targetId, authenticationFacade.getUserId());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
