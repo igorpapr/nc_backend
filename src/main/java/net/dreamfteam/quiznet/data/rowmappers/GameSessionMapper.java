@@ -11,6 +11,7 @@ public class GameSessionMapper implements RowMapper<GameSession> {
     public GameSession mapRow(ResultSet resultSet, int i) throws SQLException {
         return GameSession.builder()
                 .id(resultSet.getString("game_session_id"))
+                .username(resultSet.getString("username"))
                 .userId(resultSet.getString("user_id"))
                 .gameId(resultSet.getString("game_id"))
                 .score(resultSet.getInt("score"))

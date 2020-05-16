@@ -8,13 +8,13 @@ import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.google.gson.*;
+
 import java.io.IOException;
 import static java.util.Objects.isNull;
 
@@ -41,11 +41,15 @@ public class QuizController {
     final private IAuthenticationFacade authenticationFacade;
     final private Gson gson;
 
-    public QuizController(QuizService quizService, UserService userService, IAuthenticationFacade authenticationFacade) {
+
+    @Autowired
+    public QuizController(QuizService quizService, UserService userService,
+                          IAuthenticationFacade authenticationFacade, Gson gson) {
+
         this.quizService = quizService;
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
-        this.gson = new Gson();
+        this.gson = gson;
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -249,7 +253,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.setValidator(quizDto.getQuizId(), authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('ANONYM','USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("/{quizId}/questions/amount")
     public ResponseEntity<?> getQuestionsAmountInQuiz(@PathVariable String quizId) throws ValidationException {
         return new ResponseEntity<>(quizService.getQuestionsAmountInQuiz(quizId), HttpStatus.OK);

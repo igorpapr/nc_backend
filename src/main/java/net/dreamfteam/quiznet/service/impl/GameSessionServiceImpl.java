@@ -22,13 +22,13 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     @Override
-    public GameSession joinGame(String accessId, String userId) {
+    public GameSession joinGame(String accessId, String userId, String username) {
 
         if (!gameSessionDao.gameHasAvailableSlots(accessId)) {
             throw new ValidationException("Sorry, no slots are available");
         }
 
-        return gameSessionDao.getSessionByAccessId(accessId, userId);
+        return gameSessionDao.getSessionByAccessId(accessId, userId, username);
     }
 
     @Override
@@ -40,6 +40,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                         .winner(false)
                         .durationTime(dtoGameSession.getDurationTime())
                         .id(dtoGameSession.getSessionId())
+                        .gameId(dtoGameSession.getGameId())
                         .build();
 
         gameSessionDao.updateSession(gameSession);
@@ -48,6 +49,21 @@ public class GameSessionServiceImpl implements GameSessionService {
     @Override
     public List<Map<String,String>> getSessions(String gameId) {
         return gameSessionDao.getSessions(gameId);
+    }
+
+    @Override
+    public void removePlayer(String sessionId) {
+        gameSessionDao.removePlayer(sessionId);
+    }
+
+    @Override
+    public GameSession getSession(String sessionId) {
+        return gameSessionDao.getById(sessionId);
+    }
+
+    @Override
+    public String getGameIdBySessionId(String sessionId) {
+        return gameSessionDao.getGameId(sessionId);
     }
 
 

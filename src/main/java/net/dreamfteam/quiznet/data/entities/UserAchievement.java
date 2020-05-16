@@ -11,20 +11,20 @@ import java.util.Date;
 @EqualsAndHashCode
 public class UserAchievement {
 
-	int achievementId;
+	private int achievementId;
 
-	String title;
+	private String title;
 
-	String description;
+	private String description;
 
-	byte[] imageContent;
+	private byte[] imageContent;
 
-	String categoryId;
+	private String categoryId;
 
-	String categoryTitle;
+	private String categoryTitle;
 
-	Date datetimeGained;
+	private Date datetimeGained;
 
-	int timesGained;
+	private int timesGained;
 
 }
