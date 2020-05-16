@@ -163,8 +163,8 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public void deactivateQuiz(DtoQuiz dtoQuiz) {
-        jdbcTemplate.update("UPDATE quizzes SET activated = false WHERE quiz_id = UUID(?)", dtoQuiz.getQuizId());
+    public void deactivateQuiz(String id) {
+        jdbcTemplate.update("UPDATE quizzes SET activated = false WHERE quiz_id = UUID(?)", id);
         System.out.println("Quiz deactivated");
     }
 

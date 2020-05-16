@@ -26,9 +26,9 @@ public interface QuizService {
 
     void validateQuiz(DtoQuiz quiz);
 
-    void deleteQuizById(DtoQuiz dtoQuiz);
+    void deleteQuizById(String id);
 
-    void deactivateQuiz(DtoQuiz dtoQuiz);
+    void deactivateQuiz(String id);
 
     Question saveQuestion(Question newQuestion, MultipartFile image);
 

@@ -22,7 +22,7 @@ public interface QuizDao {
 
     void deleteQuizById(String id);
 
-    void deactivateQuiz(DtoQuiz dtoQuiz);
+    void deactivateQuiz(String id);
 
     String saveQuestion(Question question);
 

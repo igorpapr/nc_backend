@@ -76,10 +76,10 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @DeleteMapping
-    public ResponseEntity<?> deleteQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    @DeleteMapping("/{quizId}")
+    public ResponseEntity<?> deleteQuiz(@PathVariable String quizId) throws ValidationException {
 
-        Quiz quiz = quizService.getQuiz(dtoQuiz.getQuizId());
+        Quiz quiz = quizService.getQuiz(quizId);
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
         if (quiz == null) {
@@ -90,7 +90,7 @@ public class QuizController {
             throw new ValidationException("You can't delete not yours quiz");
         }
 
-        quizService.deleteQuizById(dtoQuiz);
+        quizService.deleteQuizById(quizId);
         return ResponseEntity.ok().build();
     }
 
@@ -147,9 +147,9 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/deactivate")
-    public ResponseEntity<?> deactivateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
-        Quiz quiz = quizService.getQuiz(dtoQuiz.getQuizId());
+    @PostMapping("/deactivate/{quizId}")
+    public ResponseEntity<?> deactivateQuiz(@PathVariable String quizId) throws ValidationException {
+        Quiz quiz = quizService.getQuiz(quizId);
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
         if (quiz == null) {
@@ -160,7 +160,7 @@ public class QuizController {
             throw new ValidationException("You can't deactivate not yours quiz");
         }
 
-        quizService.deactivateQuiz(dtoQuiz);
+        quizService.deactivateQuiz(quizId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
