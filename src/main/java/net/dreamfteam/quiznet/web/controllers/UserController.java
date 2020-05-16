@@ -126,19 +126,36 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/friends/invitations/page/{page}")
-    public ResponseEntity<List<UserFriendInvitation>> getInvitations(@PathVariable int page)
+    @GetMapping("/friends/invitations/incoming/page/{page}")
+    public ResponseEntity<List<UserFriendInvitation>> getInvitationsIncoming(@PathVariable int page)
         throws ValidationException {
         return new ResponseEntity<>(
-                userService.getFriendInvitationsListByUserId((page - 1) * Constants.AMOUNT_INVITATIONS_ON_PAGE,
-                        Constants.AMOUNT_INVITATIONS_ON_PAGE, authenticationFacade.getUserId()), HttpStatus.OK);
+                userService.getFriendInvitationsByUserId((page - 1) * Constants.AMOUNT_INVITATIONS_ON_PAGE,
+                        Constants.AMOUNT_INVITATIONS_ON_PAGE, authenticationFacade.getUserId(), true), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/friends/invitationstotalsize")
-    public ResponseEntity<?> getInvitationsTotalSize() {
+    @GetMapping("/friends/invitations/incoming/totalsize")
+    public ResponseEntity<?> getInvitationsIncomingTotalSize() {
         return new ResponseEntity<>(
-                userService.getFriendInvitationsTotalSize(authenticationFacade.getUserId()), HttpStatus.OK);
+                userService.getFriendInvitationsTotalSize(authenticationFacade.getUserId(),true), HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/friends/invitations/outgoing/page/{page}")
+    public ResponseEntity<List<UserFriendInvitation>> getInvitationsOutgoing(@PathVariable int page)
+            throws ValidationException {
+        return new ResponseEntity<>(
+                userService.getFriendInvitationsByUserId((page - 1) * Constants.AMOUNT_INVITATIONS_ON_PAGE,
+                        Constants.AMOUNT_INVITATIONS_ON_PAGE, authenticationFacade.getUserId(), false), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/friends/invitations/outgoing/totalsize")
+    public ResponseEntity<?> getInvitationsOutgoingTotalSize() {
+        return new ResponseEntity<>(
+                userService.getFriendInvitationsTotalSize(authenticationFacade.getUserId(), false), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")

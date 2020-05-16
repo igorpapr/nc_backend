@@ -161,12 +161,18 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserView> getFriendsByUserId(int startIndex, int amount, String userId) {
         try {
-            return jdbcTemplate.query("SELECT user_id, username, last_time_online, is_online, i.image AS image_content " +
-                    "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                    "WHERE user_id IN (SELECT friend_id, user_id " +
-                    "FROM friends " +
-                    "WHERE (parent_id = uuid(?) OR friend_id = uuid(?))" +
-                    "AND accepted_datetime IS NOT NULL) " +
+            return jdbcTemplate
+                    .query("SELECT user_id, username, last_time_online, is_online, i.image AS image_content " +
+                                "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
+                                "WHERE user_id IN   (SELECT f.friend_id AS id " +
+                                                    "FROM friends f " +
+                                                    "WHERE f.parent_id = uuid(?) " +
+                                                    "AND f.accepted_datetime IS NOT NULL " +
+                                                    "UNION " +
+                                                    "SELECT f1.parent_id AS id " +
+                                                    "FROM friends f1 " +
+                                                    "WHERE f1.friend_id = uuid(?) " +
+                                                    "AND f1.accepted_datetime IS NOT NULL) " +
                     "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -189,11 +195,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId) {
+    public List<UserFriendInvitation> getFriendInvitationsIncomingByUserId(int startIndex, int amount, String userId) {
         try {
             return jdbcTemplate.query("SELECT user_id, username, invite_datetime, i.image AS image_content " +
                     "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                    "INNER JOIN friends f ON u.user_id = f.friend_id " +
+                    "INNER JOIN friends f ON u.user_id = f.parent_id " +
                     "WHERE f.friend_id = uuid(?) " +
                     "AND f.accepted_datetime IS NULL " +
                     "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
@@ -203,11 +209,39 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int getFriendInvitationsTotalSize(String userId) {
+    public int getFriendInvitationsIncomingTotalSize(String userId) {
         try {
             return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
                             "FROM friends " +
                             "WHERE friend_id = uuid(?) " +
+                            "AND accepted_datetime IS NULL;",
+                    new Object[]{userId},
+                    Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public List<UserFriendInvitation> getFriendInvitationsOutgoingByUserId(int startIndex, int amount, String userId) {
+        try {
+            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, i.image AS image_content " +
+                    "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
+                    "INNER JOIN friends f ON u.user_id = f.friend_id " +
+                    "WHERE f.parent_id = uuid(?) " +
+                    "AND f.accepted_datetime IS NULL " +
+                    "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int getFriendInvitationsOutgoingTotalSize(String userId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
+                            "FROM friends " +
+                            "WHERE parent_id = uuid(?) " +
                             "AND accepted_datetime IS NULL;",
                     new Object[]{userId},
                     Integer.class);
