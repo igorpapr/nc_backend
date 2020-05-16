@@ -80,13 +80,12 @@ public class QuizController {
     public ResponseEntity<?> deleteQuiz(@PathVariable String quizId) throws ValidationException {
 
         Quiz quiz = quizService.getQuiz(quizId);
-        User currentUser = userService.getById(authenticationFacade.getUserId());
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
         }
 
-        if (quiz.getCreatorId().equals(authenticationFacade.getUserId()) || currentUser.getRole() != Role.ROLE_USER) {
+        if (!quiz.getCreatorId().equals(authenticationFacade.getUserId())) {
             throw new ValidationException("You can't delete not yours quiz");
         }
 
@@ -150,13 +149,13 @@ public class QuizController {
     @PostMapping("/deactivate/{quizId}")
     public ResponseEntity<?> deactivateQuiz(@PathVariable String quizId) throws ValidationException {
         Quiz quiz = quizService.getQuiz(quizId);
-        User currentUser = userService.getById(authenticationFacade.getUserId());
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
         }
 
-        if (quiz.getCreatorId().equals(authenticationFacade.getUserId()) || currentUser.getRole() != Role.ROLE_USER) {
+        System.out.println(quiz.getCreatorId());
+        if (!quiz.getCreatorId().equals(authenticationFacade.getUserId())) {
             throw new ValidationException("You can't deactivate not yours quiz");
         }
 
