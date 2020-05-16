@@ -256,7 +256,8 @@ public class QuizDaoImpl implements QuizDao {
     public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, q.image AS image_content, " +
-                            "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary " +
+                            "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, " +
+                            "published, activated " +
                             "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                             "WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;",
                     new Object[]{adminId, amount, startIndex},
@@ -270,6 +271,8 @@ public class QuizDaoImpl implements QuizDao {
                             .username(rs.getString("username"))
                             .language(rs.getString("quiz_lang"))
                             .adminComment(rs.getString("admin_commentary"))
+                            .published(rs.getBoolean("published"))
+                            .activated(rs.getBoolean("activated"))
                             .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
