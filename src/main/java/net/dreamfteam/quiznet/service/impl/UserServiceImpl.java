@@ -4,13 +4,12 @@ package net.dreamfteam.quiznet.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
-import net.dreamfteam.quiznet.data.entities.Role;
-import net.dreamfteam.quiznet.data.entities.User;
-import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
-import net.dreamfteam.quiznet.data.entities.UserView;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,12 +30,15 @@ public class UserServiceImpl implements UserService {
     final private MailService mailService;
     final private BCryptPasswordEncoder bCryptPasswordEncoder;
     final private UserDao userDao;
+    final private ActivitiesService activitiesService;
 
     @Autowired
-    public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao) {
+    public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
+                           UserDao userDao, ActivitiesService activitiesService) {
         this.mailService = mailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
+        this.activitiesService = activitiesService;
     }
 
     @Override
@@ -205,15 +207,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void proceedInvitation(String parentId, String targetId, boolean toAccept) {
-        User target = getById(targetId);
-        if(isNull(target)){
-            throw new ValidationException("Target user doesn't exist");
-        }
-        if (target.getRole() != Role.ROLE_USER){
-            throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
+        User parent = getById(parentId);
+        if(isNull(parent)){
+            throw new ValidationException("Parent user doesn't exist");
         }
         if(toAccept){
-            userDao.acceptInvitation(parentId, targetId);
+            if (userDao.acceptInvitation(parentId, targetId) > 0){
+                DtoActivity activity = DtoActivity
+                        .builder()
+                        .content("Added new friend: " + parent.getUsername())
+                        .userId(targetId)
+                        .activityType(ActivityType.FRIENDS_RELATED)
+                        .build();
+                activitiesService.addActivityForUser(activity);
+            }
         }
         else{
             userDao.rejectInvitation(parentId, targetId);

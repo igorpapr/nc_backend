@@ -168,7 +168,7 @@ public class UserController {
     @PostMapping("/friends/process")
     public ResponseEntity<?> proceedInvitation(@RequestParam String targetId, @RequestParam boolean toAccept)
             throws ValidationException {
-        userService.proceedInvitation(authenticationFacade.getUserId(), targetId, toAccept);
+        userService.proceedInvitation(targetId, authenticationFacade.getUserId(), toAccept);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
