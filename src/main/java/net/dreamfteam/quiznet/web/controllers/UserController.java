@@ -7,7 +7,6 @@ import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AchievementService;
-import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoUser;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -25,38 +25,23 @@ import java.util.List;
 public class UserController {
 
     final private UserService userService;
-    final private ImageService imageService;
     final private IAuthenticationFacade authenticationFacade;
     final private AchievementService achievementService;
 
-    public UserController(UserService userService, ImageService imageService,
+    public UserController(UserService userService,
                           IAuthenticationFacade authenticationFacade, AchievementService achievementService) {
         this.userService = userService;
-        this.imageService = imageService;
         this.authenticationFacade = authenticationFacade;
         this.achievementService = achievementService;
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit/aboutMe")
-    public ResponseEntity<?> activate(@RequestParam("key") String aboutMe) {
-
-        User currentUser = userService.getById(authenticationFacade.getUserId());
-
-        currentUser.setAboutMe(aboutMe);
-        userService.update(currentUser);
-
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit/image")
-    public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image) {
+    @PostMapping("/edit")
+    public ResponseEntity<?> edit(@RequestParam("key") MultipartFile image) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-
-        currentUser.setImage(imageService.saveImage(image));
-
+        // TODO
         userService.update(currentUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -74,12 +59,11 @@ public class UserController {
 
         if (currentUser.getRole().ordinal() < user.getRole().ordinal()) {
             throw new ValidationException("You dont have such capabilities");
-        } else if (currentUser.getRole().ordinal() == 0){
-             userService.getFriendsRelations(user, currentUser.getId());
+        } else if (currentUser.getRole().ordinal() == 0) {
+            userService.getFriendsRelations(user, currentUser.getId());
         }
 
         DtoUser dtoUser = DtoUser.fromUser(user);
-        dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage()));
 
         return new ResponseEntity<>(dtoUser, HttpStatus.OK);
     }
@@ -93,9 +77,6 @@ public class UserController {
 
         List<DtoUser> dtoUsers = DtoUser.fromUser(users);
 
-        dtoUsers
-                .forEach(dtoUser -> dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage())));
-
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 
@@ -104,16 +85,13 @@ public class UserController {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
         List<DtoUser> dtoUsers = DtoUser.fromUser(userService.getAllByRole(currentUser.getRole()));
-        dtoUsers
-                .forEach(dtoUser -> dtoUser.setImageContent(imageService.loadImage(dtoUser.getImage())));
-
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("/{userId}/friends/page/{page}")
     public ResponseEntity<List<UserView>> getFriends(@PathVariable String userId, @PathVariable int page)
-            throws ValidationException{
+            throws ValidationException {
         return new ResponseEntity<>(
                 userService.getFriendsListByUserId((page - 1) * Constants.AMOUNT_FRIENDS_ON_PAGE,
                         Constants.AMOUNT_FRIENDS_ON_PAGE, userId), HttpStatus.OK);
@@ -128,7 +106,7 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/friends/invitations/incoming/page/{page}")
     public ResponseEntity<List<UserFriendInvitation>> getInvitationsIncoming(@PathVariable int page)
-        throws ValidationException {
+            throws ValidationException {
         return new ResponseEntity<>(
                 userService.getFriendInvitationsByUserId((page - 1) * Constants.AMOUNT_INVITATIONS_ON_PAGE,
                         Constants.AMOUNT_INVITATIONS_ON_PAGE, authenticationFacade.getUserId(), true), HttpStatus.OK);
@@ -138,7 +116,7 @@ public class UserController {
     @GetMapping("/friends/invitations/incoming/totalsize")
     public ResponseEntity<?> getInvitationsIncomingTotalSize() {
         return new ResponseEntity<>(
-                userService.getFriendInvitationsTotalSize(authenticationFacade.getUserId(),true), HttpStatus.OK);
+                userService.getFriendInvitationsTotalSize(authenticationFacade.getUserId(), true), HttpStatus.OK);
     }
 
 
@@ -160,7 +138,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/friends/invite")
-    public ResponseEntity<?> inviteToBecomeFriends(@RequestParam String targetId, boolean toInvite) throws ValidationException{
+    public ResponseEntity<?> inviteToBecomeFriends(@RequestParam String targetId, boolean toInvite) throws ValidationException {
         userService.inviteToBecomeFriends(authenticationFacade.getUserId(), targetId, toInvite);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -169,13 +147,13 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/friends/process")
     public ResponseEntity<?> proceedInvitation(@RequestParam String targetId, @RequestParam boolean toAccept)
-        throws ValidationException {
+            throws ValidationException {
         userService.proceedInvitation(authenticationFacade.getUserId(), targetId, toAccept);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/achievements")
-    public ResponseEntity<?> getUserAchievements(@PathVariable String userId) throws ValidationException{
+    public ResponseEntity<?> getUserAchievements(@PathVariable String userId) throws ValidationException {
         System.out.println(userId);
         return new ResponseEntity<>(achievementService.getUserAchievements(userId), HttpStatus.OK);
 
@@ -187,7 +165,6 @@ public class UserController {
         userService.removeFriend(targetId, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 
 }

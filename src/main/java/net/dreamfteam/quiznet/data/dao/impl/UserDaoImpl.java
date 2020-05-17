@@ -70,7 +70,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getBySubStr(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE LOWER(username) LIKE LOWER(?) order by role asc, is_online desc, last_time_online desc",
+                        "WHERE LOWER(username) LIKE LOWER(?) order by role , is_online desc, last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -162,18 +162,17 @@ public class UserDaoImpl implements UserDao {
     public List<UserView> getFriendsByUserId(int startIndex, int amount, String userId) {
         try {
             return jdbcTemplate
-                    .query("SELECT user_id, username, last_time_online, is_online, i.image AS image_content " +
-                                "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                                "WHERE user_id IN   (SELECT f.friend_id AS id " +
-                                                    "FROM friends f " +
-                                                    "WHERE f.parent_id = uuid(?) " +
-                                                    "AND f.accepted_datetime IS NOT NULL " +
-                                                    "UNION " +
-                                                    "SELECT f1.parent_id AS id " +
-                                                    "FROM friends f1 " +
-                                                    "WHERE f1.friend_id = uuid(?) " +
-                                                    "AND f1.accepted_datetime IS NOT NULL) " +
-                    "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
+                    .query("SELECT user_id, username, last_time_online, is_online, image AS image_content " +
+                            "FROM users WHERE user_id IN   (SELECT f.friend_id AS id " +
+                            "FROM friends f " +
+                            "WHERE f.parent_id = uuid(?) " +
+                            "AND f.accepted_datetime IS NOT NULL " +
+                            "UNION " +
+                            "SELECT f1.parent_id AS id " +
+                            "FROM friends f1 " +
+                            "WHERE f1.friend_id = uuid(?) " +
+                            "AND f1.accepted_datetime IS NOT NULL) " +
+                            "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -197,9 +196,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserFriendInvitation> getFriendInvitationsIncomingByUserId(int startIndex, int amount, String userId) {
         try {
-            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, i.image AS image_content " +
-                    "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                    "INNER JOIN friends f ON u.user_id = f.parent_id " +
+            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, image AS image_content " +
+                    "FROM users INNER JOIN friends f ON users.user_id = f.parent_id " +
                     "WHERE f.friend_id = uuid(?) " +
                     "AND f.accepted_datetime IS NULL " +
                     "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
@@ -225,9 +223,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserFriendInvitation> getFriendInvitationsOutgoingByUserId(int startIndex, int amount, String userId) {
         try {
-            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, i.image AS image_content " +
-                    "FROM users u LEFT JOIN images i ON uuid(u.image) = i.image_id " +
-                    "INNER JOIN friends f ON u.user_id = f.friend_id " +
+            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, image AS image_content " +
+                    "FROM users INNER JOIN friends f ON users.user_id = f.friend_id " +
                     "WHERE f.parent_id = uuid(?) " +
                     "AND f.accepted_datetime IS NULL " +
                     "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
@@ -251,14 +248,15 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void addFriendInvitation(String parentId, String targetId, boolean toInvite) {
-        if(toInvite) {
-        jdbcTemplate.update("INSERT INTO friends (parent_id, friend_id, invite_datetime) " +
-                        "VALUES (UUID(?), UUID(?), CURRENT_TIMESTAMP);",
-                parentId, targetId
-        );} else {
+    public void processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite) {
+        if (toInvite) {
+            jdbcTemplate.update("INSERT INTO friends (parent_id, friend_id, invite_datetime) " +
+                            "VALUES (UUID(?), UUID(?), CURRENT_TIMESTAMP);",
+                    parentId, targetId
+            );
+        } else {
             jdbcTemplate.update("delete from friends where friend_id in ( UUID(?), UUID(?)) and parent_id in ( UUID(?), UUID(?));",
-                    parentId, targetId,  parentId, targetId);
+                    parentId, targetId, parentId, targetId);
         }
 
     }
