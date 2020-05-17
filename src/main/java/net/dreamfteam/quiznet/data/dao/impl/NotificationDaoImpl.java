@@ -29,7 +29,8 @@ public class NotificationDaoImpl implements NotificationDao {
         List<Notification> res = jdbcTemplate.query(
                 "SELECT * " +
                         "FROM user_notifications " +
-                        "WHERE seen = false", new NotificationMapper());
+                        "WHERE seen = false AND user_id = UUID(?)",
+                new Object[]{userId}, new NotificationMapper());
         return res;
     }
 
