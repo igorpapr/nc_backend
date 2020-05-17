@@ -181,9 +181,9 @@ public class QuizDaoImpl implements QuizDao {
 
     @Transactional
     @Override
-    public void validateQuiz(DtoQuiz dtoQuiz) {
+    public int validateQuiz(DtoQuiz dtoQuiz) {
 
-        jdbcTemplate.update("UPDATE quizzes SET validated = true, published = ?, activated = ?, admin_commentary = ?, validator_id = uuid(?), validation_date = current_timestamp WHERE quiz_id = UUID(?)", dtoQuiz.isValidated(), dtoQuiz.isValidated(), dtoQuiz.getAdminCommentary(), dtoQuiz.getValidator_id(), dtoQuiz.getQuizId());
+        int rows = jdbcTemplate.update("UPDATE quizzes SET validated = true, published = ?, activated = ?, admin_commentary = ?, validator_id = uuid(?), validation_date = current_timestamp WHERE quiz_id = UUID(?)", dtoQuiz.isValidated(), dtoQuiz.isValidated(), dtoQuiz.getAdminCommentary(), dtoQuiz.getValidator_id(), dtoQuiz.getQuizId());
 
         if (dtoQuiz.isValidated()) {
             try {
@@ -194,6 +194,7 @@ public class QuizDaoImpl implements QuizDao {
                 System.out.println("Validate quiz in db. Quiz id: " + dtoQuiz.getQuizId());
             }
         }
+        return rows;
     }
 
     @Override
