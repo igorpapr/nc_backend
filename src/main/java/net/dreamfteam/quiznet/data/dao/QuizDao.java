@@ -22,7 +22,7 @@ public interface QuizDao {
 
     void deleteQuizById(String id);
 
-    void deactivateQuiz(DtoQuiz dtoQuiz);
+    void deactivateQuiz(String id);
 
     String saveQuestion(Question question);
 
@@ -41,6 +41,8 @@ public interface QuizDao {
     List<List<Object>> getCategoryList();
 
     List<Quiz> getUserQuizList(String userId, String thisUserId);
+
+    List<Quiz> getUserFavouriteList(String userId);
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 

@@ -163,8 +163,8 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public void deactivateQuiz(DtoQuiz dtoQuiz) {
-        jdbcTemplate.update("UPDATE quizzes SET activated = false WHERE quiz_id = UUID(?)", dtoQuiz.getQuizId());
+    public void deactivateQuiz(String id) {
+        jdbcTemplate.update("UPDATE quizzes SET activated = false WHERE quiz_id = UUID(?)", id);
         System.out.println("Quiz deactivated");
     }
 
@@ -256,7 +256,8 @@ public class QuizDaoImpl implements QuizDao {
     public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, q.image AS image_content, " +
-                            "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary " +
+                            "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, " +
+                            "published, activated " +
                             "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                             "WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;",
                     new Object[]{adminId, amount, startIndex},
@@ -270,6 +271,8 @@ public class QuizDaoImpl implements QuizDao {
                             .username(rs.getString("username"))
                             .language(rs.getString("quiz_lang"))
                             .adminComment(rs.getString("admin_commentary"))
+                            .published(rs.getBoolean("published"))
+                            .activated(rs.getBoolean("activated"))
                             .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -409,12 +412,12 @@ public class QuizDaoImpl implements QuizDao {
     public List<Quiz> getUserQuizList(String userId, String thisUserId) {
         try {
             return jdbcTemplate.query("SELECT q.quiz_id, title, description, image, " +
-                    "ver_creation_datetime, creator_id, activated, validated, published, " +
-                    "quiz_lang, admin_commentary, rating, f.liked  " +
+                    "ver_creation_datetime, activated, validated, published, " +
+                    "quiz_lang , rating, f.liked  " +
                     "FROM quizzes as q left join " +
                     "(select count(*) as liked, quiz_id  " +
                     "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
-                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?)",
+                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by rating desc, published desc, activated desc ",
 
                     new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
                     .id(rs.getString("quiz_id"))
@@ -422,18 +425,36 @@ public class QuizDaoImpl implements QuizDao {
                     .description(rs.getString("description"))
                     .imageContent(rs.getBytes("image"))
                     .creationDate(rs.getDate("ver_creation_datetime"))
-                    .creatorId(rs.getString("creator_id"))
                     .activated(rs.getBoolean("activated"))
                     .validated(rs.getBoolean("validated"))
                     .published(rs.getBoolean("published"))
                     .language(rs.getString("quiz_lang"))
-                    .adminComment(rs.getString("admin_commentary"))
                     .rating(rs.getFloat("rating"))
                     .isFavourite(rs.getInt("liked") > 0)
                     .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public List<Quiz> getUserFavouriteList(String userId) {
+        return jdbcTemplate.query("select  quiz_id, title, description, image," +
+                        "ver_creation_datetime, activated, validated, published," +
+                        "quiz_lang , rating  from quizzes where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?)) order by rating desc, published desc, activated desc ", new Object[]{userId},
+                (rs, i) -> Quiz.builder()
+                        .id(rs.getString("quiz_id"))
+                        .title(rs.getString("title"))
+                        .description(rs.getString("description"))
+                        .imageContent(rs.getBytes("image"))
+                        .creationDate(rs.getDate("ver_creation_datetime"))
+                        .activated(rs.getBoolean("activated"))
+                        .validated(rs.getBoolean("validated"))
+                        .published(rs.getBoolean("published"))
+                        .language(rs.getString("quiz_lang"))
+                        .rating(rs.getFloat("rating"))
+                        .isFavourite(true)
+                        .build()) ;
     }
 
 

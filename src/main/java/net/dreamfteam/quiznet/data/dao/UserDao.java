@@ -50,16 +50,22 @@ public interface UserDao {
 
     int getFriendsTotalSize(String userId);
 
-    List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId);
+    List<UserFriendInvitation> getFriendInvitationsIncomingByUserId(int startIndex, int amount, String userId);
 
-    int getFriendInvitationsTotalSize(String userId);
+    int getFriendInvitationsIncomingTotalSize(String userId);
 
-    void addFriendInvitation(String parentId, String targetId);
+    List<UserFriendInvitation> getFriendInvitationsOutgoingByUserId(int startIndex, int amount, String userId);
+
+    int getFriendInvitationsOutgoingTotalSize(String userId);
+
+    void processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite);
 
     void acceptInvitation(String parentId, String targetId);
 
     void rejectInvitation(String parentId, String targetId);
 
     User getFriendsRelations(User targetUser, String thisUser);
+
+    void removeFriend(String targetId, String thisId);
 
 }

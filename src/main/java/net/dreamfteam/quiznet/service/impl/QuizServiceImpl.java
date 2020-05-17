@@ -120,13 +120,13 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public void deleteQuizById(DtoQuiz dtoQuiz) {
-        quizDao.deleteQuizById(dtoQuiz.getQuizId());
+    public void deleteQuizById(String id) {
+        quizDao.deleteQuizById(id);
     }
 
     @Override
-    public void deactivateQuiz(DtoQuiz dtoQuiz) {
-        quizDao.deactivateQuiz(dtoQuiz);
+    public void deactivateQuiz(String id) {
+        quizDao.deactivateQuiz(id);
     }
 
     @Override
@@ -233,6 +233,11 @@ public class QuizServiceImpl implements QuizService {
     public Quiz setValidator(String quizId, String adminId) {
         Quiz quiz = quizDao.setValidator(quizId, adminId);
         return quiz;
+    }
+
+    @Override
+    public List<Quiz> getUserFavouriteList(String userId) {
+        return quizDao.getUserFavouriteList(userId);
     }
 
     @Override
