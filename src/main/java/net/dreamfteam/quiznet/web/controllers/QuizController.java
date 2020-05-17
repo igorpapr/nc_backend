@@ -76,21 +76,20 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @DeleteMapping
-    public ResponseEntity<?> deleteQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
+    @DeleteMapping("/{quizId}")
+    public ResponseEntity<?> deleteQuiz(@PathVariable String quizId) throws ValidationException {
 
-        Quiz quiz = quizService.getQuiz(dtoQuiz.getQuizId());
-        User currentUser = userService.getById(authenticationFacade.getUserId());
+        Quiz quiz = quizService.getQuiz(quizId);
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
         }
 
-        if (quiz.getCreatorId().equals(authenticationFacade.getUserId()) || currentUser.getRole() != Role.ROLE_USER) {
+        if (!quiz.getCreatorId().equals(authenticationFacade.getUserId())) {
             throw new ValidationException("You can't delete not yours quiz");
         }
 
-        quizService.deleteQuizById(dtoQuiz);
+        quizService.deleteQuizById(quizId);
         return ResponseEntity.ok().build();
     }
 
@@ -147,20 +146,20 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/deactivate")
-    public ResponseEntity<?> deactivateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
-        Quiz quiz = quizService.getQuiz(dtoQuiz.getQuizId());
-        User currentUser = userService.getById(authenticationFacade.getUserId());
+    @PostMapping("/deactivate/{quizId}")
+    public ResponseEntity<?> deactivateQuiz(@PathVariable String quizId) throws ValidationException {
+        Quiz quiz = quizService.getQuiz(quizId);
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
         }
 
-        if (quiz.getCreatorId().equals(authenticationFacade.getUserId()) || currentUser.getRole() != Role.ROLE_USER) {
+        System.out.println(quiz.getCreatorId());
+        if (!quiz.getCreatorId().equals(authenticationFacade.getUserId())) {
             throw new ValidationException("You can't deactivate not yours quiz");
         }
 
-        quizService.deactivateQuiz(dtoQuiz);
+        quizService.deactivateQuiz(quizId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

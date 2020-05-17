@@ -24,9 +24,8 @@ public class ActivityDaoImpl implements ActivityDao {
 	@Override
 	public List<FriendsActivity> getFriendsActivitiesList(String userId) {
 		try{
-			return jdbcTemplate.query("SELECT activity_id, content, datetime, ua.user_id, u.username, i.image AS image_content " +
+			return jdbcTemplate.query("SELECT activity_id, content, datetime, ua.user_id, u.username, u.image AS image_content " +
 											"FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
-											"LEFT JOIN images i ON uuid(u.image) = i.image_id " +
 											"WHERE ua.user_id IN " +
 																"(SELECT f.friend_id AS id " +
 																"FROM friends f " +
