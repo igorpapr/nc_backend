@@ -48,7 +48,7 @@ public class NotificationDaoImpl implements NotificationDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO user_notifications " +
                     "(content, user_id) " +
-                    "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, notification.getContent());
             ps.setObject(2, java.util.UUID.fromString(notification.getUserId()));
             return ps;
