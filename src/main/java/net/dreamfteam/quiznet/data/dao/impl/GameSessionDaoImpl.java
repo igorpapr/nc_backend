@@ -96,10 +96,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.game_session_id, users_games.user_id, users_games.username, images.image, score, " +
+                .queryForList("SELECT users_games.game_session_id, users_games.user_id, " +
+                        "users_games.username, image, score, " +
                         "is_winner, is_creator, duration_time " +
-                        "FROM users_games LEFT JOIN " +
-                        "(users LEFT JOIN images ON UUID(users.image) = images.image_id) " +
+                        "FROM users_games LEFT JOIN users " +
                         "ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?);", gameId);
     }
