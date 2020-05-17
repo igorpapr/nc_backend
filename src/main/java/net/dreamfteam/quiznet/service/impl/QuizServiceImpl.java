@@ -121,7 +121,7 @@ public class QuizServiceImpl implements QuizService {
     public void validateQuiz(DtoQuiz quiz) {
         if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
             DtoActivity activity = DtoActivity.builder()
-                    .content("Created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
+                    .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
                     .activityType(ActivityType.VALIDATION_RELATED)
                     .userId(quiz.getCreatorId())
                     .build();
