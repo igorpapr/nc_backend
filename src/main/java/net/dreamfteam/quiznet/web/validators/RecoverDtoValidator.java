@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.web.validators;
 
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import org.springframework.util.StringUtils;
 
@@ -26,9 +26,14 @@ public class RecoverDtoValidator {
         validateNotEmptyProperty(user.getEmail(), "email");
     }
 
-    public static void validate(DtoChangePassword user) throws ValidationException {
+    public static void validate(DtoForgotPassword user) throws ValidationException {
         validateNotEmptyProperty(user.getPassword(), "password");
         validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
+    }
+
+    public static void validate(String password) throws ValidationException {
+        validateNotEmptyProperty(password, "password");
+        validateWithRegularExpression(password, REGEX_PASSWORD, "password");
     }
 
     private static void validateNotEmptyProperty(Object value, String propertyName) {

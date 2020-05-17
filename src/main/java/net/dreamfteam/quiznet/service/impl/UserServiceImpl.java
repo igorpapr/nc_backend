@@ -6,17 +6,23 @@ import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import static java.util.Objects.isNull;
 
 @Slf4j
 @Service
@@ -25,9 +31,9 @@ public class UserServiceImpl implements UserService {
     @Value("${reg.url.activate}")
     private String REG_URL_ACTIVATE;
 
-    private MailService mailService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private UserDao userDao;
+    final private MailService mailService;
+    final private BCryptPasswordEncoder bCryptPasswordEncoder;
+    final private UserDao userDao;
 
     @Autowired
     public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao) {
@@ -127,6 +133,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getFriendsRelations(User targetUser, String thiUserId) {
+        return userDao.getFriendsRelations(targetUser, thiUserId);
+    }
+
+    @Override
     public void checkCorrectPassword(User user, String password) {
         boolean matches = bCryptPasswordEncoder.matches(password, user.getPassword());
         if (!matches) {
@@ -140,5 +151,83 @@ public class UserServiceImpl implements UserService {
             return userDao.getBySubStrAndRoleUser(substr);
         } else return userDao.getBySubStr(substr);
     }
+
+    @Override
+    public int getFriendsTotalSize(String userId) {
+        return userDao.getFriendsTotalSize(userId);
+    }
+
+    @Override
+    public List<UserView> getFriendsListByUserId(int startIndex, int amount, String userId) {
+        return userDao.getFriendsByUserId(startIndex, amount, userId);
+    }
+
+    /* Returns friend invitations list by user id.
+    * Parameter "isIncoming":
+    * - true - when the request is aimed on the incoming invitations list;
+    * - false - when the request is aimed on the outgoing invitations list.
+    * */
+    @Override
+    public List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId,
+                                                                   boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingByUserId(startIndex, amount, userId);
+        }
+        return userDao.getFriendInvitationsOutgoingByUserId(startIndex, amount, userId);
+    }
+
+    /* Returns the size of invitations list by user id.
+     * Parameter "isIncoming":
+     * - true - when the request is aimed on the incoming invitations list size;
+     * - false - when the request is aimed on the outgoing invitations list size.
+     * */
+    @Override
+    public int getFriendInvitationsTotalSize(String userId, boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingTotalSize(userId);
+        }
+        return userDao.getFriendInvitationsOutgoingTotalSize(userId);
+    }
+
+    @Override
+    public void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite) throws ValidationException{
+        if(parentId.equals(targetId)){
+            throw new ValidationException("Can't invite to friends yourself");
+        }
+        User target = getById(targetId);
+        if (isNull(target)) {
+            System.out.println("Friend invitation target doesn't exist: " + targetId);
+            throw new ValidationException("Target user doesn't exist");
+        }
+        if (target.getRole() != Role.ROLE_USER) {
+            System.out.println("Friend invitation target has bad role: " + target.getRole());
+            throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
+        }
+        userDao.addFriendInvitation(parentId, targetId, toInvite);
+    }
+
+    @Override
+    public void proceedInvitation(String parentId, String targetId, boolean toAccept) {
+        User target = getById(targetId);
+        if(isNull(target)){
+            throw new ValidationException("Target user doesn't exist");
+        }
+        if (target.getRole() != Role.ROLE_USER){
+            throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
+        }
+        if(toAccept){
+            userDao.acceptInvitation(parentId, targetId);
+        }
+        else{
+            userDao.rejectInvitation(parentId, targetId);
+        }
+    }
+
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        userDao.removeFriend(targetId, thisId);
+    }
+
+
 }
 

@@ -6,7 +6,7 @@ import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.RecoveringService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +25,9 @@ public class RecoveringServiceImpl implements RecoveringService {
     @Value("${recover.mail.url}")
     private String RECOVER_MAIL_URL;
 
-    private UserService userService;
-    private MailService mailService;
-    private BCryptPasswordEncoder passwordEncoder;
+    final private UserService userService;
+    final private MailService mailService;
+    final private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public RecoveringServiceImpl(UserService userService, MailService mailService, BCryptPasswordEncoder passwordEncoder) {
@@ -74,11 +74,11 @@ public class RecoveringServiceImpl implements RecoveringService {
     }
 
     @Override
-    public void changePassword(@RequestBody DtoChangePassword passwordDto) {
+    public void changePassword(@RequestBody DtoForgotPassword passwordDto) {
         User user = userService.getByRecoverUrl(passwordDto.getRecoverUrl());
 
         if (user == null) {
-            throw new ValidationException("Not found passwordDto with such recover url");
+            throw new ValidationException("Not found user with such recover url");
         }
 
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {

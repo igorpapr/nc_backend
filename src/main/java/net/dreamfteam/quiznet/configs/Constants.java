@@ -3,28 +3,42 @@ package net.dreamfteam.quiznet.configs;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class Constants {
 
     //URLS
-    public static final String QUIZ_URLS = "/api/quiz";
+    public static final String QUIZ_URLS = "/api/quizzes";
+    public static final String GAME_URLS = "/api/games";
+    public static final String ACCOUNT_URLS = "api/account";
     public static final String SIGN_UP_URLS = "/api";
     public static final String USER_URLS = "/api/profiles";
     public static final String TEST_URLS = "/api/test/**";
     public static final String RECOVER_URLS = "/api/recovery";
     public static final String ADMIN_URLS = "/api/admins";
+    public static final String ANNOUNCEMENT_URLS = "/api/announcement";
+    public static final String SETTING_URLS = "/api/settings";
+    public static final String ACTIVITIES_URLS = "/api/activities";
+    public static final String SSE_URLS = "/api/sse";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
     public static final String SECUR_ACTIVATION_URLS = "/api/activation";
     public static final String SECUR_LOG_IN_URLS = "/api/log-in";
     public static final String SECUR_RECOVER_URLS = "/api/recovery/**";
-    public static final String SECUR_QUIZ_QUESTION_LIST_URLS = "/api/quiz/getquestionlist";
-    public static final String SECUR_QUIZ_TOTAL_SIZE_URLS = "api/quiz/getquiztotalsize";
-    public static final String SECUR_QUIZ_TAG_LIST_URLS = "api/quiz/gettaglist";
-    public static final String SECUR_QUIZ_CATEG_LIST_URLS = "api/quiz/getcateglist";
-    public static final String SECUR_QUIZ_URLS = "api/quiz/get";
-    public static final String SECUR_QUIZ_LIST_URLS = "api/quiz/quiz-list/**";
+    public static final String SECURE_ANNOUNCEMENT_LIST_URLS = "/api/announcement/getall";
+    public static final String SECURE_ANNOUNCEMENT_URLS = "/api/announcement/get/**";
+    public static final String SECURE_ANNOUNCEMENT_SIZE = "/api/announcement/getamount";
+    public static final String SECUR_QUIZ_QUESTION_LIST_URLS = "/api/quizzes/questions**";
+    public static final String SECUR_QUIZ_TOTAL_SIZE_URLS = "/api/quizzes/totalsize";
+    public static final String SECUR_QUIZ_TAGS_URLS = "/api/quizzes/tags";
+    public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quizzes/categories";
+    public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
+    public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
+
+    public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
+    public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
+    public static final String SECUR_ANONYM = "/api/anonym**";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
@@ -32,6 +46,10 @@ public class Constants {
     public static final String HEADER_STRING = "Authorization";
     public static final long EXPIRATION_TIME = 300_000_000; //30 000 seconds
     public static final int AMOUNT_QUIZ_ON_PAGE = 16;
+    public static final int AMOUNT_VALID_QUIZ_ON_PAGE = 6;
+    public static final int AMOUNT_SUGGESTIONS_QUIZ_LIST = 3;
+    public static final int AMOUNT_FRIENDS_ON_PAGE = 8;
+    public static final int AMOUNT_INVITATIONS_ON_PAGE = 8;
 
     //Registration messages
     public static final String REG_MAIL_SUBJECT = "Profile registration(QuizNet)";
@@ -47,7 +65,10 @@ public class Constants {
     public static final String RECOVER_MAIL_SUBJECT = "Reset password(QuizNet)";
     public static final String RECOVER_MAIL_ARTICLE = "Changing password";
     public static final String RECOVER_MAIL_MESSAGE = "To change your password visit next link: ";
+    public static final int AMOUNT_QUESTIONS_ON_PAGE = 3;
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
+    //Achievement ids
+    public static final int ACHIEVEMENT_FIRST_GAME_ID = 1;
 }

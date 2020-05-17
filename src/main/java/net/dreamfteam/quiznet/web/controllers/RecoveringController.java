@@ -2,7 +2,7 @@ package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.service.RecoveringService;
-import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 import net.dreamfteam.quiznet.web.validators.RecoverDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import javax.websocket.server.PathParam;
 
 @RestController
 @CrossOrigin
-@RequestMapping(Constants.SECUR_RECOVER_URLS)
+@RequestMapping(Constants.RECOVER_URLS)
 public class RecoveringController {
 
     @Value("${recover.redirect.url}")
     private String RECOVER_REDIRECT_URL;
 
-    private RecoveringService recoveringService;
+    final private RecoveringService recoveringService;
 
     @Autowired
     public RecoveringController(RecoveringService recoveringService) {
@@ -51,7 +51,7 @@ public class RecoveringController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody DtoChangePassword passwordDto) {
+    public ResponseEntity<?> changePassword(@RequestBody DtoForgotPassword passwordDto) {
 
         RecoverDtoValidator.validate(passwordDto);
         recoveringService.changePassword(passwordDto);

@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.web.validators;
 
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import org.springframework.util.StringUtils;
 
@@ -12,7 +13,6 @@ public class QuizValidator {
 
     public static void validate(DtoQuiz quiz) {
         isNotEmpty(quiz.getTitle(), "title");
-        isNotEmpty(quiz.getCreatorId(), "creator id");
         isNotEmpty(quiz.getLanguage(), "language");
         isNotEmpty(quiz.getDescription(), "description");
         if(quiz.getTagList().size() == 0 || quiz.getCategoryList().size() == 0) {
@@ -20,12 +20,11 @@ public class QuizValidator {
         }
     }
 
-    public static void validateForEdit(DtoQuiz quiz) {
+    public static void validateForEdit(DtoEditQuiz quiz) {
         isNotEmpty(quiz.getNewTitle(), "new title");
         isNotEmpty(quiz.getNewLanguage(), "new language");
         isNotEmpty(quiz.getNewDescription(), "new description");
         isNotEmpty(quiz.getQuizId(), "quiz id");
-        isNotEmpty(quiz.getCreatorId(), "creator id");
     }
 
     public static void validateQuestion(Question question) {

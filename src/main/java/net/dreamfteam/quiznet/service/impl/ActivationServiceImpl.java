@@ -15,8 +15,8 @@ import static javax.management.timer.Timer.ONE_DAY;
 @Service
 public class ActivationServiceImpl implements ActivationService {
 
-    private JwtTokenProvider tokenProvider;
-    private UserService userService;
+    final private JwtTokenProvider tokenProvider;
+    final private UserService userService;
     private static final String MESSAGE_ALREADY_ACTIVATED = "Already activated. Please, log in";
     private static final String MESSAGE_LINK_EXPIRED = "Your activation link is expired. Please, create a new account";
     private static final String MESSAGE_ACTIVATED = "Successfully activated. Please, log in";
@@ -72,6 +72,11 @@ public class ActivationServiceImpl implements ActivationService {
         userService.update(user);
 
         return tokenProvider.provideToken(user.getUsername());
+    }
+
+    @Override
+    public String getAnonymToken(String username) {
+        return tokenProvider.provideTokenForAnonym(username);
     }
 
 
