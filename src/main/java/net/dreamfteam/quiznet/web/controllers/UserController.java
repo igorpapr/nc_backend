@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,15 +38,34 @@ public class UserController {
 
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit")
-    public ResponseEntity<?> edit(@RequestParam("key") MultipartFile image) {
+    @PostMapping("/edit/aboutMe")
+    public ResponseEntity<?> activate(@RequestParam("key") String aboutMe) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
-        // TODO
+
+        currentUser.setAboutMe(aboutMe);
         userService.update(currentUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/edit/image")
+    public ResponseEntity<?> editImage(@RequestParam("key") MultipartFile image){
+        //TODO universal method for edit
+        User currentUser = userService.getById(authenticationFacade.getUserId());
+
+        try {
+            currentUser.setImage(image.getBytes());
+        } catch (IOException e) {
+            throw new ValidationException("Broken image");
+        }
+
+        userService.update(currentUser);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     @GetMapping("/{userName}")
     public ResponseEntity<DtoUser> getProfile(@PathVariable String userName) {
