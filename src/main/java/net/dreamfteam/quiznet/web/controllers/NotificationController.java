@@ -5,7 +5,6 @@ import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.SseService;
-import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,6 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("seen")
     public ResponseEntity<?> seen() throws ValidationException {
-        System.out.println(authenticationFacade.getUserId());
         notificationService.updateSeen(authenticationFacade.getUserId());
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -43,32 +41,12 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<?> getUnseen() {
         return new ResponseEntity<>(notificationService.getUnseenByUserId(authenticationFacade.getUserId()),
-                HttpStatus.OK);        
+                                    HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("notification/{notifId}")
     public ResponseEntity<?> get(@PathVariable String notifId) {
         return new ResponseEntity<>(notificationService.getById(notifId), HttpStatus.OK);
-    }
-
-    //DELETE
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @GetMapping("send")
-    public ResponseEntity<?> send() {
-        sseService.send(authenticationFacade.getUserId(), "sent");
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    //DELETE
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @GetMapping("new")
-    public ResponseEntity<?> newNot() {
-        notificationService.insert(DtoNotification.builder()
-                                                  .userId(authenticationFacade.getUserId())
-                                                  .content(new Date().toString())
-                                                  .build());
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
