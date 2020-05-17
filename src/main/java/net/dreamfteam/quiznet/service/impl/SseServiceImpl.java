@@ -17,21 +17,37 @@ public class SseServiceImpl implements SseService {
 
     @Override
     public Flux<ServerSentEvent> subscribe(String key) {
-        if (sse.get(key) == null) sse.put(key, ReplayProcessor.create());
-        return sse.get(key);
+        return getOrCreate(key);
     }
 
 
     @Override
     public void send(String key, String event, String id) {
-        ServerSentEvent ssEvent = ServerSentEvent.builder(id).event(event).build();
-        sse.get(key).onNext(ssEvent);
+        ServerSentEvent ssEvent = ServerSentEvent.builder(id)
+                                                 .event(event)
+                                                 .build();
+        getOrCreate(key).onNext(ssEvent);
     }
 
     @Override
     public void send(String key, String event) {
-        ServerSentEvent ssEvent = ServerSentEvent.builder(event).event(event).build();
-        sse.get(key).onNext(ssEvent);
+        ServerSentEvent ssEvent = ServerSentEvent.builder(event)
+                                                 .event(event)
+                                                 .build();
+        getOrCreate(key)
+           .onNext(ssEvent);
+    }
+
+    @Override
+    public void remove(String key) {
+        if (sse.get(key) != null)
+            sse.remove(key);
+    }
+
+    private ReplayProcessor<ServerSentEvent> getOrCreate(String key) {
+        if (sse.get(key) == null)
+            sse.put(key, ReplayProcessor.create());
+        return sse.get(key);
     }
 
 

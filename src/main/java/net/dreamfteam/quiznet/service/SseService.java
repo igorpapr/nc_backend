@@ -11,4 +11,6 @@ public interface SseService {
 
     void send(String key, String event);
 
+    void remove(String key);
+
 }
