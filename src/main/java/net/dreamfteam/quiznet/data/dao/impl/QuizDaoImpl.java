@@ -417,7 +417,7 @@ public class QuizDaoImpl implements QuizDao {
                     "FROM quizzes as q left join " +
                     "(select count(*) as liked, quiz_id  " +
                     "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
-                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by rating desc, published desc, activated desc ",
+                    " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by validated, activated desc, published desc ",
 
                     new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
                     .id(rs.getString("quiz_id"))
