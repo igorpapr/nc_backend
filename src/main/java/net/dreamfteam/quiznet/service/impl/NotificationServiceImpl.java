@@ -2,15 +2,12 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.data.dao.NotificationDao;
 import net.dreamfteam.quiznet.data.entities.Notification;
-import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -36,21 +33,20 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void insert(DtoNotification dtoNotification){
-        Notification notification =
-                Notification.builder()
-                        .content(dtoNotification.getContent())
-                        .userId(dtoNotification.getUserId())
-                        .build();
+    public void insert(DtoNotification dtoNotification) {
+        Notification notification = Notification.builder()
+                                                .content(dtoNotification.getContent())
+                                                .userId(dtoNotification.getUserId())
+                                                .build();
 
 
-        sseService.send(dtoNotification.getUserId(),"sent",
-                notificationDao.insert(notification));
+        sseService.send(dtoNotification.getUserId(), "sent", notificationDao.insert(notification));
     }
 
     @Override
     public void updateSeen(String userId) {
         notificationDao.updateSeen(userId);
+        sseService.remove(userId);
     }
 
     @Override
