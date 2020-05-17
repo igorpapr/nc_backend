@@ -20,6 +20,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
@@ -35,12 +37,11 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/edit")
+    @PostMapping("/edit/{field}")
     public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
         User otherUser = userService.getById(editAdminProfile.getId());
-        // TODO
 
         if (otherUser == null) {
             throw new ValidationException("Not found such user");
@@ -67,6 +68,8 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/edit/image")
     public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
@@ -77,7 +80,12 @@ public class AdminController {
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
             throw new ValidationException("You dont have such capabilities");
         }
-        // TODO
+
+        try {
+            otherUser.setImage(image.getBytes());
+        } catch (IOException e) {
+            throw new ValidationException("Broken image");
+        }
 
         userService.update(otherUser);
 
