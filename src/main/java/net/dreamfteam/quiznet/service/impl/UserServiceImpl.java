@@ -13,13 +13,10 @@ import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -203,7 +200,7 @@ public class UserServiceImpl implements UserService {
             System.out.println("Friend invitation target has bad role: " + target.getRole());
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
-        userDao.addFriendInvitation(parentId, targetId, toInvite);
+        userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite);
     }
 
     @Override

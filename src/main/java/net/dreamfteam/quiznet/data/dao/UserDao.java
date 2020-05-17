@@ -58,7 +58,7 @@ public interface UserDao {
 
     int getFriendInvitationsOutgoingTotalSize(String userId);
 
-    void addFriendInvitation(String parentId, String targetId, boolean toInvite);
+    void processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite);
 
     void acceptInvitation(String parentId, String targetId);
 

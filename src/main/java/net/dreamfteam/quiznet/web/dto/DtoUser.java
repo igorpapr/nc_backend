@@ -29,7 +29,7 @@ public class DtoUser {
 
     private Date lastTimeOnline;
 
-    private String image;
+    private  byte[] image;
 
     private String aboutMe;
 
@@ -38,8 +38,6 @@ public class DtoUser {
     private boolean activated;
 
     private boolean verified;
-
-    private byte[] imageContent;
 
     private boolean isFriend;
 
