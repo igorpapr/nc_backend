@@ -27,21 +27,20 @@ public class AdminController {
 
     final private UserService userService;
     final private IAuthenticationFacade authenticationFacade;
-    final private ImageService imageService;
 
     @Autowired
     public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
-        this.imageService = imageService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/edit/{field}")
+    @PostMapping("/edit")
     public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
         User otherUser = userService.getById(editAdminProfile.getId());
+        // TODO
 
         if (otherUser == null) {
             throw new ValidationException("Not found such user");
@@ -78,8 +77,7 @@ public class AdminController {
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
             throw new ValidationException("You dont have such capabilities");
         }
-
-        otherUser.setImage(imageService.saveImage(image));
+        // TODO
 
         userService.update(otherUser);
 
@@ -103,7 +101,7 @@ public class AdminController {
             throw new ValidationException("Such username has been taken");
         }
 
-        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()){
+        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()) {
             throw new ValidationException("You dont have such capabilities");
         }
 
