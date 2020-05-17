@@ -216,6 +216,9 @@ public class QuizDaoImpl implements QuizDao {
         if (quizFilter.getLessThanRating() > 0) {
             sql = sql + "rating <= " + quizFilter.getLessThanRating() + " AND ";
         }
+        if (quizFilter.getQuizLang() != null) {
+            sql = sql + "quiz_lang LIKE '" + quizFilter.getQuizLang() + "' AND ";
+        }
         if (quizFilter.getTags() != null && quizFilter.getTags().size() > 0) {
             for (int i = 0; i < quizFilter.getTags().size(); i++) {
                 sql = sql + "quiz_id IN (SELECT quiz_id FROM quizzes_tags WHERE tag_id = '" + quizFilter.getTags().get(i) + "') AND ";
