@@ -46,7 +46,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void updateSeen(String userId) {
         notificationDao.updateSeen(userId);
-        sseService.remove(userId);
     }
 
     @Override

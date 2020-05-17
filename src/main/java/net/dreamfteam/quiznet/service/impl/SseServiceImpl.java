@@ -13,6 +13,7 @@ import java.util.Map;
 @Service
 public class SseServiceImpl implements SseService {
 
+    private static final int HISTORY_AMOUNT_REPLAY_PROCESSOR = 10;
     private final Map<String, ReplayProcessor<ServerSentEvent>> sse = Collections.synchronizedMap(new HashMap<>());
 
     @Override
@@ -46,7 +47,7 @@ public class SseServiceImpl implements SseService {
 
     private ReplayProcessor<ServerSentEvent> getOrCreate(String key) {
         if (sse.get(key) == null)
-            sse.put(key, ReplayProcessor.create());
+            sse.put(key, ReplayProcessor.create(SseServiceImpl.HISTORY_AMOUNT_REPLAY_PROCESSOR));
         return sse.get(key);
     }
 
