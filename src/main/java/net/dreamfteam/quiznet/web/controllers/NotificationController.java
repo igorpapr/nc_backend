@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.NOTIFICATION_URLS)
@@ -42,9 +40,10 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @GetMapping("{userId}")
-    public ResponseEntity<?> getUnseen(@PathVariable String userId) {
-        return new ResponseEntity<>(notificationService.getUnseenByUserId(userId), HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<?> getUnseen() {
+        return new ResponseEntity<>(notificationService.getUnseenByUserId(authenticationFacade.getUserId()),
+                HttpStatus.OK);        
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
