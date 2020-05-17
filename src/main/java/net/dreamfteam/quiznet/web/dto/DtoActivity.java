@@ -1,8 +1,7 @@
 package net.dreamfteam.quiznet.web.dto;
 
 import lombok.*;
-
-import java.util.Date;
+import net.dreamfteam.quiznet.data.entities.ActivityType;
 
 @Builder
 @Getter
@@ -16,5 +15,6 @@ public class DtoActivity {
 
 	private String userId;
 
+	private ActivityType activityType;
 
 }

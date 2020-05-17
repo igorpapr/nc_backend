@@ -3,8 +3,10 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.ImageService;
 import net.dreamfteam.quiznet.service.QuizService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
@@ -20,12 +22,13 @@ import java.util.Map;
 @Service
 public class QuizServiceImpl implements QuizService {
 
-    private QuizDao quizDao;
-
+    private final QuizDao quizDao;
+    private final ActivitiesService activitiesService;
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao) {
+    public QuizServiceImpl(QuizDao quizDao, ActivitiesService activitiesService) {
         this.quizDao = quizDao;
+        this.activitiesService = activitiesService;
     }
 
     @Override
@@ -116,7 +119,14 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
-        quizDao.validateQuiz(quiz);
+        if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
+            DtoActivity activity = DtoActivity.builder()
+                    .content("Created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
+                    .activityType(ActivityType.VALIDATION_RELATED)
+                    .userId(quiz.getCreatorId())
+                    .build();
+            activitiesService.addActivityForUser(activity);
+        }
     }
 
     @Override
