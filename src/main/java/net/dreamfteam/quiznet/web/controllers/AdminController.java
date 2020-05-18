@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
+import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoAdminActivation;
 import net.dreamfteam.quiznet.web.dto.DtoAdminSignUp;
@@ -27,13 +28,17 @@ import java.io.IOException;
 @RequestMapping(Constants.ADMIN_URLS)
 public class AdminController {
 
+    private final SettingsService settingsService;
+
     final private UserService userService;
     final private IAuthenticationFacade authenticationFacade;
 
     @Autowired
-    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
+    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade,
+                           SettingsService settingsService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
+        this.settingsService = settingsService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
@@ -101,6 +106,7 @@ public class AdminController {
         UserValidator.validate(newAdmin);
         User user = userService.getByEmail(newAdmin.getEmail());
 
+
         if (user != null) {
             throw new ValidationException("Such email has been taken");
         }
@@ -114,6 +120,9 @@ public class AdminController {
         }
 
         User saved = userService.saveAdmin(newAdmin.toUser());
+
+        settingsService.initSettings(saved.getId(), saved.getRole());
+
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }
 

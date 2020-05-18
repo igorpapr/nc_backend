@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.SettingsDao;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.Setting;
 import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.service.SettingsService;
@@ -23,8 +24,8 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public void initSettings(String id) {
-        settingsDao.initSettings(id);
+    public void initSettings(String id, Role role) {
+        settingsDao.initSettings(id,role);
     }
 
     @Override

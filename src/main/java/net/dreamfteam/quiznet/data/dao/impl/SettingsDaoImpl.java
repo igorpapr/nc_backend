@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.data.dao.SettingsDao;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.Setting;
 import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.data.rowmappers.SettingMapper;
@@ -26,8 +27,8 @@ public class SettingsDaoImpl implements SettingsDao {
     }
 
     @Override
-    public void initSettings(String userId) {
-        List<String> titles = getTitles();
+    public void initSettings(String userId, Role role) {
+        List<String> titles = getTitles(role == Role.ROLE_USER);
 
         for (String title:titles) {
             jdbcTemplate.update("insert into user_settings (user_id, setting_id, value) " +
@@ -38,8 +39,12 @@ public class SettingsDaoImpl implements SettingsDao {
 
     }
 
-    private List<String> getTitles(){
-        return jdbcTemplate.queryForList("SELECT title FROM settings",String.class);
+    private List<String> getTitles(boolean isUser){
+        if(isUser){
+            return jdbcTemplate.queryForList("SELECT title FROM settings",String.class);
+        }else{
+            return jdbcTemplate.queryForList("SELECT title FROM settings WHERE privileged = TRUE;",String.class);
+        }
     }
 
     @Override
