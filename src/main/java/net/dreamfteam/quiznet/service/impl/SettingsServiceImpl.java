@@ -2,11 +2,14 @@ package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.SettingsDao;
+import net.dreamfteam.quiznet.data.entities.Setting;
 import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SettingsServiceImpl implements SettingsService {
@@ -37,7 +40,7 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public Settings getSettings(String userId) {
+    public List<Setting> getSettings(String userId) {
         return settingsDao.getSettings(userId);
     }
 }
