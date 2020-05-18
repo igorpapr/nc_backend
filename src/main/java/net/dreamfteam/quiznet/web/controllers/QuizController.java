@@ -92,7 +92,6 @@ public class QuizController {
     @PostMapping("/filter-quiz-list/page/{page}")
     public ResponseEntity<?> getFilteredQuizList(@PathVariable int page,
                                                  @RequestBody DtoQuizFilter dtoQuizFilter) throws ValidationException {
-        System.out.println(dtoQuizFilter.toString());
         return new ResponseEntity<>(
                 quizService.findQuizzesByFilter(dtoQuizFilter, (page - 1) * Constants.AMOUNT_QUIZ_ON_PAGE,
                                                 Constants.AMOUNT_QUIZ_ON_PAGE), HttpStatus.OK);
@@ -101,8 +100,6 @@ public class QuizController {
     @PostMapping("/filter-quiz-list/size")
     public ResponseEntity<?> getFilteredQuizListSize(@RequestBody DtoQuizFilter dtoQuizFilter) throws
                                                                                                ValidationException {
-        System.out.println(dtoQuizFilter.toString());
-
         return new ResponseEntity<>(quizService.findQuizzesFilterSize(dtoQuizFilter), HttpStatus.OK);
     }
 

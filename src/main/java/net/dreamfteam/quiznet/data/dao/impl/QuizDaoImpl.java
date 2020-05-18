@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
+import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizViewMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
@@ -339,7 +340,6 @@ public class QuizDaoImpl implements QuizDao {
         }
         sql = sql.substring(0, sql.length() - 4);
 
-        System.out.println(sql);
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
