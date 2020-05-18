@@ -267,7 +267,7 @@ public class UserDaoImpl implements UserDao {
         try{
             return jdbcTemplate.update("UPDATE friends " +
                     "SET accepted_datetime = CURRENT_TIMESTAMP " +
-                    "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", targetId, parentId);
+                    "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", parentId, targetId);
         }catch (DataAccessException e){
             System.err.println("Error occurred while accepting the friend invitation: " + e.getMessage());
             return 0;
