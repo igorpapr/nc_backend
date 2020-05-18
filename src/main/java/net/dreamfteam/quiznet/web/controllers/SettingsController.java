@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.SETTING_URLS)
@@ -29,9 +31,10 @@ public class SettingsController {
 
     @PreAuthorize("hasAnyRole('USER')")
     @PostMapping
-    public ResponseEntity<?> setSettings(@RequestBody DtoSettings dtoSettings) throws ValidationException {
+    public ResponseEntity<?> setSettings(@RequestBody List<DtoSettings> dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
-        return new ResponseEntity<>(settingsService.editSettings(dtoSettings), HttpStatus.OK);
+        settingsService.editSettings(dtoSettings, authenticationFacade.getUserId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

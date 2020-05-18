@@ -117,7 +117,7 @@ public class QuizController {
     @PostMapping("/questions/edit")
     public ResponseEntity<?> editQuestion(@RequestParam("obj") String questionStr,
                                           @RequestParam(value = "img", required = false)  MultipartFile image)
-                                          throws ValidationException {
+            throws ValidationException {
         Question question = gson.fromJson(questionStr, Question.class);
         QuizValidator.validateQuestion(question);
         Question resQuestion = quizService.updateQuestion(question, image);
@@ -238,7 +238,7 @@ public class QuizController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/suggestions-list")
     public ResponseEntity<?> getSuggestionsQuizList() {
-    	return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST), HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST), HttpStatus.OK);
     }
 
     @GetMapping
@@ -271,7 +271,4 @@ public class QuizController {
 
         return new ResponseEntity<>(quizService.getUserFavouriteList(authenticationFacade.getUserId()), HttpStatus.OK);
     }
-
-
-
 }
