@@ -13,7 +13,7 @@ public class UserFriendInvitationMapper implements RowMapper<UserFriendInvitatio
 		return UserFriendInvitation.builder()
 				.id(resultSet.getString("user_id"))
 				.username(resultSet.getString("username"))
-				.invitationDatetime(resultSet.getTimestamp("invitation_datetime"))
+				.invitationDatetime(resultSet.getTimestamp("invite_datetime"))
 				.imageContent(resultSet.getBytes("image_content"))
 				.build();
 	}
