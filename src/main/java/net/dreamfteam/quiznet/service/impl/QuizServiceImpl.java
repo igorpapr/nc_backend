@@ -27,13 +27,16 @@ public class QuizServiceImpl implements QuizService {
     private final QuizDao quizDao;
     private final ImageService imageService;
     private final NotificationService notificationService;
+    private final ActivitiesService activitiesService;
 
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, NotificationService notificationService) {
+    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, NotificationService notificationService,
+                           ActivitiesService activitiesService) {
         this.quizDao = quizDao;
         this.imageService = imageService;
         this.notificationService = notificationService;
+        this.activitiesService = activitiesService;
     }
 
     @Override
@@ -264,6 +267,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
+    }
+
+    @Override
+    public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
+        return quizDao.findQuizzesFilterSize(quizFilter);
     }
 
     @Override

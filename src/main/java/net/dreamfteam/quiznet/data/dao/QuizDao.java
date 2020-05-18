@@ -62,6 +62,8 @@ public interface QuizDao {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
+    int findQuizzesFilterSize(DtoQuizFilter quizFilter);
+
     void removeQuestionImage(String questionId);
 
     List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);

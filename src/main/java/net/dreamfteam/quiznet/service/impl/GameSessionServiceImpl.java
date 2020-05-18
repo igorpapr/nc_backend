@@ -24,7 +24,8 @@ public class GameSessionServiceImpl implements GameSessionService {
 
 
     @Autowired
-    public GameSessionServiceImpl(GameSessionDao gameSessionDao, SseService sseService, GameService gameService, AuthenticationFacade authenticationFacade) {
+    public GameSessionServiceImpl(GameSessionDao gameSessionDao, SseService sseService, GameService gameService,
+                                  AuthenticationFacade authenticationFacade) {
         this.gameSessionDao = gameSessionDao;
         this.sseService = sseService;
         this.gameService = gameService;
@@ -32,38 +33,31 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     @Override
-    public GameSession joinGame(String accessId, String userId) {
+    public GameSession joinGame(String accessId, String userId, String username) {
+
         if (!gameSessionDao.gameHasAvailableSlots(accessId)) {
             throw new ValidationException("Sorry, no slots are available");
         }
-        sseService.send(gameService.getGameByAccessId(accessId).getId(),"join", authenticationFacade.getUserId());
-        return gameSessionDao.getSessionByAccessId(accessId, userId);
-    // public GameSession joinGame(String accessId, String userId, String username) {
 
-    //     if (!gameSessionDao.gameHasAvailableSlots(accessId)) {
-    //         throw new ValidationException("Sorry, no slots are available");
-    //     }
-
-    //     return gameSessionDao.getSessionByAccessId(accessId, userId, username);
+        return gameSessionDao.getSessionByAccessId(accessId, userId, username);
     }
 
     @Override
     public void setResult(DtoGameSession dtoGameSession) {
 
-        GameSession gameSession =
-                GameSession.builder()
-                        .score(dtoGameSession.getScore())
-                        .winner(false)
-                        .durationTime(dtoGameSession.getDurationTime())
-                        .id(dtoGameSession.getSessionId())
-                        .gameId(dtoGameSession.getGameId())
-                        .build();
+        GameSession gameSession = GameSession.builder()
+                                             .score(dtoGameSession.getScore())
+                                             .winner(false)
+                                             .durationTime(dtoGameSession.getDurationTime())
+                                             .id(dtoGameSession.getSessionId())
+                                             .gameId(dtoGameSession.getGameId())
+                                             .build();
 
         gameSessionDao.updateSession(gameSession);
     }
 
     @Override
-    public List<Map<String,String>> getSessions(String gameId) {
+    public List<Map<String, String>> getSessions(String gameId) {
         return gameSessionDao.getSessions(gameId);
     }
 

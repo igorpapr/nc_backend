@@ -73,13 +73,11 @@ public class GameController {
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
     @GetMapping("/join/{accessId}")
     public ResponseEntity<?> joinGame(@PathVariable String accessId) {
-        return new ResponseEntity<>(gameSessionService.joinGame(accessId, authenticationFacade.getUserId()), HttpStatus.OK);
-
-        // return new ResponseEntity<>(
-        //         gameSessionService.joinGame(accessId,
-        //                 authenticationFacade.getUserId(),
-        //                 authenticationFacade.getUsername()),
-        //         HttpStatus.OK);
+         return new ResponseEntity<>(
+                 gameSessionService.joinGame(accessId,
+                         authenticationFacade.getUserId(),
+                         authenticationFacade.getUsername()),
+                 HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")

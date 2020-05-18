@@ -15,19 +15,5 @@ public class QuizFiltered {
 
     private String title;
 
-    private String description;
-
-    private String author;
-
-    private String imageRef;
-
-    private Date creationDate;
-
-    private String creatorId;
-
-    private String language;
-
-    private float rating;
-
     private byte[] imageContent;
 }
