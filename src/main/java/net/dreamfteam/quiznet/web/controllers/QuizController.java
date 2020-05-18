@@ -178,10 +178,8 @@ public class QuizController {
             return ResponseEntity.notFound()
                                  .build();
         }
-
         dtoQuiz.setValidator_id(authenticationFacade.getUserId());
         quizService.validateQuiz(dtoQuiz);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -257,9 +255,7 @@ public class QuizController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/suggestions-list")
     public ResponseEntity<?> getSuggestionsQuizList() {
-        return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(),
-                                                                       Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST),
-                                    HttpStatus.OK);
+        return new ResponseEntity<>(quizService.getSuggestionsQuizList(authenticationFacade.getUserId(), Constants.AMOUNT_SUGGESTIONS_QUIZ_LIST), HttpStatus.OK);
     }
 
     @GetMapping
@@ -297,6 +293,4 @@ public class QuizController {
 
         return new ResponseEntity<>(quizService.getUserFavouriteList(authenticationFacade.getUserId()), HttpStatus.OK);
     }
-
-
 }

@@ -5,11 +5,9 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.ImageService;
-import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -275,10 +274,14 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizFiltered> shortListOfQuizzes() {
+    public List<QuizView> shortListOfQuizzes() {
+        List<QuizView> shortListResult = new ArrayList<>();
         DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
-        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter, 0, 10);
-        return shortList;
+        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter, 0, 5);
+        for (QuizFiltered i : shortList) {
+            shortListResult.add(QuizView.builder().quiz_id(i.getId()).title(i.getTitle()).image_content(i.getImageContent()).build());
+        }
+        return shortListResult;
     }
 
     @Override
