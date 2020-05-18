@@ -1,10 +1,7 @@
 package net.dreamfteam.quiznet.data.entities;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
 import java.util.Date;
 
 
@@ -27,7 +24,7 @@ public class User {
 
     private Date lastTimeOnline;
 
-    private String image;
+    private byte[] image;
 
     private String aboutMe;
 
@@ -45,4 +42,9 @@ public class User {
 
     private Role role;
 
+    private boolean isFriend;
+
+    private boolean outgoingRequest;
+
+    private boolean incomingRequest;
 }

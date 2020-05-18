@@ -31,7 +31,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game createGame(DtoGame dtoGame, String userId) {
+    public Game createGame(DtoGame dtoGame, String userId, String username) {
         checkQuizExistance(dtoGame.getQuizId());
 
         Game game = Game.builder()
@@ -47,12 +47,13 @@ public class GameServiceImpl implements GameService {
 
         // CREATING SESSION OF CREATOR
         GameSession gameSession = GameSession.builder()
-                .userId(userId)
+                .userId(userId.startsWith("-") ? null : userId)
+                .username(username)
                 .gameId(game.getId())
                 .score(0)
                 .winner(false)
                 .creator(true)
-                .savedByUser(true)   // REFACTOR FORM ANONYMOUS
+                .savedByUser(!userId.startsWith("-"))
                 .durationTime(0)
                 .build();
 

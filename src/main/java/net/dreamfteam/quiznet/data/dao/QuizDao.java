@@ -22,7 +22,7 @@ public interface QuizDao {
 
     void deleteQuizById(String id);
 
-    void deactivateQuiz(DtoQuiz dtoQuiz);
+    void deactivateQuiz(String id);
 
     String saveQuestion(Question question);
 
@@ -42,7 +42,11 @@ public interface QuizDao {
 
     List<Quiz> getUserQuizList(String userId, String thisUserId);
 
+    List<Quiz> getUserFavouriteList(String userId);
+
     List<QuizView> getQuizzes(int startIndex, int amount);
+
+    List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
 
     List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
@@ -54,13 +58,11 @@ public interface QuizDao {
 
     Quiz getUserQuizByTitle(String title, String username);
 
-    void validateQuiz(DtoQuiz dtoQuiz);
+    int validateQuiz(DtoQuiz dtoQuiz);
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
-    void addQuizImage(String imageId, String quizId);
-
-    void addQuestionImage(String imageId, String questionId);
+    void removeQuestionImage(String questionId);
 
     List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
 
