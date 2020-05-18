@@ -14,13 +14,12 @@ import java.util.List;
 @Service
 public class SettingsServiceImpl implements SettingsService {
 
-    SettingsDao settingsDao;
-    AuthenticationFacade authenticationFacade;
+    private final SettingsDao settingsDao;
+
 
     @Autowired
-    public SettingsServiceImpl(SettingsDao settingsDao, AuthenticationFacade authenticationFacade) {
+    public SettingsServiceImpl(SettingsDao settingsDao) {
         this.settingsDao = settingsDao;
-        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
