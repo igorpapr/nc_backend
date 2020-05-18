@@ -4,12 +4,9 @@ import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.service.ImageService;
+import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
-import net.dreamfteam.quiznet.web.dto.DtoActivity;
-import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import net.dreamfteam.quiznet.web.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,11 +21,15 @@ import java.util.Map;
 public class QuizServiceImpl implements QuizService {
 
     private final QuizDao quizDao;
+    private final NotificationService notificationService;
     private final ActivitiesService activitiesService;
 
+
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ActivitiesService activitiesService) {
+    public QuizServiceImpl(QuizDao quizDao, NotificationService notificationService,
+                           ActivitiesService activitiesService) {
         this.quizDao = quizDao;
+        this.notificationService = notificationService;
         this.activitiesService = activitiesService;
     }
 
@@ -120,6 +121,12 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
+
+
+        notificationService.insert(DtoNotification.builder()
+                                                  .content("Your quiz "+ quiz.getTitle()+" was validated")
+                                                  .userId(quiz.getCreatorId())
+                                                  .build());
         if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
             DtoActivity activity = DtoActivity.builder()
                     .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
@@ -254,6 +261,11 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
+    }
+
+    @Override
+    public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
+        return quizDao.findQuizzesFilterSize(quizFilter);
     }
 
     @Override
