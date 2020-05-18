@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,46 +25,59 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final GameDao gameDao;
+    private final SseService sseService;
 
     @Autowired
-    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate, GameDao gameDao) {
+    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate, GameDao gameDao, SseService sseService) {
         this.jdbcTemplate = jdbcTemplate;
         this.gameDao = gameDao;
+        this.sseService = sseService;
     }
 
     @Override
-    public GameSession getSessionByAccessId(String accessId, String userId) {
+    public GameSession getSessionByAccessId(String accessId, String userId, String username) {
 
         GameSession gameSession;
 
         try {
             gameSession = jdbcTemplate.queryForObject("SELECT * " +
-                            "FROM users_games WHERE user_id = UUID(?) AND game_id IN (" +
+                            "FROM users_games WHERE username = ? AND game_id IN (" +
                             "SELECT game_id FROM games WHERE access_code = ?);",
-                    new Object[]{userId, accessId}, new GameSessionMapper());
+                    new Object[]{username, accessId}, new GameSessionMapper());
         } catch (EmptyResultDataAccessException e) {
             gameSession = null;
         }
 
+        Game game;
+        String name = username;
 
         //IF SESSION CREATED
-        if (gameSession != null) {
+        if (gameSession != null && !userId.startsWith("-")) {
             return gameSession;
+        } else if (gameSession != null && userId.startsWith("-")) {
+            name = name + "(Another)";
         }
 
-        Game game = gameDao.getGameByAccessId(accessId);
+
+        game = gameDao.getGameByAccessId(accessId);
+
 
         gameSession = GameSession.builder()
-                .userId(userId)
+                .userId(userId.startsWith("-") ? null : userId)
+                .username(name)
                 .gameId(game.getId())
                 .score(0)
                 .winner(false)
                 .creator(false)
-                .savedByUser(true)   // REFACTOR FORM ANONYMOUS
+                .savedByUser(!userId.startsWith("-"))   // REFACTOR FORM ANONYMOUS
                 .durationTime(0)
                 .build();
 
-        return createSession(gameSession);
+        gameSession = createSession(gameSession);
+
+        sseService.send(game.getId(), "join", name);
+
+        return gameSession;
     }
 
     @Override
@@ -80,10 +94,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.user_id, username, images.image, score, " +
+                .queryForList("SELECT users_games.game_session_id, users_games.user_id, " +
+                        "users_games.username, image, score, " +
                         "is_winner, is_creator, duration_time " +
-                        "FROM users_games INNER JOIN " +
-                        "(users LEFT JOIN images ON users.image = images.image_id) " +
+                        "FROM users_games LEFT JOIN users " +
                         "ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?);", gameId);
     }
@@ -97,15 +111,17 @@ public class GameSessionDaoImpl implements GameSessionDao {
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO users_games" +
                     "(user_id, game_id, score," +
-                    "is_winner, is_creator, saved_by_user, duration_time)" +
-                    " VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-            ps.setObject(1, UUID.fromString(gameSession.getUserId()));
+                    "is_winner, is_creator, saved_by_user, duration_time, username)" +
+                    " VALUES (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
+                    UUID.fromString(gameSession.getUserId()));
             ps.setObject(2, UUID.fromString(gameSession.getGameId()));
             ps.setInt(3, gameSession.getScore());
             ps.setBoolean(4, gameSession.isWinner());
             ps.setBoolean(5, gameSession.isCreator());
             ps.setBoolean(6, gameSession.isSavedByUser());
             ps.setObject(7, gameSession.getDurationTime());
+            ps.setString(8, gameSession.getUsername());
             return ps;
         }, keyHolder);
 
@@ -121,29 +137,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "score = ?, duration_time = ?, finished = true " +
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
-
-        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
-                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
-                        "THEN TRUE " +
-                        "ELSE FALSE END " +
-                        "FROM users_games WHERE game_id IN (" +
-                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
-                new Object[]{gameSession.getId()}, Boolean.class);
-
-
-        if (isGameFinished) {
-            jdbcTemplate.update("UPDATE users_games SET " +
-                            "is_winner = true " +
-                            "WHERE game_session_id IN (" +
-                            "SELECT game_session_id FROM users_games" +
-                            " WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
-                            "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
-                    gameSession.getId(), gameSession.getId());
-        }
-
+        checkForGameOver(gameSession);
 
     }
 
@@ -165,5 +159,54 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public String getGameId(String sessionId) {
         return jdbcTemplate.queryForObject("SELECT game_id FROM users_games WHERE game_session_id = UUID(?);",
                 new Object[]{sessionId}, String.class);
+    }
+
+    @Override
+    @Transactional
+    public void removePlayer(String sessionId) {
+        jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
+        checkForGameOver(getById(sessionId));
+    }
+
+    //For achievements: returns number of all finished game sessions of user
+    @Override
+    public int getNumberOfSessionsOfUser(String userId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT COUNT(*) " +
+                            "FROM users_games " +
+                            "WHERE user_id = uuid(?) " +
+                            "AND finished = TRUE;",
+                    new Object[]{userId},
+                    Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
+
+
+    private void checkForGameOver(GameSession gameSession) {
+        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
+                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+                        "THEN TRUE " +
+                        "ELSE FALSE END " +
+                        "FROM users_games WHERE game_id IN (" +
+                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
+                new Object[]{gameSession.getId()}, Boolean.class);
+
+
+        if (isGameFinished) {
+            jdbcTemplate.update("UPDATE users_games SET " +
+                            "is_winner = true " +
+                            "WHERE game_session_id IN (" +
+                            "SELECT game_session_id FROM users_games" +
+                            " WHERE game_id IN (" +
+                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
+                            "AND score = (" +
+                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
+                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
+                    gameSession.getId(), gameSession.getId());
+
+            sseService.send(gameSession.getGameId(), "finished", gameSession.getGameId());
+        }
     }
 }

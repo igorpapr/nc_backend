@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DtoSettings {
-    private String userId;
-    private String seeFriendsActivities;
-    private String seeAnnouncements;
+    private String id;
+    private String value;
 }

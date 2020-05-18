@@ -20,6 +20,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
@@ -27,13 +29,11 @@ public class AdminController {
 
     final private UserService userService;
     final private IAuthenticationFacade authenticationFacade;
-    final private ImageService imageService;
 
     @Autowired
     public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
-        this.imageService = imageService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
@@ -68,6 +68,8 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/edit/image")
     public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
@@ -79,7 +81,11 @@ public class AdminController {
             throw new ValidationException("You dont have such capabilities");
         }
 
-        otherUser.setImage(imageService.saveImage(image));
+        try {
+            otherUser.setImage(image.getBytes());
+        } catch (IOException e) {
+            throw new ValidationException("Broken image");
+        }
 
         userService.update(otherUser);
 
@@ -103,7 +109,7 @@ public class AdminController {
             throw new ValidationException("Such username has been taken");
         }
 
-        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()){
+        if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()) {
             throw new ValidationException("You dont have such capabilities");
         }
 

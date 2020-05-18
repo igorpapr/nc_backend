@@ -29,14 +29,8 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public Settings editSettings(DtoSettings settings) {
-        Settings settings1 = Settings.builder().
-                seeAnnouncements(Boolean.parseBoolean(settings.getSeeAnnouncements()))
-                .seeFriendsActivities(Boolean.parseBoolean(settings.getSeeFriendsActivities()))
-                .userId(authenticationFacade.getUserId())
-                .build();
-
-        return settingsDao.editSettings(settings1);
+    public void editSettings(List<DtoSettings> settings, String userId) {
+        settingsDao.editSettings(settings, userId);
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.util.List;
 public interface SettingsService {
     void initSettings(String id);
 
-    Settings editSettings(DtoSettings settings);
+    void editSettings(List<DtoSettings> settings, String userId);
 
     List<Setting> getSettings(String userId);
 }

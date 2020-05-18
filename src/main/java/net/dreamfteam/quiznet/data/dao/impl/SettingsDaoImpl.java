@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.entities.Setting;
 import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.data.rowmappers.SettingMapper;
 import net.dreamfteam.quiznet.data.rowmappers.SettingsMapper;
+import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -42,20 +43,20 @@ public class SettingsDaoImpl implements SettingsDao {
     }
 
     @Override
-    public Settings editSettings(Settings settings) {
-        jdbcTemplate.update("update user_settings set value= ? where user_id = uuid(?) " +
-                "and setting_id = (select setting_id from settings where title='friendsActivities'); update user_settings set value= ?" +
-                "where user_id = uuid(?) and setting_id = (select setting_id from settings where title='announcements');", new Object[]{settings.isSeeFriendsActivities(), settings.getUserId(), settings.isSeeAnnouncements(), settings.getUserId()});
-        return settings;
+    public void editSettings(List<DtoSettings> settings, String userId) {
+        for (DtoSettings setting: settings) {
+            jdbcTemplate.update("UPDATE user_settings SET value=? WHERE user_id = UUID(?) AND setting_id = UUID(?)",
+                    setting.getValue(),userId,setting.getId());
+        }
     }
 
     @Override
     public List<Setting> getSettings(String userId) {
 
         return jdbcTemplate.query("SELECT settings.setting_id, title, " +
-                "descroption, value " +
+                "description, value " +
                 "FROM settings INNER JOIN " +
-                "users on settings.setting_id=users.setting_id " +
+                "user_settings on settings.setting_id=user_settings.setting_id " +
                 "WHERE user_id=UUID(?);", new Object[]{userId}, new SettingMapper());
     }
 }

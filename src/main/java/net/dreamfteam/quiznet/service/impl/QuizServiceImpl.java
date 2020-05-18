@@ -3,16 +3,18 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.ImageService;
-import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -21,23 +23,42 @@ import java.util.Map;
 public class QuizServiceImpl implements QuizService {
 
     private final QuizDao quizDao;
-    private final ImageService imageService;
-    private final NotificationService notificationService;
-
+    private final ActivitiesService activitiesService;
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, ImageService imageService, NotificationService notificationService) {
+    public QuizServiceImpl(QuizDao quizDao, ActivitiesService activitiesService) {
         this.quizDao = quizDao;
-        this.imageService = imageService;
-        this.notificationService = notificationService;
+        this.activitiesService = activitiesService;
     }
 
     @Override
-    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId) throws ValidationException {
+    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException {
 
         newQuiz.setCreatorId(currentUserId);
         checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
-        Quiz quiz = Quiz.builder().title(newQuiz.getTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(newQuiz.getCreatorId()).language(newQuiz.getLanguage()).description(newQuiz.getDescription()).imageRef(newQuiz.getImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(newQuiz.getTagList()).categoryIdList(newQuiz.getCategoryList()).build();
+        Quiz quiz = Quiz.builder()
+                .title(newQuiz.getTitle())
+                .creationDate(Calendar.getInstance().getTime())
+                .creatorId(newQuiz.getCreatorId())
+                .language(newQuiz.getLanguage())
+                .description(newQuiz.getDescription())
+                .imageRef(newQuiz.getImageRef())
+                .validated(false).activated(false)
+                .published(false)
+                .isFavourite(false)
+                .tagIdList(newQuiz.getTagList())
+                .categoryIdList(newQuiz.getCategoryList())
+                .build();
+
+        if (image != null) {
+            try {
+                quiz.setImageContent(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        } else {
+            quiz.setImageContent(null);
+        }
 
         quiz = quizDao.saveQuiz(quiz);
 
@@ -46,26 +67,43 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz updateQuiz(DtoEditQuiz dtoQuiz) {
-        Quiz quiz = Quiz.builder().title(dtoQuiz.getNewTitle()).creationDate(Calendar.getInstance().getTime()).creatorId(getQuiz(dtoQuiz.getQuizId()).getCreatorId()).language(dtoQuiz.getNewLanguage()).description(dtoQuiz.getNewDescription()).imageRef(dtoQuiz.getNewImageRef()).validated(false).activated(false).published(false).isFavourite(false).tagIdList(dtoQuiz.getNewTagList()).categoryIdList(dtoQuiz.getNewCategoryList()).build();
+    public Quiz updateQuiz(DtoEditQuiz dtoQuiz, MultipartFile image) {
+        Quiz quiz = Quiz.builder()
+                .title(dtoQuiz.getNewTitle())
+                .creationDate(Calendar.getInstance().getTime())
+                .creatorId(getQuiz(dtoQuiz.getQuizId()).getCreatorId())
+                .language(dtoQuiz.getNewLanguage())
+                .description(dtoQuiz.getNewDescription())
+                .validated(false)
+                .activated(false)
+                .published(false)
+                .isFavourite(false)
+                .tagIdList(dtoQuiz.getNewTagList())
+                .categoryIdList(dtoQuiz.getNewCategoryList())
+                .build();
+
+        if (image != null) {
+            try {
+                quiz.setImageContent(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        } else {
+            quiz.setImageContent(null);
+        }
+
         return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
     }
 
     @Override
     public Quiz getQuiz(String quizId) {
         Quiz quiz = quizDao.getQuiz(quizId);
-        if (quiz.getImageRef() != null) {
-            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
-        }
         return quiz;
     }
 
     @Override
     public Quiz getQuiz(String quizId, String userId) {
         Quiz quiz = quizDao.getQuiz(quizId, userId);
-        if (quiz.getImageRef() != null) {
-            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
-        }
         return quiz;
     }
 
@@ -81,37 +119,62 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
-
-        quizDao.validateQuiz(quiz);
-
-        notificationService.insert(DtoNotification.builder()
-                .content("Your quiz "+ quiz.getTitle()+" was validated")
-                .userId(quiz.getCreatorId())
-                .build());
+        if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
+            DtoActivity activity = DtoActivity.builder()
+                    .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
+                    .activityType(ActivityType.VALIDATION_RELATED)
+                    .userId(quiz.getCreatorId())
+                    .build();
+            activitiesService.addActivityForUser(activity);
+        }
     }
 
     @Override
-    public void deleteQuizById(DtoQuiz dtoQuiz) {
-        quizDao.deleteQuizById(dtoQuiz.getQuizId());
+    public void deleteQuizById(String id) {
+        quizDao.deleteQuizById(id);
     }
 
     @Override
-    public void deactivateQuiz(DtoQuiz dtoQuiz) {
-        quizDao.deactivateQuiz(dtoQuiz);
+    public void deactivateQuiz(String id) {
+        quizDao.deactivateQuiz(id);
     }
 
     @Override
-    public Question saveQuestion(Question newQuestion) {
+    public Question saveQuestion(Question newQuestion, MultipartFile image) {
+        if(image != null){
+            try {
+                newQuestion.setImageContent(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        }else{
+            newQuestion.setImageContent(null);
+        }
+
         newQuestion.setId(quizDao.saveQuestion(newQuestion));
+
         saveAnsw(newQuestion);
         return newQuestion;
     }
 
     @Override
-    public Question updateQuestion(Question newQuestion) {
+    public Question updateQuestion(Question newQuestion, MultipartFile image) {
         quizDao.deleteQuestion(newQuestion);
+
+        if(image != null){
+            try {
+                newQuestion.setImageContent(image.getBytes());
+            } catch (IOException e) {
+                throw new ValidationException("Broken image");
+            }
+        }else{
+            newQuestion.setImageContent(null);
+        }
+
         newQuestion.setId(quizDao.saveQuestion(newQuestion));
+
         saveAnsw(newQuestion);
+
         return newQuestion;
     }
 
@@ -179,10 +242,12 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz setValidator(String quizId, String adminId) {
         Quiz quiz = quizDao.setValidator(quizId, adminId);
-        if (quiz.getImageRef() != null) {
-            quiz.setImageContent(imageService.loadImage(quiz.getImageRef()));
-        }
         return quiz;
+    }
+
+    @Override
+    public List<Quiz> getUserFavouriteList(String userId) {
+        return quizDao.getUserFavouriteList(userId);
     }
 
     @Override
@@ -198,13 +263,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public void addQuizImage(String imageId, String quizId) {
-        quizDao.addQuizImage(imageId, quizId);
-    }
-
-    @Override
-    public void addQuestionImage(String imageId, String questionId) {
-        quizDao.addQuestionImage(imageId, questionId);
+    public List<QuizView> getSuggestionsQuizList(String userId, int amount) {
+        return quizDao.getSuggestionsQuizListByCategoriesAndTags(userId, amount);
     }
 
     @Override

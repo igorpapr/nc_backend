@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.service;
 
-import net.dreamfteam.quiznet.web.dto.DtoChangePassword;
+import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
 import net.dreamfteam.quiznet.web.dto.DtoMail;
 
 public interface RecoveringService {
@@ -8,5 +8,5 @@ public interface RecoveringService {
 
     String confirmRecovery(String recoverUrl);
 
-    void changePassword(DtoChangePassword passwordDto);
+    void changePassword(DtoForgotPassword passwordDto);
 }
