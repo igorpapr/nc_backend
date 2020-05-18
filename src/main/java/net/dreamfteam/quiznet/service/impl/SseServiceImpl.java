@@ -45,6 +45,11 @@ public class SseServiceImpl implements SseService {
             sse.remove(key);
     }
 
+    @Override
+    public Map<String, ReplayProcessor<ServerSentEvent>> getSseMap() {
+        return sse;
+    }
+
     private ReplayProcessor<ServerSentEvent> getOrCreate(String key) {
         if (sse.get(key) == null)
             sse.put(key, ReplayProcessor.create(SseServiceImpl.HISTORY_AMOUNT_REPLAY_PROCESSOR));
