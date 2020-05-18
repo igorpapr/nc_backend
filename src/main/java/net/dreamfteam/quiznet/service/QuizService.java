@@ -54,7 +54,7 @@ public interface QuizService {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
-    List<QuizFiltered> shortListOfQuizzes();
+    List<QuizView> shortListOfQuizzes();
 
     List<QuizView> getSuggestionsQuizList(String userId, int amount);
 
