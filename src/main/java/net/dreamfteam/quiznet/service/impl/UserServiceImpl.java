@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
@@ -31,14 +32,17 @@ public class UserServiceImpl implements UserService {
     final private BCryptPasswordEncoder bCryptPasswordEncoder;
     final private UserDao userDao;
     final private ActivitiesService activitiesService;
+    final private IAuthenticationFacade authenticationFacade;
 
     @Autowired
     public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
-                           UserDao userDao, ActivitiesService activitiesService) {
+                           UserDao userDao, ActivitiesService activitiesService,
+                           IAuthenticationFacade authenticationFacade) {
         this.mailService = mailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
         this.activitiesService = activitiesService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -219,6 +223,10 @@ public class UserServiceImpl implements UserService {
                         .userId(targetId)
                         .activityType(ActivityType.FRIENDS_RELATED)
                         .build();
+                activitiesService.addActivityForUser(activity);
+
+                activity.setContent("Added new friend: " + authenticationFacade.getUsername());
+                activity.setUserId(parentId);
                 activitiesService.addActivityForUser(activity);
             }
         }
