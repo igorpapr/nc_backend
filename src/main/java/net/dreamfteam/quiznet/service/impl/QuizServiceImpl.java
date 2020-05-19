@@ -261,6 +261,11 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<QuizLastPlayed> getLastPlayedQuizzes() {
+        return quizDao.getLastPlayedQuizzes(authenticationFacade.getUserId());
+    }
+
+    @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }

@@ -74,5 +74,7 @@ public interface QuizService {
 
     List<Quiz> getUserFavouriteList(String userId);
 
+    List<QuizLastPlayed> getLastPlayedQuizzes();
+
 
 }
