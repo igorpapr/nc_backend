@@ -43,4 +43,10 @@ public class SettingsController {
     public ResponseEntity<?> getSettings() throws ValidationException {
         return new ResponseEntity<>(settingsService.getSettings(authenticationFacade.getUserId()), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping
+    public ResponseEntity<?> getLanguage(){
+        return new ResponseEntity<>(settingsService.getLanguage(authenticationFacade.getUserId()), HttpStatus.OK);
+    }
 }
