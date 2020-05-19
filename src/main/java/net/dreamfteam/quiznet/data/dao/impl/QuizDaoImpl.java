@@ -302,7 +302,7 @@ public class QuizDaoImpl implements QuizDao {
                      "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                      "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
-            sql = sql + "title LIKE '%" + quizFilter.getQuizName() + "%' AND ";
+            sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
         }
         if (quizFilter.getUserName() != null) {
             sql = sql + "creator_id = (SELECT user_id FROM users WHERE username LIKE '" + quizFilter.getUserName() +
