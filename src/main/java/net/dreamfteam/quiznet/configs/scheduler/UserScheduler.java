@@ -38,7 +38,7 @@ public class UserScheduler {
     }
 
     // for heroku https://devcenter.heroku.com/articles/error-codes#h15-idle-connection
-    @Scheduled(fixedDelay = ONE_SECOND * 50)
+    @Scheduled(fixedDelay = ONE_SECOND * 40)
     public void sendSseSubscribersMessage() {
         for (String key : sseService.getSseMap()
                                     .keySet()) {
