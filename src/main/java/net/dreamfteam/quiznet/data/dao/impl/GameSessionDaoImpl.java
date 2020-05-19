@@ -201,7 +201,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "SELECT game_session_id FROM users_games" +
                             " WHERE game_id = UUID(?)" +
                             "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id = ?))",
+                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
                     gameId, gameId);
 
             sseService.send(gameId, "finished", gameId);

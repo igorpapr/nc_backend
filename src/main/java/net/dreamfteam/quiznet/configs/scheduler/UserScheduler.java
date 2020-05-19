@@ -37,9 +37,9 @@ public class UserScheduler {
         log.info("Deleted half year notifications");
     }
 
-    @Scheduled(fixedDelay = ONE_SECOND * 20)
+    // for heroku https://devcenter.heroku.com/articles/error-codes#h15-idle-connection
+    @Scheduled(fixedDelay = ONE_SECOND * 50)
     public void sendSseSubscribersMessage() {
-        // for heroku https://devcenter.heroku.com/articles/error-codes#h15-idle-connection
         for (String key : sseService.getSseMap()
                                     .keySet()) {
             sseService.send(key, "it works");
