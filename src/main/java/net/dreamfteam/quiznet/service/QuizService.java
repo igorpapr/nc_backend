@@ -26,9 +26,9 @@ public interface QuizService {
 
     void validateQuiz(DtoQuiz quiz);
 
-    void deleteQuizById(DtoQuiz dtoQuiz);
+    void deleteQuizById(String id);
 
-    void deactivateQuiz(DtoQuiz dtoQuiz);
+    void deactivateQuiz(String id);
 
     Question saveQuestion(Question newQuestion, MultipartFile image);
 
@@ -54,9 +54,11 @@ public interface QuizService {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
+    int findQuizzesFilterSize(DtoQuizFilter quizFilter);
+
     List<QuizFiltered> shortListOfQuizzes();
 
-    List<QuizView> getSuggestionsQuizList(String userId, int amount);
+    List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
 
@@ -67,5 +69,8 @@ public interface QuizService {
     int getValidQuizzesTotalSize(String adminId);
 
     Quiz setValidator(String quizId, String adminId);
+
+    List<Quiz> getUserFavouriteList(String userId);
+
 
 }

@@ -18,6 +18,7 @@ public class Constants {
     public static final String ADMIN_URLS = "/api/admins";
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
+    public static final String NOTIFICATION_URLS="/api/notifications";
     public static final String ACTIVITIES_URLS = "/api/activities";
     public static final String SSE_URLS = "/api/sse";
 
@@ -35,6 +36,8 @@ public class Constants {
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quizzes/categories";
     public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
+    public static final String SECUR_FILTER_QUIZ_LIST_URLS = "/api/quizzes/filter-quiz-list/**";
+
 
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
     public static final String SECUR_SSE_URLS = "/api/sse/stream/**";

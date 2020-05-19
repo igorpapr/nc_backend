@@ -16,11 +16,11 @@ public class SettingsMapper implements ResultSetExtractor<Settings> {
         while (resultSet.next()) {
 
             switch (resultSet.getString("title")) {
-                case "announcements":
+                case "Notifications":
                     settings.setSeeAnnouncements(
                             Boolean.parseBoolean(resultSet.getString("value")));
                     break;
-                case "friendsActivities":
+                case "Friends related activities":
                     settings.setSeeFriendsActivities(
                             Boolean.parseBoolean(resultSet.getString("value")));
             }

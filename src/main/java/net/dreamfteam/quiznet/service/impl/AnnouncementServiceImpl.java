@@ -64,7 +64,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public List<Announcement> getAllAnnouncements(long start, long amount, String userId) {
-        if (userId == null || settingsService.getSettings(userId).isSeeAnnouncements()) {
+        if (userId == null) {
             return announcementDao.getAllAnnouncements(start, amount);
         }
 

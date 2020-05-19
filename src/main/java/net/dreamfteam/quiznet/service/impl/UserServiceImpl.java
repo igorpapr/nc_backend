@@ -3,23 +3,20 @@ package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
-import net.dreamfteam.quiznet.data.entities.Role;
-import net.dreamfteam.quiznet.data.entities.User;
-import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
-import net.dreamfteam.quiznet.data.entities.UserView;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.UserService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -34,12 +31,18 @@ public class UserServiceImpl implements UserService {
     final private MailService mailService;
     final private BCryptPasswordEncoder bCryptPasswordEncoder;
     final private UserDao userDao;
+    final private ActivitiesService activitiesService;
+    final private IAuthenticationFacade authenticationFacade;
 
     @Autowired
-    public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder, UserDao userDao) {
+    public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
+                           UserDao userDao, ActivitiesService activitiesService,
+                           IAuthenticationFacade authenticationFacade) {
         this.mailService = mailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
+        this.activitiesService = activitiesService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -162,18 +165,35 @@ public class UserServiceImpl implements UserService {
         return userDao.getFriendsByUserId(startIndex, amount, userId);
     }
 
+    /* Returns friend invitations list by user id.
+    * Parameter "isIncoming":
+    * - true - when the request is aimed on the incoming invitations list;
+    * - false - when the request is aimed on the outgoing invitations list.
+    * */
     @Override
-    public List<UserFriendInvitation> getFriendInvitationsListByUserId(int startIndex, int amount, String userId) {
-        return userDao.getFriendInvitationsByUserId(startIndex, amount, userId);
+    public List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId,
+                                                                   boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingByUserId(startIndex, amount, userId);
+        }
+        return userDao.getFriendInvitationsOutgoingByUserId(startIndex, amount, userId);
+    }
+
+    /* Returns the size of invitations list by user id.
+     * Parameter "isIncoming":
+     * - true - when the request is aimed on the incoming invitations list size;
+     * - false - when the request is aimed on the outgoing invitations list size.
+     * */
+    @Override
+    public int getFriendInvitationsTotalSize(String userId, boolean isIncoming) {
+        if(isIncoming){
+            return userDao.getFriendInvitationsIncomingTotalSize(userId);
+        }
+        return userDao.getFriendInvitationsOutgoingTotalSize(userId);
     }
 
     @Override
-    public int getFriendInvitationsTotalSize(String userId) {
-        return userDao.getFriendInvitationsTotalSize(userId);
-    }
-
-    @Override
-    public void inviteToBecomeFriends(String parentId, String targetId) throws ValidationException{
+    public void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite) throws ValidationException{
         if(parentId.equals(targetId)){
             throw new ValidationException("Can't invite to friends yourself");
         }
@@ -186,24 +206,40 @@ public class UserServiceImpl implements UserService {
             System.out.println("Friend invitation target has bad role: " + target.getRole());
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
-        userDao.addFriendInvitation(parentId, targetId);
+        userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite);
     }
 
     @Override
     public void proceedInvitation(String parentId, String targetId, boolean toAccept) {
-        User target = getById(targetId);
-        if(isNull(target)){
-            throw new ValidationException("Target user doesn't exist");
-        }
-        if (target.getRole() != Role.ROLE_USER){
-            throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
+        User parent = getById(parentId);
+        if(isNull(parent)){
+            throw new ValidationException("Parent user doesn't exist");
         }
         if(toAccept){
-            userDao.acceptInvitation(parentId, targetId);
+            if (userDao.acceptInvitation(parentId, targetId) > 0){
+                DtoActivity activity = DtoActivity
+                        .builder()
+                        .content("Added new friend: " + parent.getUsername())
+                        .userId(targetId)
+                        .activityType(ActivityType.FRIENDS_RELATED)
+                        .build();
+                activitiesService.addActivityForUser(activity);
+
+                activity.setContent("Added new friend: " + authenticationFacade.getUsername());
+                activity.setUserId(parentId);
+                activitiesService.addActivityForUser(activity);
+            }
         }
         else{
             userDao.rejectInvitation(parentId, targetId);
         }
     }
+
+    @Override
+    public void removeFriend(String targetId, String thisId) {
+        userDao.removeFriend(targetId, thisId);
+    }
+
+
 }
 

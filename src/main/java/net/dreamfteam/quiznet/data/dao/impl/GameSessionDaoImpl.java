@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -54,14 +55,16 @@ public class GameSessionDaoImpl implements GameSessionDao {
         //IF SESSION CREATED
         if (gameSession != null && !userId.startsWith("-")) {
             return gameSession;
-        }else if(gameSession != null && userId.startsWith("-")){
+        } else if (gameSession != null && userId.startsWith("-")) {
             name = name + "(Another)";
         }
 
+        if (gameHasAvailableSlots(accessId)) {
+            throw new ValidationException("Sorry, no slots are available");
+        }
 
 
         game = gameDao.getGameByAccessId(accessId);
-
 
 
         gameSession = GameSession.builder()
@@ -77,7 +80,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         gameSession = createSession(gameSession);
 
-        sseService.send(game.getId(),"join", name);
+        sseService.send(game.getId(), "join", name);
 
         return gameSession;
     }
@@ -96,10 +99,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.game_session_id, users_games.user_id, users_games.username, images.image, score, " +
+                .queryForList("SELECT users_games.game_session_id, users_games.user_id, " +
+                        "users_games.username, image, score, " +
                         "is_winner, is_creator, duration_time " +
-                        "FROM users_games LEFT JOIN " +
-                        "(users LEFT JOIN images ON UUID(users.image) = images.image_id) " +
+                        "FROM users_games LEFT JOIN users " +
                         "ON users_games.user_id = users.user_id " +
                         "WHERE game_id = UUID(?);", gameId);
     }
@@ -116,14 +119,14 @@ public class GameSessionDaoImpl implements GameSessionDao {
                     "is_winner, is_creator, saved_by_user, duration_time, username)" +
                     " VALUES (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
-                            UUID.fromString(gameSession.getUserId()));
+                    UUID.fromString(gameSession.getUserId()));
             ps.setObject(2, UUID.fromString(gameSession.getGameId()));
             ps.setInt(3, gameSession.getScore());
             ps.setBoolean(4, gameSession.isWinner());
             ps.setBoolean(5, gameSession.isCreator());
             ps.setBoolean(6, gameSession.isSavedByUser());
             ps.setObject(7, gameSession.getDurationTime());
-            ps.setString(8,gameSession.getUsername());
+            ps.setString(8, gameSession.getUsername());
             return ps;
         }, keyHolder);
 
@@ -139,32 +142,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "score = ?, duration_time = ?, finished = true " +
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
-
-
-        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
-                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
-                        "THEN TRUE " +
-                        "ELSE FALSE END " +
-                        "FROM users_games WHERE game_id IN (" +
-                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
-                new Object[]{gameSession.getId()}, Boolean.class);
-
-
-        if (isGameFinished) {
-            jdbcTemplate.update("UPDATE users_games SET " +
-                            "is_winner = true " +
-                            "WHERE game_session_id IN (" +
-                            "SELECT game_session_id FROM users_games" +
-                            " WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
-                            "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
-                    gameSession.getId(), gameSession.getId());
-
-            sseService.send(gameSession.getGameId(),"finished",gameSession.getGameId());
-        }
-
+        checkForGameOver(gameSession.getGameId());
 
     }
 
@@ -189,8 +167,11 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
+    @Transactional
     public void removePlayer(String sessionId) {
+        String gameId = getGameId(sessionId);
         jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
+        checkForGameOver(gameId);
     }
 
     //For achievements: returns the number of all finished game sessions of user
@@ -198,9 +179,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public int getNumberOfSessionsOfUser(String userId) {
         try {
             return jdbcTemplate.queryForObject("SELECT COUNT(*) " +
-                                                    "FROM users_games " +
-                                                    "WHERE user_id = uuid(?) " +
-                                                    "AND finished = TRUE;",
+                            "FROM users_games " +
+                            "WHERE user_id = uuid(?) " +
+                            "AND finished = TRUE;",
                     new Object[]{userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
@@ -217,10 +198,33 @@ public class GameSessionDaoImpl implements GameSessionDao {
                                     "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
                                     "WHERE user_id = uuid(?) " +
                                     "AND finished = TRUE;)",
-                    new Object[]{userId},
-                    Integer.class);
+                            new Object[]{userId},
+                            Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
+        }
+    }
+
+    private void checkForGameOver(String gameId) {
+        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
+                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+                        "THEN TRUE " +
+                        "ELSE FALSE END " +
+                        "FROM users_games WHERE game_id = UUID(?);",
+                new Object[]{gameId}, Boolean.class);
+
+
+        if (isGameFinished) {
+            jdbcTemplate.update("UPDATE users_games SET " +
+                            "is_winner = true " +
+                            "WHERE game_session_id IN (" +
+                            "SELECT game_session_id FROM users_games" +
+                            " WHERE game_id = UUID(?)" +
+                            "AND score = (" +
+                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
+                    gameId, gameId);
+
+            sseService.send(gameId, "finished", gameId);
         }
     }
 }

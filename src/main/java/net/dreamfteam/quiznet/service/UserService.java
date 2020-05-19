@@ -38,11 +38,13 @@ public interface UserService {
 
     List<UserView> getFriendsListByUserId(int startIndex, int amount, String userId);
 
-    List<UserFriendInvitation> getFriendInvitationsListByUserId(int startIndex, int amount, String userId);
+    List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId, boolean isIncoming);
 
-    int getFriendInvitationsTotalSize(String userId);
+    int getFriendInvitationsTotalSize(String userId, boolean isIncoming);
 
-    void inviteToBecomeFriends(String parentId, String targetId);
+    void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite);
 
     void proceedInvitation(String parentId, String targetId, boolean toAccept);
+
+    void removeFriend( String targetId, String thisId);
 }

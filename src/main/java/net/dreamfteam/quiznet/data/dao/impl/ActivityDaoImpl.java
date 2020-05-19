@@ -25,9 +25,8 @@ public class ActivityDaoImpl implements ActivityDao {
 	@Override
 	public List<FriendsActivity> getFriendsActivitiesList(String userId) {
 		try{
-			return jdbcTemplate.query("SELECT activity_id, content, datetime, ua.user_id, u.username, i.image AS image_content " +
+			return jdbcTemplate.query("SELECT activity_id, content, datetime, ua.user_id, u.username, u.image AS image_content " +
 											"FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
-											"LEFT JOIN images i ON uuid(u.image) = i.image_id " +
 											"WHERE ua.user_id IN " +
 																"(SELECT f.friend_id AS id " +
 																"FROM friends f " +
@@ -47,8 +46,9 @@ public class ActivityDaoImpl implements ActivityDao {
 	@Override
 	public void addActivity(DtoActivity activity) {
 		try{
-			jdbcTemplate.update("INSERT INTO user_activities (content, user_id) " +
-									"VALUES (?, uuid(?))", activity.getContent(), activity.getUserId());
+			jdbcTemplate.update("INSERT INTO user_activities (content, type_id, user_id) " +
+									"VALUES (?, ?, uuid(?))", activity.getContent(),
+					activity.getActivityType().ordinal() + 1, activity.getUserId());
 		}catch (DataAccessException e){
 			System.err.println("Couldn't add new activity for user "+ activity.getUserId() +
 					".\n Error: " + e.getMessage());
