@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
+import net.dreamfteam.quiznet.data.rowmappers.QuizFilteredMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizViewMapper;
@@ -287,11 +288,7 @@ public class QuizDaoImpl implements QuizDao {
         System.out.println("FILTERED");
         try {
             List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{amount, startIndex},
-                                                             (rs, i) -> QuizFiltered.builder()
-                                                                                    .id(rs.getString("quiz_id"))
-                                                                                    .title(rs.getString("title"))
-                                                                                    .imageContent(rs.getBytes("image"))
-                                                                                    .build());
+                                                            new QuizFilteredMapper());
 
             return quizList;
         } catch (EmptyResultDataAccessException e) {
@@ -578,12 +575,11 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount) {
+    public List<QuizFiltered> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount) {
         try {
-            String sql = "SELECT q1.quiz_id, q1.title, q1.description, i.image AS image_content " +
+            String sql = "SELECT DISTINCT q1.quiz_id, q1.title, q1.image, q1.rating " +
                     "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
                     "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
-                    "                LEFT JOIN images i ON i.image_id = q1.image_ref " +
                     "WHERE (category_id IN (SELECT cq.category_id " +
                     // 3 categories with most of games played by the user
                     "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
@@ -609,7 +605,7 @@ public class QuizDaoImpl implements QuizDao {
                     "      AND q1.activated = true " + //only available to play
                     "ORDER BY q1.rating DESC " + //order by overall rating
                     "LIMIT ?;"; //first X rows
-            return jdbcTemplate.query(sql, new Object[]{userId, userId, userId, amount}, new QuizViewMapper());
+            return jdbcTemplate.query(sql, new Object[]{userId, userId, userId, amount}, new QuizFilteredMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

@@ -58,7 +58,7 @@ public interface QuizService {
 
     List<QuizFiltered> shortListOfQuizzes();
 
-    List<QuizView> getSuggestionsQuizList(String userId, int amount);
+    List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
 
