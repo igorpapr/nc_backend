@@ -46,7 +46,7 @@ public interface QuizDao {
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
+    List<QuizFiltered> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
 
     List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
@@ -62,6 +62,8 @@ public interface QuizDao {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
+    int findQuizzesFilterSize(DtoQuizFilter quizFilter);
+
     void removeQuestionImage(String questionId);
 
     List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
@@ -73,4 +75,6 @@ public interface QuizDao {
     Quiz setValidator(String quizId, String adminId);
 
     Question loadAnswersForQuestion(Question question, int i);
+
+    int getAmountSuccessCreated(String userId);
 }

@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -56,6 +57,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
             return gameSession;
         } else if (gameSession != null && userId.startsWith("-")) {
             name = name + "(Another)";
+        }
+
+        if (gameHasAvailableSlots(accessId)) {
+            throw new ValidationException("Sorry, no slots are available");
         }
 
 
@@ -137,7 +142,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "score = ?, duration_time = ?, finished = true " +
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
-        checkForGameOver(gameSession);
+        checkForGameOver(gameSession.getGameId());
 
     }
 
@@ -164,11 +169,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     @Transactional
     public void removePlayer(String sessionId) {
+        String gameId = getGameId(sessionId);
         jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
-        checkForGameOver(getById(sessionId));
+        checkForGameOver(gameId);
     }
 
-    //For achievements: returns number of all finished game sessions of user
+    //For achievements: returns the number of all finished game sessions of user
     @Override
     public int getNumberOfSessionsOfUser(String userId) {
         try {
@@ -183,15 +189,29 @@ public class GameSessionDaoImpl implements GameSessionDao {
         }
     }
 
+    //For achievements: returns the number of unique quizzes played by the user
+    @Override
+    public int getNumberOfQuizzesPlayedByUser(String userId) {
+        try {
+            return jdbcTemplate
+                    .queryForObject("(SELECT COUNT (DISTINCT g.quiz_id) " +
+                                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                                    "WHERE user_id = uuid(?) " +
+                                    "AND finished = TRUE;)",
+                            new Object[]{userId},
+                            Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
 
-    private void checkForGameOver(GameSession gameSession) {
+    private void checkForGameOver(String gameId) {
         boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
                         "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
                         "THEN TRUE " +
                         "ELSE FALSE END " +
-                        "FROM users_games WHERE game_id IN (" +
-                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
-                new Object[]{gameSession.getId()}, Boolean.class);
+                        "FROM users_games WHERE game_id = UUID(?);",
+                new Object[]{gameId}, Boolean.class);
 
 
         if (isGameFinished) {
@@ -199,14 +219,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "is_winner = true " +
                             "WHERE game_session_id IN (" +
                             "SELECT game_session_id FROM users_games" +
-                            " WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
+                            " WHERE game_id = UUID(?)" +
                             "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
-                    gameSession.getId(), gameSession.getId());
+                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
+                    gameId, gameId);
 
-            sseService.send(gameSession.getGameId(), "finished", gameSession.getGameId());
+            sseService.send(gameId, "finished", gameId);
         }
     }
 }

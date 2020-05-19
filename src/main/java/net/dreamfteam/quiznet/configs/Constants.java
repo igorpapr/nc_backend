@@ -36,6 +36,8 @@ public class Constants {
     public static final String SECUR_QUIZ_CATEG_LIST_URLS = "/api/quizzes/categories";
     public static final String SECUR_QUIZ_URLS = "/api/quizzes**";
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
+    public static final String SECUR_FILTER_QUIZ_LIST_URLS = "/api/quizzes/filter-quiz-list/**";
+
 
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
     public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
@@ -71,5 +73,19 @@ public class Constants {
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
     //Achievement ids
-    public static final int ACHIEVEMENT_FIRST_GAME_ID = 1;
+    public static final int ACHIEVEMENT_FIRST_BLOOD_ID = 1;
+    public static final int ACHIEVEMENT_FRESHMAN_ID = 2;
+    public static final int ACHIEVEMENT_CASUAL_ID = 3;
+    public static final int ACHIEVEMENT_EXPERT_ID = 4;
+    public static final int ACHIEVEMENT_UKRAINE_CATEGORY_ID = 5;
+    public static final int ACHIEVEMENT_HISTORY_CATEGORY_ID = 6;
+    public static final int ACHIEVEMENT_SCIENCE_CATEGORY_ID = 7;
+    public static final int ACHIEVEMENT_GEOGRAPHY_CATEGORY_ID = 8;
+    public static final int ACHIEVEMENT_OTHERS_CATEGORY_ID = 9;
+    public static final int ACHIEVEMENT_SANDBOX_ID = 10;
+    public static final int ACHIEVEMENT_SPECIALIST_CREATOR_ID = 11;
+    public static final int ACHIEVEMENT_POPULAR_CREATOR_ID = 12;
+    public static final int ACHIEVEMENT_EXTREMELY_POPULAR_ID = 13;
+    public static final int ACHIEVEMENT_MASTERPIECE_CREATOR_ID = 14;
+
 }
