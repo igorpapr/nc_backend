@@ -13,4 +13,5 @@ public interface AchievementDao {
 
 	List<UserAchievement> getUserAchievements(String userId);
 
+	UserAchievement getUserAchievementByIds(String userId, int achievementId);
 }

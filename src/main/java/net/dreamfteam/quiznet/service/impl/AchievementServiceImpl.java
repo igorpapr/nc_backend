@@ -5,10 +5,7 @@ import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
-import net.dreamfteam.quiznet.data.entities.GameSession;
-import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
-import net.dreamfteam.quiznet.data.entities.UserAchievement;
-import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
+import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
@@ -23,14 +20,16 @@ public class AchievementServiceImpl implements AchievementService {
 	private final AchievementDao achievementDao;
 	private final QuizDao quizDao;
 	private final GameDao gameDao;
+	private final ActivitiesService activitiesService;
 
 	@Autowired
 	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao,
-	                              QuizDao quizDao, GameDao gameDao) {
+	                              QuizDao quizDao, GameDao gameDao, ActivitiesService activitiesService) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
 		this.quizDao = quizDao;
 		this.gameDao = gameDao;
+		this.activitiesService = activitiesService;
 	}
 
 	@Override
@@ -136,7 +135,21 @@ public class AchievementServiceImpl implements AchievementService {
 			resAssigning = achievementDao.assignAchievement(userId, achievementId);
 		}
 		if (resAssigning > 0){
-			//add to notifications and activities
+			//adding to notifications and activities
+			UserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
+			if(userAchievement != null){
+				DtoActivity activity = DtoActivity.builder()
+						.activityType(ActivityType.ACHIEVEMENTS_RELATED)
+						.userId(userId)
+						.build();
+				if(userAchievement.getTimesGained() == 1){
+					activity.setContent("Got achievement: " + userAchievement.getTitle() + "!");
+				}else{
+					activity.setContent("Got achievement: " + userAchievement.getTitle() +
+							" " + userAchievement.getTimesGained()+ " times!");
+				}
+				activitiesService.addActivityForUser(activity);
+			}
 		}
 	}
 

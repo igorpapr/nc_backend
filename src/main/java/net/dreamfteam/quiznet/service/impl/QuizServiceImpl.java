@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
@@ -23,14 +24,17 @@ public class QuizServiceImpl implements QuizService {
     private final QuizDao quizDao;
     private final NotificationService notificationService;
     private final ActivitiesService activitiesService;
+    private final AchievementService achievementService;
 
 
     @Autowired
     public QuizServiceImpl(QuizDao quizDao, NotificationService notificationService,
-                           ActivitiesService activitiesService) {
+                           ActivitiesService activitiesService,
+                           AchievementService achievementService) {
         this.quizDao = quizDao;
         this.notificationService = notificationService;
         this.activitiesService = activitiesService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -121,19 +125,21 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
-
-
+        //adding notification
         notificationService.insert(DtoNotification.builder()
                                                   .content("Your quiz "+ quiz.getTitle()+" was validated")
                                                   .userId(quiz.getCreatorId())
                                                   .build());
         if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
+            //adding activity
             DtoActivity activity = DtoActivity.builder()
                     .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
                     .activityType(ActivityType.VALIDATION_RELATED)
                     .userId(quiz.getCreatorId())
                     .build();
             activitiesService.addActivityForUser(activity);
+            //checking achievements
+            achievementService.checkQuizCreationAchievements(quiz.getCreatorId());
         }
     }
 
