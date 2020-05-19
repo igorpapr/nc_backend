@@ -46,7 +46,7 @@ public interface QuizDao {
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<QuizView> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
+    List<QuizFiltered> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
 
     List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
@@ -77,4 +77,5 @@ public interface QuizDao {
     Question loadAnswersForQuestion(Question question, int i);
 
     List<QuizRates> getUserQuizzesRating(String userId);
+    int getAmountSuccessCreated(String userId);
 }

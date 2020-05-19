@@ -60,7 +60,7 @@ public interface QuizService {
 
     List<QuizRates> getUserQuizzesRating();
 
-    List<QuizView> getSuggestionsQuizList(String userId, int amount);
+    List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
 

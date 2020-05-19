@@ -6,14 +6,14 @@ import java.util.List;
 
 public interface AchievementService {
 
-    void checkFirstGameOfUserAchievement(String sessionId);
+	void checkAftergameAchievements(String sessionId);
 
-    void checkPlayedTenOfDifferentQuizzes(String sessionId);
-
-    void checkPlayedTenOfDifferentQuizzesOfCategory(String sessionId);
+	void checkQuizCreationAchievements(String userId);
 
     List<UserAchievement> getUserAchievements(String userId);
 
     List<UserAchievement> getUserAchievementsLastWeek();
+
+	void checkOnStartGameAchievements(String gameId);
 
 }

@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -56,6 +57,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
             return gameSession;
         } else if (gameSession != null && userId.startsWith("-")) {
             name = name + "(Another)";
+        }
+
+        if (gameHasAvailableSlots(accessId)) {
+            throw new ValidationException("Sorry, no slots are available");
         }
 
 
@@ -169,7 +174,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
         checkForGameOver(gameId);
     }
 
-    //For achievements: returns number of all finished game sessions of user
+    //For achievements: returns the number of all finished game sessions of user
     @Override
     public int getNumberOfSessionsOfUser(String userId) {
         try {
@@ -184,6 +189,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
         }
     }
 
+    //For achievements: returns the number of unique quizzes played by the user
+    @Override
+    public int getNumberOfQuizzesPlayedByUser(String userId) {
+        try {
+            return jdbcTemplate
+                    .queryForObject("(SELECT COUNT (DISTINCT g.quiz_id) " +
+                                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                                    "WHERE user_id = uuid(?) " +
+                                    "AND finished = TRUE;)",
+                            new Object[]{userId},
+                            Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
 
     private void checkForGameOver(String gameId) {
         boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +

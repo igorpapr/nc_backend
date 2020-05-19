@@ -34,11 +34,6 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     @Override
     public GameSession joinGame(String accessId, String userId, String username) {
-
-        if (!gameSessionDao.gameHasAvailableSlots(accessId)) {
-            throw new ValidationException("Sorry, no slots are available");
-        }
-
         return gameSessionDao.getSessionByAccessId(accessId, userId, username);
     }
 

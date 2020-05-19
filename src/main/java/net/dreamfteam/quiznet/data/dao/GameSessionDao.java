@@ -23,4 +23,6 @@ public interface GameSessionDao {
     void removePlayer(String sessionId);
 
     int getNumberOfSessionsOfUser(String userId);
+
+    int getNumberOfQuizzesPlayedByUser(String userId);
 }
