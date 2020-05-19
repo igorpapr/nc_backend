@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -56,6 +57,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
             return gameSession;
         } else if (gameSession != null && userId.startsWith("-")) {
             name = name + "(Another)";
+        }
+
+        if (gameHasAvailableSlots(accessId)) {
+            throw new ValidationException("Sorry, no slots are available");
         }
 
 
