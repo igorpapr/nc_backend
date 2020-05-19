@@ -45,7 +45,7 @@ public class SettingsController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @GetMapping
+    @GetMapping("language")
     public ResponseEntity<?> getLanguage(){
         return new ResponseEntity<>(settingsService.getLanguage(authenticationFacade.getUserId()), HttpStatus.OK);
     }
