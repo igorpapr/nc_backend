@@ -174,7 +174,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
         checkForGameOver(gameId);
     }
 
-    //For achievements: returns number of all finished game sessions of user
+    //For achievements: returns the number of all finished game sessions of user
     @Override
     public int getNumberOfSessionsOfUser(String userId) {
         try {
@@ -189,6 +189,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
         }
     }
 
+    //For achievements: returns the number of unique quizzes played by the user
+    @Override
+    public int getNumberOfQuizzesPlayedByUser(String userId) {
+        try {
+            return jdbcTemplate
+                    .queryForObject("(SELECT COUNT (DISTINCT g.quiz_id) " +
+                                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                                    "WHERE user_id = uuid(?) " +
+                                    "AND finished = TRUE;)",
+                            new Object[]{userId},
+                            Integer.class);
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return 0;
+        }
+    }
 
     private void checkForGameOver(String gameId) {
         boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
