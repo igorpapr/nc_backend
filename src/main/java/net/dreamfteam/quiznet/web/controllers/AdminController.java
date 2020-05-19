@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ImageService;
+import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoAdminActivation;
 import net.dreamfteam.quiznet.web.dto.DtoAdminSignUp;
@@ -20,27 +21,32 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.ADMIN_URLS)
 public class AdminController {
 
+    private final SettingsService settingsService;
+
     final private UserService userService;
     final private IAuthenticationFacade authenticationFacade;
 
     @Autowired
-    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade, ImageService imageService) {
+    public AdminController(UserService userService, IAuthenticationFacade authenticationFacade,
+                           SettingsService settingsService) {
         this.userService = userService;
         this.authenticationFacade = authenticationFacade;
+        this.settingsService = settingsService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/edit")
+    @PostMapping("/edit/{field}")
     public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
         User otherUser = userService.getById(editAdminProfile.getId());
-        // TODO
 
         if (otherUser == null) {
             throw new ValidationException("Not found such user");
@@ -67,6 +73,8 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
+
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PostMapping("/edit/image")
     public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
@@ -77,7 +85,12 @@ public class AdminController {
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
             throw new ValidationException("You dont have such capabilities");
         }
-        // TODO
+
+        try {
+            otherUser.setImage(image.getBytes());
+        } catch (IOException e) {
+            throw new ValidationException("Broken image");
+        }
 
         userService.update(otherUser);
 
@@ -93,6 +106,7 @@ public class AdminController {
         UserValidator.validate(newAdmin);
         User user = userService.getByEmail(newAdmin.getEmail());
 
+
         if (user != null) {
             throw new ValidationException("Such email has been taken");
         }
@@ -106,6 +120,9 @@ public class AdminController {
         }
 
         User saved = userService.saveAdmin(newAdmin.toUser());
+
+        settingsService.initSettings(saved.getId(), saved.getRole());
+
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }
 

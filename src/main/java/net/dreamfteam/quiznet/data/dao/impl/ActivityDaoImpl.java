@@ -3,8 +3,9 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.ActivityDao;
 import net.dreamfteam.quiznet.data.entities.FriendsActivity;
 import net.dreamfteam.quiznet.data.rowmappers.ActivityMapper;
-import net.dreamfteam.quiznet.data.rowmappers.UserFriendInvitationMapper;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -43,7 +44,14 @@ public class ActivityDaoImpl implements ActivityDao {
 	}
 
 	@Override
-	public void addActivity() {
-
+	public void addActivity(DtoActivity activity) {
+		try{
+			jdbcTemplate.update("INSERT INTO user_activities (content, type_id, user_id) " +
+									"VALUES (?, ?, uuid(?))", activity.getContent(),
+					activity.getActivityType().ordinal() + 1, activity.getUserId());
+		}catch (DataAccessException e){
+			System.err.println("Couldn't add new activity for user "+ activity.getUserId() +
+					".\n Error: " + e.getMessage());
+		}
 	}
 }

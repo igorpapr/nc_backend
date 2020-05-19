@@ -10,7 +10,7 @@ public class ActivityMapper implements RowMapper<FriendsActivity> {
 	@Override
 	public FriendsActivity mapRow(ResultSet resultSet, int i) throws SQLException {
 
-		FriendsActivity friendsActivity = FriendsActivity.builder()
+		return FriendsActivity.builder()
 				.activityId(resultSet.getString("activity_id"))
 				.content(resultSet.getString("content"))
 				.datetime(resultSet.getTimestamp("datetime"))
@@ -18,6 +18,5 @@ public class ActivityMapper implements RowMapper<FriendsActivity> {
 				.username(resultSet.getString("username"))
 				.imageContent(resultSet.getBytes("image_content"))
 				.build();
-		return friendsActivity;
 	}
 }

@@ -6,6 +6,8 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.service.AchievementService;
+import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,7 @@ public class AchievementServiceImpl implements AchievementService {
 	private final AchievementDao achievementDao;
 
 	@Autowired
-	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao) {
+	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao, ActivitiesService activitiesService) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
 	}

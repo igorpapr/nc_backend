@@ -58,9 +58,11 @@ public interface QuizDao {
 
     Quiz getUserQuizByTitle(String title, String username);
 
-    void validateQuiz(DtoQuiz dtoQuiz);
+    int validateQuiz(DtoQuiz dtoQuiz);
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
+
+    int findQuizzesFilterSize(DtoQuizFilter quizFilter);
 
     void removeQuestionImage(String questionId);
 

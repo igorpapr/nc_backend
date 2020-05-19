@@ -8,6 +8,7 @@ import net.dreamfteam.quiznet.data.rowmappers.UserFriendInvitationMapper;
 import net.dreamfteam.quiznet.data.rowmappers.UserMapper;
 import net.dreamfteam.quiznet.data.rowmappers.UserViewMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -262,10 +263,15 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void acceptInvitation(String parentId, String targetId) {
-        jdbcTemplate.update("UPDATE friends " +
-                "SET accepted_datetime = CURRENT_TIMESTAMP " +
-                "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", targetId, parentId);
+    public int acceptInvitation(String parentId, String targetId) {
+        try{
+            return jdbcTemplate.update("UPDATE friends " +
+                    "SET accepted_datetime = CURRENT_TIMESTAMP " +
+                    "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", parentId, targetId);
+        }catch (DataAccessException e){
+            System.err.println("Error occurred while accepting the friend invitation: " + e.getMessage());
+            return 0;
+        }
     }
 
     @Override
