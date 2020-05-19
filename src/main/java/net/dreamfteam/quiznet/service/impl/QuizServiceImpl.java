@@ -269,14 +269,9 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizView> shortListOfQuizzes() {
-        List<QuizView> shortListResult = new ArrayList<>();
+    public List<QuizFiltered> shortListOfQuizzes() {
         DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
-        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter, 0, 5);
-        for (QuizFiltered i : shortList) {
-            shortListResult.add(QuizView.builder().quiz_id(i.getId()).title(i.getTitle()).image_content(i.getImageContent()).build());
-        }
-        return shortListResult;
+        return quizDao.findQuizzesByFilter(quizFilter, 0, 5);
     }
 
     @Override
