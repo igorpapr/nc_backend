@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
+import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Repository
@@ -167,6 +169,24 @@ public class GameDaoImpl implements GameDao {
                                     .build());
             return info;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
+        try{
+            return jdbcTemplate.query("SELECT ug.user_id, q.title " +
+                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                            "INNER JOIN quizzes q ON g.quiz_id = q.quiz_id " +
+                    "WHERE ug.game_id = uuid(?) AND " +
+                    "ug.is_winner = true",
+                    new Object[]{gameId},
+                    (rs, i) -> DtoGameWinner.builder()
+                                .userId(rs.getString("user_id"))
+                                .quizTitle(rs.getString("title"))
+                                .build());
+        }catch (EmptyResultDataAccessException | NullPointerException e){
             return null;
         }
     }
