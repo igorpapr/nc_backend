@@ -6,10 +6,7 @@ import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.service.GameService;
-import net.dreamfteam.quiznet.service.GameSessionService;
-import net.dreamfteam.quiznet.service.SseService;
+import net.dreamfteam.quiznet.service.*;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
@@ -28,18 +25,21 @@ public class GameSessionServiceImpl implements GameSessionService {
     private final GameService gameService;
     private final AuthenticationFacade authenticationFacade;
     private final ActivitiesService activitiesService;
+    private final AchievementService achievementService;
 
 
     @Autowired
     public GameSessionServiceImpl(GameSessionDao gameSessionDao, SseService sseService, GameService gameService,
                                   AuthenticationFacade authenticationFacade, ActivitiesService activitiesService,
-                                  GameDao gameDao) {
+                                  GameDao gameDao,
+                                  AchievementService achievementService) {
         this.gameSessionDao = gameSessionDao;
         this.sseService = sseService;
         this.gameService = gameService;
         this.authenticationFacade = authenticationFacade;
         this.activitiesService = activitiesService;
         this.gameDao = gameDao;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -102,7 +102,10 @@ public class GameSessionServiceImpl implements GameSessionService {
                 }
             }
             //checking achievements
-            //List sessions = getSessions(gameId);
+            List<Map<String, String>> sessionsMaps = getSessions(gameId);
+            for (Map<String,String> session : sessionsMaps) {
+                achievementService.checkAftergameAchievements(session.get("game_session_id"));
+            }
 
             //sending message event to subscribers
             sseService.send(gameId, "finished", gameId);

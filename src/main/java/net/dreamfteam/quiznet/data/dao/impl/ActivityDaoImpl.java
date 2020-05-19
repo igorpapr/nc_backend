@@ -36,7 +36,8 @@ public class ActivityDaoImpl implements ActivityDao {
 																"SELECT f1.parent_id AS id " +
 																"FROM friends f1 " +
 																"WHERE f1.friend_id = uuid(?) " +
-																"AND f1.accepted_datetime IS NOT NULL)",
+																"AND f1.accepted_datetime IS NOT NULL) " +
+											"ORDER BY datetime DESC;",
 					new Object[]{userId, userId}, new ActivityMapper());
 		}catch (EmptyResultDataAccessException e){
 			return null;
