@@ -6,8 +6,10 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
+import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Repository
@@ -167,6 +170,55 @@ public class GameDaoImpl implements GameDao {
                                     .build());
             return info;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isGameFinished(String gameId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT CASE " +
+                            "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+                            "THEN TRUE " +
+                            "ELSE FALSE END " +
+                            "FROM users_games WHERE game_id = UUID(?);",
+                    new Object[]{gameId}, Boolean.class);
+        }catch (DataAccessException e){
+            return false;
+        }
+    }
+
+    @Override
+    public int setWinnersForTheGame(String gameId) {
+        try{
+            return jdbcTemplate.update("UPDATE users_games SET " +
+                            "is_winner = true " +
+                            "WHERE game_session_id IN (" +
+                            "SELECT game_session_id FROM users_games" +
+                            " WHERE game_id = UUID(?)" +
+                            "AND score = (" +
+                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
+                    gameId, gameId);
+        }catch (DataAccessException e){
+            System.err.println("Error occurred while setting winners for the game (" + gameId + "): " + e.getMessage());
+            return 0;
+        }
+    }
+
+    @Override
+    public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
+        try{
+            return jdbcTemplate.query("SELECT ug.user_id, q.title " +
+                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                            "INNER JOIN quizzes q ON g.quiz_id = q.quiz_id " +
+                    "WHERE ug.game_id = uuid(?) AND " +
+                    "ug.is_winner = true",
+                    new Object[]{gameId},
+                    (rs, i) -> DtoGameWinner.builder()
+                                .userId(rs.getString("user_id"))
+                                .quizTitle(rs.getString("title"))
+                                .build());
+        }catch (EmptyResultDataAccessException | NullPointerException e){
             return null;
         }
     }
