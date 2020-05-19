@@ -50,6 +50,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                         .build();
 
         gameSessionDao.updateSession(gameSession);
+        checkForGameOver(gameSession.getGameId());
     }
 
     @Override
@@ -60,6 +61,8 @@ public class GameSessionServiceImpl implements GameSessionService {
     @Override
     public void removePlayer(String sessionId) {
         gameSessionDao.removePlayer(sessionId);
+        String gameId = gameSessionDao.getGameId(sessionId);
+        checkForGameOver(gameId);
     }
 
     @Override
@@ -72,5 +75,17 @@ public class GameSessionServiceImpl implements GameSessionService {
         return gameSessionDao.getGameId(sessionId);
     }
 
+    private void checkForGameOver(String gameId){
+        boolean isGameFinished = gameSessionDao.isGameFinished(gameId);
+        if (isGameFinished) {
+            int res = gameSessionDao.setWinnersForTheGame(gameId);
+            sseService.send(gameId, "finished", gameId);
+            if(res > 0){//setting activities
+                //set activities
 
+            }
+            //check achievements
+        }
+
+    }
 }

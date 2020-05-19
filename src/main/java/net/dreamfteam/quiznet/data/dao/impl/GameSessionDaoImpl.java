@@ -8,6 +8,7 @@ import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -142,8 +143,6 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "score = ?, duration_time = ?, finished = true " +
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
-        checkForGameOver(gameSession.getGameId());
-
     }
 
     @Override
@@ -169,9 +168,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     @Transactional
     public void removePlayer(String sessionId) {
-        String gameId = getGameId(sessionId);
         jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
-        checkForGameOver(gameId);
     }
 
     //For achievements: returns the number of all finished game sessions of user
@@ -205,17 +202,47 @@ public class GameSessionDaoImpl implements GameSessionDao {
         }
     }
 
-    private void checkForGameOver(String gameId) {
-        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
-                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
-                        "THEN TRUE " +
-                        "ELSE FALSE END " +
-                        "FROM users_games WHERE game_id = UUID(?);",
-                new Object[]{gameId}, Boolean.class);
+//    private void checkForGameOver(String gameId) {
+//        boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
+//                        "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+//                        "THEN TRUE " +
+//                        "ELSE FALSE END " +
+//                        "FROM users_games WHERE game_id = UUID(?);",
+//                new Object[]{gameId}, Boolean.class);
+//
+//
+//        if (isGameFinished) {
+//            jdbcTemplate.update("UPDATE users_games SET " +
+//                            "is_winner = true " +
+//                            "WHERE game_session_id IN (" +
+//                            "SELECT game_session_id FROM users_games" +
+//                            " WHERE game_id = UUID(?)" +
+//                            "AND score = (" +
+//                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
+//                    gameId, gameId);
+//
+//            sseService.send(gameId, "finished", gameId);
+//        }
+//    }
 
+    @Override
+    public boolean isGameFinished(String gameId) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT CASE " +
+                            "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+                            "THEN TRUE " +
+                            "ELSE FALSE END " +
+                            "FROM users_games WHERE game_id = UUID(?);",
+                    new Object[]{gameId}, Boolean.class);
+        }catch (DataAccessException e){
+            return false;
+        }
+    }
 
-        if (isGameFinished) {
-            jdbcTemplate.update("UPDATE users_games SET " +
+    @Override
+    public int setWinnersForTheGame(String gameId) {
+        try{
+            return jdbcTemplate.update("UPDATE users_games SET " +
                             "is_winner = true " +
                             "WHERE game_session_id IN (" +
                             "SELECT game_session_id FROM users_games" +
@@ -223,8 +250,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "AND score = (" +
                             "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
                     gameId, gameId);
-
-            sseService.send(gameId, "finished", gameId);
+        }catch (DataAccessException e){
+            System.err.println("Error occurred while setting winners for the game (" + gameId + "): " + e.getMessage());
+            return 0;
         }
     }
 }
