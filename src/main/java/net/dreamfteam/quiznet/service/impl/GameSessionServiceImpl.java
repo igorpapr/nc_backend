@@ -40,7 +40,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                         .winner(false)
                         .durationTime(dtoGameSession.getDurationTime())
                         .id(dtoGameSession.getSessionId())
-                        .gameId(dtoGameSession.getGameId())
+                        .gameId(getGameIdBySessionId(dtoGameSession.getSessionId()))
                         .build();
 
         gameSessionDao.updateSession(gameSession);

@@ -137,7 +137,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
                         "score = ?, duration_time = ?, finished = true " +
                         "WHERE game_session_id = UUID(?)",
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
-        checkForGameOver(gameSession);
+        checkForGameOver(gameSession.getGameId());
 
     }
 
@@ -164,8 +164,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     @Transactional
     public void removePlayer(String sessionId) {
+        String gameId = getGameId(sessionId);
         jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
-        checkForGameOver(getById(sessionId));
+        checkForGameOver(gameId);
     }
 
     //For achievements: returns number of all finished game sessions of user
@@ -184,14 +185,13 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
 
-    private void checkForGameOver(GameSession gameSession) {
+    private void checkForGameOver(String gameId) {
         boolean isGameFinished = jdbcTemplate.queryForObject("SELECT CASE " +
                         "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
                         "THEN TRUE " +
                         "ELSE FALSE END " +
-                        "FROM users_games WHERE game_id IN (" +
-                        "SELECT game_id FROM users_games WHERE game_session_id = UUID(?));",
-                new Object[]{gameSession.getId()}, Boolean.class);
+                        "FROM users_games WHERE game_id = UUID(?);",
+                new Object[]{gameId}, Boolean.class);
 
 
         if (isGameFinished) {
@@ -199,14 +199,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "is_winner = true " +
                             "WHERE game_session_id IN (" +
                             "SELECT game_session_id FROM users_games" +
-                            " WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))" +
+                            " WHERE game_id = UUID(?)" +
                             "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id IN (" +
-                            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?)))",
-                    gameSession.getId(), gameSession.getId());
+                            "SELECT MAX(score) FROM users_games WHERE game_id = ?))",
+                    gameId, gameId);
 
-            sseService.send(gameSession.getGameId(), "finished", gameSession.getGameId());
+            sseService.send(gameId, "finished", gameId);
         }
     }
 }
