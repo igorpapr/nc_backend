@@ -45,13 +45,14 @@ public class GameSessionServiceImpl implements GameSessionService {
     @Override
     public void setResult(DtoGameSession dtoGameSession) {
 
-        GameSession gameSession = GameSession.builder()
-                                             .score(dtoGameSession.getScore())
-                                             .winner(false)
-                                             .durationTime(dtoGameSession.getDurationTime())
-                                             .id(dtoGameSession.getSessionId())
-                                             .gameId(dtoGameSession.getGameId())
-                                             .build();
+        GameSession gameSession =
+                GameSession.builder()
+                        .score(dtoGameSession.getScore())
+                        .winner(false)
+                        .durationTime(dtoGameSession.getDurationTime())
+                        .id(dtoGameSession.getSessionId())
+                        .gameId(getGameIdBySessionId(dtoGameSession.getSessionId()))
+                        .build();
 
         gameSessionDao.updateSession(gameSession);
     }
