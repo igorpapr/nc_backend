@@ -186,5 +186,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/achievements/last-week")
+    public ResponseEntity<?> getUserAchievementsLastWeek() {
+        return new ResponseEntity<>(
+                achievementService.getUserAchievementsLastWeek(), HttpStatus.OK);
+    }
+
 
 }

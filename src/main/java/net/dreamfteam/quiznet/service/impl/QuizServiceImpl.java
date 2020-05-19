@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,16 @@ public class QuizServiceImpl implements QuizService {
     private final QuizDao quizDao;
     private final NotificationService notificationService;
     private final ActivitiesService activitiesService;
+    private final IAuthenticationFacade authenticationFacade;
 
 
     @Autowired
     public QuizServiceImpl(QuizDao quizDao, NotificationService notificationService,
-                           ActivitiesService activitiesService) {
+                           ActivitiesService activitiesService, IAuthenticationFacade authenticationFacade) {
         this.quizDao = quizDao;
         this.notificationService = notificationService;
         this.activitiesService = activitiesService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -272,6 +274,11 @@ public class QuizServiceImpl implements QuizService {
     public List<QuizFiltered> shortListOfQuizzes() {
         DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
         return quizDao.findQuizzesByFilter(quizFilter, 0, 5);
+    }
+
+    @Override
+    public List<QuizRates> getUserQuizzesRating() {
+        return quizDao.getUserQuizzesRating(authenticationFacade.getUserId());
     }
 
     @Override

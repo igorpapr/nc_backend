@@ -75,4 +75,6 @@ public interface QuizDao {
     Quiz setValidator(String quizId, String adminId);
 
     Question loadAnswersForQuestion(Question question, int i);
+
+    List<QuizRates> getUserQuizzesRating(String userId);
 }

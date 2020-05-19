@@ -1,13 +1,13 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +18,14 @@ public class AchievementServiceImpl implements AchievementService {
 
 	private final GameSessionDao gameSessionDao;
 	private final AchievementDao achievementDao;
+	private final IAuthenticationFacade authenticationFacade;
 
 	@Autowired
-	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao, ActivitiesService activitiesService) {
+	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao,
+								  ActivitiesService activitiesService, IAuthenticationFacade authenticationFacade) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
+		this.authenticationFacade = authenticationFacade;
 	}
 
 	@Override
@@ -53,5 +56,10 @@ public class AchievementServiceImpl implements AchievementService {
 	@Override
 	public List<UserAchievement> getUserAchievements(String userId) {
 		return achievementDao.getUserAchievements(userId);
+	}
+
+	@Override
+	public List<UserAchievement> getUserAchievementsLastWeek() {
+		return achievementDao.getUserAchievementsLastWeek(authenticationFacade.getUserId());
 	}
 }

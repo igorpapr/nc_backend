@@ -10,4 +10,6 @@ public interface AchievementDao {
 
 	List<UserAchievement> getUserAchievements(String userId);
 
+	List<UserAchievement> getUserAchievementsLastWeek(String userId);
+
 }
