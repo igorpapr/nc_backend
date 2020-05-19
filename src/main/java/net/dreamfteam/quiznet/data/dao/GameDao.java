@@ -26,9 +26,5 @@ public interface GameDao {
 
     QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId);
 
-    boolean isGameFinished (String gameId);
-
-    int setWinnersForTheGame(String gameId);
-
     List<DtoGameWinner> getWinnersOfTheGame(String gameId);
 }

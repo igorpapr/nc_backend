@@ -86,9 +86,9 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     private void checkForGameOver(String gameId){
-        boolean isGameFinished = gameDao.isGameFinished(gameId);
+        boolean isGameFinished = gameSessionDao.isGameFinished(gameId);
         if (isGameFinished) {
-            int res = gameDao.setWinnersForTheGame(gameId);
+            int res = gameSessionDao.setWinnersForTheGame(gameId);
             sseService.send(gameId, "finished", gameId);
             if(res > 0){//setting activities
                 List<DtoGameWinner> winners = gameDao.getWinnersOfTheGame(gameId);
@@ -103,6 +103,9 @@ public class GameSessionServiceImpl implements GameSessionService {
             }
             //checking achievements
             //List sessions = getSessions(gameId);
+
+            //sending message event to subscribers
+            sseService.send(gameId, "finished", gameId);
         }
     }
 }

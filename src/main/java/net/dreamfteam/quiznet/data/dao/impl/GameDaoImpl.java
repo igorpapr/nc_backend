@@ -9,7 +9,6 @@ import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -171,37 +170,6 @@ public class GameDaoImpl implements GameDao {
             return info;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
-        }
-    }
-
-    @Override
-    public boolean isGameFinished(String gameId) {
-        try {
-            return jdbcTemplate.queryForObject("SELECT CASE " +
-                            "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
-                            "THEN TRUE " +
-                            "ELSE FALSE END " +
-                            "FROM users_games WHERE game_id = UUID(?);",
-                    new Object[]{gameId}, Boolean.class);
-        }catch (DataAccessException e){
-            return false;
-        }
-    }
-
-    @Override
-    public int setWinnersForTheGame(String gameId) {
-        try{
-            return jdbcTemplate.update("UPDATE users_games SET " +
-                            "is_winner = true " +
-                            "WHERE game_session_id IN (" +
-                            "SELECT game_session_id FROM users_games" +
-                            " WHERE game_id = UUID(?)" +
-                            "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
-                    gameId, gameId);
-        }catch (DataAccessException e){
-            System.err.println("Error occurred while setting winners for the game (" + gameId + "): " + e.getMessage());
-            return 0;
         }
     }
 

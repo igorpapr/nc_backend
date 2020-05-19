@@ -26,4 +26,8 @@ public interface GameSessionDao {
 
     int getNumberOfQuizzesPlayedByUser(String userId);
 
+    boolean isGameFinished (String gameId);
+
+    int setWinnersForTheGame(String gameId);
+
 }
