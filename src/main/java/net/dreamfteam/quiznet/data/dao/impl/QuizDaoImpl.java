@@ -245,7 +245,7 @@ public class QuizDaoImpl implements QuizDao {
                      "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
 
-            sql = sql + "title LIKE '%" + quizFilter.getQuizName() + "%' AND ";
+            sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
         }
         if (quizFilter.getUserName() != null) {
             sql = sql + "creator_id = (SELECT user_id FROM users WHERE username LIKE '" + quizFilter.getUserName() +
