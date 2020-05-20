@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.data.rowmappers.QuizFilteredMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
+import net.dreamfteam.quiznet.data.rowmappers.RatingMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -739,6 +740,21 @@ public class QuizDaoImpl implements QuizDao {
                                 resultSet.getDate("datetime_start"))
                         .title(resultSet.getString("title"))
                         .build());
+    }
+
+    @Override
+    public List<Rating> getUserQuizRating(String quizId, String userId) {
+        return jdbcTemplate.query("select quiz_id, user_id, rating_points from user_quiz_rating where quiz_id=uuid(?) and user_id=uuid(?) ", new Object[]{quizId, userId}, new RatingMapper());
+    }
+
+    @Override
+    public void rateQuiz(String sessionId, int ratingPoints, String userId) {
+        jdbcTemplate.update("insert into user_quiz_rating (quiz_id, user_id, rating_points) VALUES ((select quiz_id from games where game_id=uuid(?)) , uuid(?), ?) ON CONFLICT (quiz_id, user_id) DO UPDATE SET rating_points = ?;", sessionId, userId, ratingPoints, ratingPoints);
+    }
+
+    @Override
+    public void updateQuizRating(String quizId) {
+        jdbcTemplate.update("update quizzes set rating = (select sum(rating_points)/count(*) from user_quiz_rating where quiz_id =(select quiz_id from games where game_id=uuid(?))) where quiz_id =(select quiz_id from games where game_id=uuid(?))", quizId, quizId);
     }
 
     public Question loadAnswersForQuestion(Question question, int i) {
