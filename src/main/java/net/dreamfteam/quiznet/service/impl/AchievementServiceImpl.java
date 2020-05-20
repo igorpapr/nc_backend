@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
@@ -18,15 +19,20 @@ public class AchievementServiceImpl implements AchievementService {
 
 	private final GameSessionDao gameSessionDao;
 	private final AchievementDao achievementDao;
+	private final IAuthenticationFacade authenticationFacade;
 	private final QuizDao quizDao;
 	private final GameDao gameDao;
 	private final ActivitiesService activitiesService;
 
+	
 	@Autowired
 	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao,
-	                              QuizDao quizDao, GameDao gameDao, ActivitiesService activitiesService) {
+								  ActivitiesService activitiesService, 
+								  QuizDao quizDao, GameDao gameDao,
+								  IAuthenticationFacade authenticationFacade) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
+		this.authenticationFacade = authenticationFacade;
 		this.quizDao = quizDao;
 		this.gameDao = gameDao;
 		this.activitiesService = activitiesService;
@@ -64,6 +70,11 @@ public class AchievementServiceImpl implements AchievementService {
 	@Override
 	public List<UserAchievement> getUserAchievements(String userId) {
 		return achievementDao.getUserAchievements(userId);
+	}
+
+	@Override
+	public List<UserAchievement> getUserAchievementsLastWeek() {
+		return achievementDao.getUserAchievementsLastWeek(authenticationFacade.getUserId());
 	}
 
 	@Override
@@ -139,9 +150,9 @@ public class AchievementServiceImpl implements AchievementService {
 			UserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
 			if(userAchievement != null){
 				DtoActivity activity = DtoActivity.builder()
-						.activityType(ActivityType.ACHIEVEMENTS_RELATED)
-						.userId(userId)
-						.build();
+												  .activityType(ActivityType.ACHIEVEMENTS_RELATED)
+												  .userId(userId)
+												  .build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got achievement: " + userAchievement.getTitle() + "!");
 				}else{

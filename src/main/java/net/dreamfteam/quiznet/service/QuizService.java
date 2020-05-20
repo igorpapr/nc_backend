@@ -58,6 +58,8 @@ public interface QuizService {
 
     List<QuizFiltered> shortListOfQuizzes();
 
+    List<QuizRates> getUserQuizzesRating();
+
     List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
@@ -71,6 +73,8 @@ public interface QuizService {
     Quiz setValidator(String quizId, String adminId);
 
     List<Quiz> getUserFavouriteList(String userId);
+
+    List<QuizLastPlayed> getLastPlayedQuizzes();
 
 
 }

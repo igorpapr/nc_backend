@@ -76,5 +76,9 @@ public interface QuizDao {
 
     Question loadAnswersForQuestion(Question question, int i);
 
+    List<QuizRates> getUserQuizzesRating(String userId);
+
     int getAmountSuccessCreated(String userId);
+
+    List<QuizLastPlayed> getLastPlayedQuizzes(String userId);
 }

@@ -14,67 +14,80 @@ import java.util.List;
 @Repository
 public class AchievementDaoImpl implements AchievementDao {
 
-	private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	public AchievementDaoImpl(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
+    @Autowired
+    public AchievementDaoImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-	@Override
-	public int assignAchievementRepeating(String userId, int achievementId) {
-		try{
-			return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
-												  "(user_id, achievement_id, datetime_gained) " +
-												  "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
-												  "ON CONFLICT (user_id, achievement_id) DO UPDATE " +
-												  "SET times_gained = t.times_gained + 1;", userId, achievementId);
-		}catch (EmptyResultDataAccessException e){
-			return 0;
-		}
-	}
+    @Override
+    public int assignAchievementRepeating(String userId, int achievementId) {
+        try {
+            return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
+                    "(user_id, achievement_id, datetime_gained) " +
+                    "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
+                    "ON CONFLICT (user_id, achievement_id) DO UPDATE " +
+                    "SET times_gained = t.times_gained + 1;", userId, achievementId);
+        } catch (EmptyResultDataAccessException e) {
+            return 0;
+        }
+    }
 
-	@Override
-	public int assignAchievement(String userId, int achievementId) {
-		try{
-			return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
-											"(user_id, achievement_id, datetime_gained) " +
-											"VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
-											"ON CONFLICT (user_id, achievement_id) DO NOTHING;",userId, achievementId);
-		}catch (EmptyResultDataAccessException e){
-			return 0;
-		}
-	}
+    @Override
+    public int assignAchievement(String userId, int achievementId) {
+        try {
+            return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
+                    "(user_id, achievement_id, datetime_gained) " +
+                    "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
+                    "ON CONFLICT (user_id, achievement_id) DO NOTHING;", userId, achievementId);
+        } catch (EmptyResultDataAccessException e) {
+            return 0;
+        }
+    }
 
-	@Override
-	public List<UserAchievement> getUserAchievements(String userId) {
-		try {
-			return jdbcTemplate
-					.query("SELECT a.achievement_id, a.title, a.description, a.image_content, a.category_id, c.title AS category_title, ua.datetime_gained, ua.times_gained " +
-								"FROM achievements a INNER JOIN users_achievements ua ON a.achievement_id = ua.achievement_id " +
-								"LEFT JOIN categories c ON a.category_id = c.category_id " +
-								"WHERE ua.user_id = uuid(?);",
-							new Object[]{userId}, new UserAchievementMapper());
-		} catch (EmptyResultDataAccessException e) {
-			return null;
-		}
-	}
+    @Override
+    public List<UserAchievement> getUserAchievements(String userId) {
+        try {
+            return jdbcTemplate
+                    .query("SELECT a.achievement_id, a.title, a.description, a.image_content, a.category_id, " +
+                                    "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
+                                    "FROM achievements a INNER JOIN users_achievements ua " +
+                                    "ON a.achievement_id = ua.achievement_id " +
+                                    "LEFT JOIN categories c ON a.category_id = c.category_id " +
+                                    "WHERE ua.user_id = uuid(?);",
+                            new Object[]{userId}, new UserAchievementMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 
-	@Override
-	public UserAchievement getUserAchievementByIds(String userId, int achievementId) {
-		try{
-			return jdbcTemplate
-					.queryForObject("SELECT a.achievement_id, a.title, a.description, a.image_content, " +
-										"a.category_id, c.title AS category_title, " +
-										"ua.datetime_gained, ua.times_gained " +
-										"FROM achievements a INNER JOIN users_achievements ua ON a.achievement_id = ua.achievement_id " +
-										"LEFT JOIN categories c ON a.category_id = c.category_id " +
-										"WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;",
-					new Object[]{userId, achievementId}, new UserAchievementMapper());
-		}catch (EmptyResultDataAccessException | NullPointerException e){
-			System.err.println("Couldn't find user achievement info by userId: " + userId
-					+ ", and achievementId: " + achievementId);
-			return null;
-		}
-	}
+    @Override
+    public List<UserAchievement> getUserAchievementsLastWeek(String userId) {
+        return jdbcTemplate.query(
+                "SELECT a.achievement_id, a.title, a.description, image_content, category_id, " +
+                        "datetime_gained, times_gained " +
+                        "FROM achievements a INNER JOIN users_achievements u ON u.achievement_id = a.achievement_id " +
+                        "WHERE user_id = UUID(?)" + "ORDER BY datetime_gained", new Object[]{userId},
+                new UserAchievementMapper());
+    }
+
+    @Override
+    public UserAchievement getUserAchievementByIds(String userId, int achievementId) {
+        try {
+            return jdbcTemplate
+                    .queryForObject("SELECT a.achievement_id, a.title, a.description, a.image_content, " +
+                                    "a.category_id, c.title AS category_title, " +
+                                    "ua.datetime_gained, ua.times_gained " +
+                                    "FROM achievements a INNER JOIN users_achievements ua " +
+                                    "ON a.achievement_id = ua.achievement_id " +
+                                    "LEFT JOIN categories c ON a.category_id = c.category_id " +
+                                    "WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;",
+                            new Object[]{userId, achievementId}, new UserAchievementMapper());
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            System.err.println("Couldn't find user achievement info by userId: " + userId
+                    + ", and achievementId: " + achievementId);
+            return null;
+        }
+    }
 }
