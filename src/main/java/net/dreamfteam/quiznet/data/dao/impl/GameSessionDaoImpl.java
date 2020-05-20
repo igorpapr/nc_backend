@@ -4,9 +4,11 @@ import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
+import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SseService;
+import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -98,14 +100,24 @@ public class GameSessionDaoImpl implements GameSessionDao {
     }
 
     @Override
-    public List getSessions(String gameId) {
+    public List<DtoPlayerSession> getSessions(String gameId) {
         return jdbcTemplate
-                .queryForList("SELECT users_games.game_session_id, users_games.user_id, " +
+                .query("SELECT users_games.game_session_id, users_games.user_id, " +
                         "users_games.username, image, score, " +
                         "is_winner, is_creator, duration_time " +
                         "FROM users_games LEFT JOIN users " +
                         "ON users_games.user_id = users.user_id " +
-                        "WHERE game_id = UUID(?);", gameId);
+                        "WHERE game_id = UUID(?);",  new Object[]{gameId},
+                        (rs, i) -> DtoPlayerSession.builder()
+                                .game_session_id(rs.getString("game_session_id"))
+                                .duration_time(rs.getInt("duration_time"))
+                                .image(rs.getBytes("image"))
+                                .is_creator(rs.getBoolean("is_creator"))
+                                .is_winner(rs.getBoolean("is_winner"))
+                                .score(rs.getInt("score"))
+                                .user_id(rs.getString("user_id"))
+                                .username(rs.getString("username"))
+                                .build());
     }
 
 
@@ -191,10 +203,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public int getNumberOfQuizzesPlayedByUser(String userId) {
         try {
             return jdbcTemplate
-                    .queryForObject("(SELECT COUNT (DISTINCT g.quiz_id) " +
+                    .queryForObject("SELECT COUNT (DISTINCT g.quiz_id) " +
                                     "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
                                     "WHERE user_id = uuid(?) " +
-                                    "AND finished = TRUE;)",
+                                    "AND finished = TRUE;",
                             new Object[]{userId},
                             Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
