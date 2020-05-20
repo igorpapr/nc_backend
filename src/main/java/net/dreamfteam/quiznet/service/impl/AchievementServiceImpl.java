@@ -9,6 +9,7 @@ import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -149,9 +150,9 @@ public class AchievementServiceImpl implements AchievementService {
 			UserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
 			if(userAchievement != null){
 				DtoActivity activity = DtoActivity.builder()
-						.activityType(ActivityType.ACHIEVEMENTS_RELATED)
-						.userId(userId)
-						.build();
+												  .activityType(ActivityType.ACHIEVEMENTS_RELATED)
+												  .userId(userId)
+												  .build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got achievement: " + userAchievement.getTitle() + "!");
 				}else{
