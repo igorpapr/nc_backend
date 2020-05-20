@@ -76,5 +76,6 @@ public interface QuizService {
 
     List<QuizLastPlayed> getLastPlayedQuizzes();
 
+    Rating getUserQuizRating(String quizId, String userId);
 
 }

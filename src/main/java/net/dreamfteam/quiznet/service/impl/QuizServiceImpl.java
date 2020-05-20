@@ -29,10 +29,10 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao, 
+    public QuizServiceImpl(QuizDao quizDao,
                            NotificationService notificationService,
-                           ActivitiesService activitiesService, 
-                           IAuthenticationFacade authenticationFacade, 
+                           ActivitiesService activitiesService,
+                           IAuthenticationFacade authenticationFacade,
                            AchievementService achievementService) {
         this.quizDao = quizDao;
         this.notificationService = notificationService;
@@ -131,13 +131,13 @@ public class QuizServiceImpl implements QuizService {
     public void validateQuiz(DtoQuiz quiz) {
         //adding notification
         notificationService.insert(DtoNotification.builder()
-                                                  .content("Your quiz "+ quiz.getTitle()+" was validated")
-                                                  .userId(quiz.getCreatorId())
-                                                  .build());
-        if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
+                .content("Your quiz " + quiz.getTitle() + " was validated")
+                .userId(quiz.getCreatorId())
+                .build());
+        if (quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()) {
             //adding activity
             DtoActivity activity = DtoActivity.builder()
-                    .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
+                    .content("Successfully created a quiz - \"" + quiz.getTitle() + "\". It is playable now.")
                     .activityType(ActivityType.VALIDATION_RELATED)
                     .userId(quiz.getCreatorId())
                     .build();
@@ -159,13 +159,13 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Question saveQuestion(Question newQuestion, MultipartFile image) {
-        if(image != null){
+        if (image != null) {
             try {
                 newQuestion.setImageContent(image.getBytes());
             } catch (IOException e) {
                 throw new ValidationException("Broken image");
             }
-        }else{
+        } else {
             newQuestion.setImageContent(null);
         }
 
@@ -179,13 +179,13 @@ public class QuizServiceImpl implements QuizService {
     public Question updateQuestion(Question newQuestion, MultipartFile image) {
         quizDao.deleteQuestion(newQuestion);
 
-        if(image != null){
+        if (image != null) {
             try {
                 newQuestion.setImageContent(image.getBytes());
             } catch (IOException e) {
                 throw new ValidationException("Broken image");
             }
-        }else{
+        } else {
             newQuestion.setImageContent(null);
         }
 
@@ -271,6 +271,15 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public List<QuizLastPlayed> getLastPlayedQuizzes() {
         return quizDao.getLastPlayedQuizzes(authenticationFacade.getUserId());
+    }
+
+    @Override
+    public Rating getUserQuizRating(String quizId, String userId) {
+        if (quizDao.getQuiz(quizId) == null) {
+            throw new ValidationException("No quiz with this id");
+        }
+        List<Rating> r = quizDao.getUserQuizRating(quizId, userId);
+        return (r.size() < 1) ? Rating.builder().userId(userId).quizId(quizId).rating(0).build() : r.get(0);
     }
 
     @Override

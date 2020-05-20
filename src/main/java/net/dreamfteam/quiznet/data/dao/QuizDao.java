@@ -81,4 +81,11 @@ public interface QuizDao {
     int getAmountSuccessCreated(String userId);
 
     List<QuizLastPlayed> getLastPlayedQuizzes(String userId);
+
+    List<Rating> getUserQuizRating(String quizId, String userId);
+
+    void rateQuiz(String sessionId, int ratingPoints, String userId);
+
+    void updateQuizRating(String quizId);
+
 }
