@@ -302,4 +302,19 @@ public class QuizController {
     public ResponseEntity<?> getLastPlayedQuizzes() throws ValidationException {
         return new ResponseEntity<>(quizService.getLastPlayedQuizzes(), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/popular")
+    public ResponseEntity<?> getMostPopularWeekQuizzes(@RequestParam int amount) throws ValidationException {
+
+        return new ResponseEntity<>(quizService.getMostPopularQuizzesForLastWeek(amount), HttpStatus.OK);
+    }
+    
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{quizId}/rating")
+    public ResponseEntity<?> getUserQuizzesRating(@PathVariable String quizId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getUserQuizRating(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+
 }

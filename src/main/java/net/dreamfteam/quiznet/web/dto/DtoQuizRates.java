@@ -1,4 +1,4 @@
-package net.dreamfteam.quiznet.data.entities;
+package net.dreamfteam.quiznet.web.dto;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class QuizRates {
+public class DtoQuizRates {
     private String id;
 
     private String title;

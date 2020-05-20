@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao {
     public int deleteIfLinkExpired() {
         return jdbcTemplate
                 .update(DELETE_QUERY +
-                        " WHERE is_verified = 'false' and CURRENT_TIMESTAMP - date_acc_creation >= '1 DAY'");
+                        " WHERE is_verified = 'false' and current_timestamp at time zone 'EETDST'  - date_acc_creation >= '1 DAY'");
     }
 
 
