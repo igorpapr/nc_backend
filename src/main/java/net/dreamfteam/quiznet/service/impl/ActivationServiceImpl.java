@@ -68,7 +68,7 @@ public class ActivationServiceImpl implements ActivationService {
             throw new ValidationException("Your profile is not activated");
         }
 
-        user.setOnline(true);
+        user.setLastTimeOnline(new Date());
         userService.update(user);
 
         return tokenProvider.provideToken(user.getUsername());
