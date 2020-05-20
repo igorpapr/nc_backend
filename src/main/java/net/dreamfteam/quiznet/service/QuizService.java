@@ -2,9 +2,7 @@ package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import net.dreamfteam.quiznet.web.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -48,9 +46,9 @@ public interface QuizService {
 
     List<QuizView> getQuizzes(int startIndex, int amount);
 
-    List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
+    List<DtoQuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
-    List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
+    List<DtoQuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
@@ -58,7 +56,7 @@ public interface QuizService {
 
     List<QuizFiltered> shortListOfQuizzes();
 
-    List<QuizRates> getUserQuizzesRating();
+    List<DtoQuizRates> getUserQuizzesRating();
 
     List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
@@ -74,7 +72,9 @@ public interface QuizService {
 
     List<Quiz> getUserFavouriteList(String userId);
 
-    List<QuizLastPlayed> getLastPlayedQuizzes();
+    List<DtoQuizLastPlayed> getLastPlayedQuizzes();
+
+    List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount);
 
 
 }

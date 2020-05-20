@@ -1,4 +1,4 @@
-package net.dreamfteam.quiznet.data.entities;
+package net.dreamfteam.quiznet.web.dto;
 
 import lombok.*;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class QuizValid {
+public class DtoQuizValid {
 
     private String id;
 

@@ -1,4 +1,4 @@
-package net.dreamfteam.quiznet.data.entities;
+package net.dreamfteam.quiznet.web.dto;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.util.Date;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class QuizLastPlayed {
+public class DtoQuizLastPlayed {
     private String gameId;
 
     private String quizId;

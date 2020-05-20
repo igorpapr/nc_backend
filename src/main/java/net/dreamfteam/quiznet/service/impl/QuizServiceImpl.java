@@ -232,12 +232,12 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
+    public List<DtoQuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
         return quizDao.getInvalidQuizzes(startIndex, amount, adminId);
     }
 
     @Override
-    public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
+    public List<DtoQuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         return quizDao.getValidQuizzes(startIndex, amount, adminId);
     }
 
@@ -269,8 +269,13 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizLastPlayed> getLastPlayedQuizzes() {
+    public List<DtoQuizLastPlayed> getLastPlayedQuizzes() {
         return quizDao.getLastPlayedQuizzes(authenticationFacade.getUserId());
+    }
+
+    @Override
+    public List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount) {
+        return quizDao.getMostPopularQuizzesForLastWeek(amount);
     }
 
     @Override
@@ -290,7 +295,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<QuizRates> getUserQuizzesRating() {
+    public List<DtoQuizRates> getUserQuizzesRating() {
         return quizDao.getUserQuizzesRating(authenticationFacade.getUserId());
     }
 
