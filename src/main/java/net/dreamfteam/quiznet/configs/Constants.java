@@ -87,5 +87,4 @@ public class Constants {
     public static final int ACHIEVEMENT_POPULAR_CREATOR_ID = 12;
     public static final int ACHIEVEMENT_EXTREMELY_POPULAR_ID = 13;
     public static final int ACHIEVEMENT_MASTERPIECE_CREATOR_ID = 14;
-
 }
