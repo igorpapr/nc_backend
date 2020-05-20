@@ -60,6 +60,14 @@ public class AchievementDaoImpl implements AchievementDao {
 		}
 	}
 
+    @Override
+    public List<UserAchievement> getUserAchievementsLastWeek(String userId) {
+        return jdbcTemplate.query(
+                "SELECT a.achievement_id, a.title, a.description, image_content, category_id, datetime_gained, times_gained" +
+                "FROM achievements a INNER JOIN users_achievements u ON u.achievement_id = a.achievement_id" +
+                "WHERE user_id = UUID(?)" + "ORDER BY datetime_gained", new Object[]{userId},
+                new UserAchievementMapper());
+    }
 	@Override
 	public UserAchievement getUserAchievementByIds(String userId, int achievementId) {
 		try{

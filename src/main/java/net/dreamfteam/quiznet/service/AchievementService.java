@@ -10,7 +10,9 @@ public interface AchievementService {
 
 	void checkQuizCreationAchievements(String userId);
 
-	List<UserAchievement> getUserAchievements(String userId);
+    List<UserAchievement> getUserAchievements(String userId);
+
+    List<UserAchievement> getUserAchievementsLastWeek();
 
 	void checkOnStartGameAchievements(String gameId);
 

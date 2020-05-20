@@ -290,4 +290,16 @@ public class QuizController {
 
         return new ResponseEntity<>(quizService.getUserFavouriteList(authenticationFacade.getUserId()), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/rating")
+    public ResponseEntity<?> getUserQuizzesRating() throws ValidationException {
+        return new ResponseEntity<>(quizService.getUserQuizzesRating(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/last-played")
+    public ResponseEntity<?> getLastPlayedQuizzes() throws ValidationException {
+        return new ResponseEntity<>(quizService.getLastPlayedQuizzes(), HttpStatus.OK);
+    }
 }

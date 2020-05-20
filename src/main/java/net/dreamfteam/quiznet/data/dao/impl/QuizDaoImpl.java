@@ -5,7 +5,6 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.data.rowmappers.QuizFilteredMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
-import net.dreamfteam.quiznet.data.rowmappers.QuizViewMapper;
 import net.dreamfteam.quiznet.web.dto.DtoQuiz;
 import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,8 +286,8 @@ public class QuizDaoImpl implements QuizDao {
         }
         System.out.println("FILTERED");
         try {
-            List<QuizFiltered> quizList = jdbcTemplate.query(sql, new Object[]{amount, startIndex},
-                                                            new QuizFilteredMapper());
+            List<QuizFiltered> quizList =
+                    jdbcTemplate.query(sql, new Object[]{amount, startIndex}, new QuizFilteredMapper());
 
             return quizList;
         } catch (EmptyResultDataAccessException e) {
@@ -298,8 +297,7 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
-        String sql = "SELECT COUNT(*) " +
-                     "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+        String sql = "SELECT COUNT(*) " + "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                      "WHERE activated = true AND validated = true AND ";
         if (quizFilter.getQuizName() != null) {
             sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
@@ -508,27 +506,35 @@ public class QuizDaoImpl implements QuizDao {
     public List<Quiz> getUserQuizList(String userId, String thisUserId) {
         try {
             return jdbcTemplate.query("SELECT q.quiz_id, title, description, image, " +
-                            "ver_creation_datetime, activated, validated, published, " +
-                            "quiz_lang , rating, admin_commentary,  f.liked  " +
-                            "FROM quizzes as q left join " +
-                            "(select count(*) as liked, quiz_id  " +
-                            "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
-                            " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by validated, activated desc, published desc ",
+                                      "ver_creation_datetime, activated, validated, published, " +
+                                      "quiz_lang , rating, admin_commentary,  f.liked  " +
+                                      "FROM quizzes as q left join " + "(select count(*) as liked, quiz_id  " +
+                                      "from favourite_quizzes where user_id=uuid(?) group by quiz_id)" +
+                                      " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) order by validated, activated desc, published desc ",
 
-                    new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
-                            .id(rs.getString("quiz_id"))
-                            .title(rs.getString("title"))
-                            .description(rs.getString("description"))
-                            .imageContent(rs.getBytes("image"))
-                            .creationDate(rs.getDate("ver_creation_datetime"))
-                            .activated(rs.getBoolean("activated"))
-                            .validated(rs.getBoolean("validated"))
-                            .published(rs.getBoolean("published"))
-                            .language(rs.getString("quiz_lang"))
-                            .rating(rs.getFloat("rating"))
-                            .adminComment(rs.getString("admin_commentary"))
-                            .isFavourite(rs.getInt("liked") > 0)
-                            .build());
+                                      new Object[]{thisUserId, userId}, (rs, i) -> Quiz.builder()
+                                                                                       .id(rs.getString("quiz_id"))
+                                                                                       .title(rs.getString("title"))
+                                                                                       .description(rs.getString(
+                                                                                               "description"))
+                                                                                       .imageContent(
+                                                                                               rs.getBytes("image"))
+                                                                                       .creationDate(rs.getDate(
+                                                                                               "ver_creation_datetime"))
+                                                                                       .activated(rs.getBoolean(
+                                                                                               "activated"))
+                                                                                       .validated(rs.getBoolean(
+                                                                                               "validated"))
+                                                                                       .published(rs.getBoolean(
+                                                                                               "published"))
+                                                                                       .language(rs.getString(
+                                                                                               "quiz_lang"))
+                                                                                       .rating(rs.getFloat("rating"))
+                                                                                       .adminComment(rs.getString(
+                                                                                               "admin_commentary"))
+                                                                                       .isFavourite(
+                                                                                               rs.getInt("liked") > 0)
+                                                                                       .build());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -537,21 +543,22 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<Quiz> getUserFavouriteList(String userId) {
         return jdbcTemplate.query("select  quiz_id, title, description, image," +
-                        "ver_creation_datetime, activated, validated, published," +
-                        "quiz_lang , rating  from quizzes where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?)) order by rating desc, published desc, activated desc ", new Object[]{userId},
-                (rs, i) -> Quiz.builder()
-                        .id(rs.getString("quiz_id"))
-                        .title(rs.getString("title"))
-                        .description(rs.getString("description"))
-                        .imageContent(rs.getBytes("image"))
-                        .creationDate(rs.getDate("ver_creation_datetime"))
-                        .activated(rs.getBoolean("activated"))
-                        .validated(rs.getBoolean("validated"))
-                        .published(rs.getBoolean("published"))
-                        .language(rs.getString("quiz_lang"))
-                        .rating(rs.getFloat("rating"))
-                        .isFavourite(true)
-                        .build());
+                                  "ver_creation_datetime, activated, validated, published," +
+                                  "quiz_lang , rating  from quizzes where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?)) order by rating desc, published desc, activated desc ",
+                                  new Object[]{userId}, (rs, i) -> Quiz.builder()
+                                                                       .id(rs.getString("quiz_id"))
+                                                                       .title(rs.getString("title"))
+                                                                       .description(rs.getString("description"))
+                                                                       .imageContent(rs.getBytes("image"))
+                                                                       .creationDate(
+                                                                               rs.getDate("ver_creation_datetime"))
+                                                                       .activated(rs.getBoolean("activated"))
+                                                                       .validated(rs.getBoolean("validated"))
+                                                                       .published(rs.getBoolean("published"))
+                                                                       .language(rs.getString("quiz_lang"))
+                                                                       .rating(rs.getFloat("rating"))
+                                                                       .isFavourite(true)
+                                                                       .build());
     }
 
 
@@ -578,33 +585,32 @@ public class QuizDaoImpl implements QuizDao {
     public List<QuizFiltered> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount) {
         try {
             String sql = "SELECT DISTINCT q1.quiz_id, q1.title, q1.image, q1.rating " +
-                    "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
-                    "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
-                    "WHERE (category_id IN (SELECT cq.category_id " +
-                    // 3 categories with most of games played by the user
-                    "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
-                    "                                                           ON g.game_id = ug.game_id) " +
-                    "                                                           ON g.quiz_id = cq.quiz_id " +
-                    "                        WHERE ug.user_id = uuid(?) " + //UserId here
-                    "                        GROUP BY cq.category_id " +
-                    "                        ORDER BY COUNT(g.game_id) DESC " +
-                    "                        LIMIT 3) " +
-                    "      OR qt1.tag_id IN (SELECT qt3.tag_id " + //3 tags with most of games played by the user
-                    "                        FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
-                    "                                                          ON g3.game_id = ug3.game_id) " +
-                    "                                                          ON g3.quiz_id = qt3.quiz_id " +
-                    "                        WHERE ug3.user_id = uuid(?) " + //Same userId here
-                    "                        GROUP BY qt3.tag_id " +
-                    "                        ORDER BY COUNT(g3.game_id) DESC" +
-                    "                        LIMIT 3) " +
-                    "      ) " + //excluding quizzes which the user has already played before
-                    "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
-                    "                            FROM games g2 INNER JOIN users_games ug2 " +
-                    "ON g2.game_id = ug2.game_id " +
-                    "                            WHERE ug2.user_id = uuid(?)) " +
-                    "      AND q1.activated = true " + //only available to play
-                    "ORDER BY q1.rating DESC " + //order by overall rating
-                    "LIMIT ?;"; //first X rows
+                         "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
+                         "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
+                         "WHERE (category_id IN (SELECT cq.category_id " +
+                         // 3 categories with most of games played by the user
+                         "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
+                         "                                                           ON g.game_id = ug.game_id) " +
+                         "                                                           ON g.quiz_id = cq.quiz_id " +
+                         "                        WHERE ug.user_id = uuid(?) " + //UserId here
+                         "                        GROUP BY cq.category_id " +
+                         "                        ORDER BY COUNT(g.game_id) DESC " +
+                         "                        LIMIT 3) " + "      OR qt1.tag_id IN (SELECT qt3.tag_id " +
+                         //3 tags with most of games played by the user
+                         "                        FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
+                         "                                                          ON g3.game_id = ug3.game_id) " +
+                         "                                                          ON g3.quiz_id = qt3.quiz_id " +
+                         "                        WHERE ug3.user_id = uuid(?) " + //Same userId here
+                         "                        GROUP BY qt3.tag_id " +
+                         "                        ORDER BY COUNT(g3.game_id) DESC" +
+                         "                        LIMIT 3) " + "      ) " +
+                         //excluding quizzes which the user has already played before
+                         "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
+                         "                            FROM games g2 INNER JOIN users_games ug2 " +
+                         "ON g2.game_id = ug2.game_id " + "                            WHERE ug2.user_id = uuid(?)) " +
+                         "      AND q1.activated = true " + //only available to play
+                         "ORDER BY q1.rating DESC " + //order by overall rating
+                         "LIMIT ?;"; //first X rows
             return jdbcTemplate.query(sql, new Object[]{userId, userId, userId, amount}, new QuizFilteredMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -706,16 +712,30 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public int getAmountSuccessCreated(String userId) {
         try {
-            return jdbcTemplate
-                    .queryForObject("SELECT COUNT(*) " +
-                                         "FROM quizzes " +
-                                         "WHERE creator_id = uuid(?) " +
-                                         "AND validated = true " +
-                                         "AND published = true;",
-                            new Object[]{userId}, Integer.class);
+            return jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) " + "FROM quizzes " + "WHERE creator_id = uuid(?) " + "AND validated = true " +
+                    "AND published = true;", new Object[]{userId}, Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
         }
+    }
+
+    @Override
+    public List<QuizLastPlayed> getLastPlayedQuizzes(String userId) {
+        return jdbcTemplate.query(
+                "SELECT q.quiz_id, duration_time, is_winner, score, datetime_start, q.title, g.game_id" +
+                "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id INNER JOIN quizzes q ON q.quiz_id = g.quiz_id" +
+                "WHERE user_id = UUID(?)" + "AND datetime_start > (NOW() - INTERVAL '7 DAY')" + "AND finished = TRUE;",
+                new Object[]{userId}, (resultSet, i) -> QuizLastPlayed.builder()
+                                                                      .quizId(resultSet.getString("quiz_id"))
+                                                                      .gameId(resultSet.getString("game_id"))
+                                                                      .durationTime(resultSet.getInt("duration_time"))
+                                                                      .isWinner(resultSet.getBoolean("is_winner"))
+                                                                      .score(resultSet.getInt("score"))
+                                                                      .datetimeStart(
+                                                                              resultSet.getDate("datetime_start"))
+                                                                      .title(resultSet.getString("title"))
+                                                                      .build());
     }
 
     public Question loadAnswersForQuestion(Question question, int i) {
@@ -743,6 +763,18 @@ public class QuizDaoImpl implements QuizDao {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public List<QuizRates> getUserQuizzesRating(String userId) {
+        return jdbcTemplate.query(
+                "SELECT quiz_id, title, image, rating FROM quizzes WHERE creator_id = UUID(?) ORDER BY rating",
+                new Object[]{userId}, (resultSet, i) -> QuizRates.builder()
+                                                                 .id(resultSet.getString("quiz_id"))
+                                                                 .title(resultSet.getString("title"))
+                                                                 .imageContent(resultSet.getBytes("image"))
+                                                                 .rating(resultSet.getDouble("rating"))
+                                                                 .build());
     }
 
     private List<String> loadTagNameList(String quizId) {
