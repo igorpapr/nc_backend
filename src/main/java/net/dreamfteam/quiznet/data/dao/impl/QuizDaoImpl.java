@@ -5,9 +5,8 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.data.rowmappers.QuizFilteredMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizMapper;
 import net.dreamfteam.quiznet.data.rowmappers.QuizValidMapper;
+import net.dreamfteam.quiznet.web.dto.*;
 import net.dreamfteam.quiznet.data.rowmappers.RatingMapper;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -340,7 +339,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
 
-    public List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
+    public List<DtoQuizValid> getValidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, q.image AS image_content, " +
                             "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, " +
@@ -619,7 +618,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
+    public List<DtoQuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId) {
         try {
             return jdbcTemplate.query("SELECT quiz_id, title, description, q.image AS image_content, " +
                             "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary " +
@@ -627,33 +626,33 @@ public class QuizDaoImpl implements QuizDao {
                             "WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) " +
                             "AND published = true LIMIT ? OFFSET ?;",
 
-                    new Object[]{adminId, amount, startIndex}, (rs, i) -> QuizValid.builder()
-                            .id(rs.getString(
+                    new Object[]{adminId, amount, startIndex}, (rs, i) -> DtoQuizValid.builder()
+                                                                                      .id(rs.getString(
                                     "quiz_id"))
-                            .title(rs.getString(
+                                                                                      .title(rs.getString(
                                     "title"))
-                            .description(
+                                                                                      .description(
                                     rs.getString(
                                             "description"))
-                            .imageContent(
+                                                                                      .imageContent(
                                     rs.getBytes(
                                             "image_content"))
-                            .creationDate(
+                                                                                      .creationDate(
                                     rs.getDate(
                                             "ver_creation_datetime"))
-                            .creatorId(
+                                                                                      .creatorId(
                                     rs.getString(
                                             "creator_id"))
-                            .username(
+                                                                                      .username(
                                     rs.getString(
                                             "username"))
-                            .language(
+                                                                                      .language(
                                     rs.getString(
                                             "quiz_lang"))
-                            .adminComment(
+                                                                                      .adminComment(
                                     rs.getString(
                                             "admin_commentary"))
-                            .build());
+                                                                                      .build());
 
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -722,7 +721,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizLastPlayed> getLastPlayedQuizzes(String userId) {
+    public List<DtoQuizLastPlayed> getLastPlayedQuizzes(String userId) {
         return jdbcTemplate.query(
                 "SELECT q.quiz_id, duration_time, is_winner, score, datetime_start, q.title, g.game_id " +
                         "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id INNER JOIN quizzes q " +
@@ -730,16 +729,29 @@ public class QuizDaoImpl implements QuizDao {
                         "WHERE user_id = UUID(?)" + "AND datetime_start > (NOW() - INTERVAL '7 DAY') " +
                         "AND finished = TRUE;",
                 new Object[]{userId},
-                (resultSet, i) -> QuizLastPlayed.builder()
-                        .quizId(resultSet.getString("quiz_id"))
-                        .gameId(resultSet.getString("game_id"))
-                        .durationTime(resultSet.getInt("duration_time"))
-                        .isWinner(resultSet.getBoolean("is_winner"))
-                        .score(resultSet.getInt("score"))
-                        .datetimeStart(
+                (resultSet, i) -> DtoQuizLastPlayed.builder()
+                                                   .quizId(resultSet.getString("quiz_id"))
+                                                   .gameId(resultSet.getString("game_id"))
+                                                   .durationTime(resultSet.getInt("duration_time"))
+                                                   .isWinner(resultSet.getBoolean("is_winner"))
+                                                   .score(resultSet.getInt("score"))
+                                                   .datetimeStart(
                                 resultSet.getDate("datetime_start"))
-                        .title(resultSet.getString("title"))
-                        .build());
+                                                   .title(resultSet.getString("title"))
+                                                   .build());
+    }
+
+    @Override
+    public List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount) {
+        return jdbcTemplate.query("SELECT g.quiz_id, q.title, COUNT(*) games_amount " +
+                                  "FROM quizzes q INNER JOIN games g ON g.quiz_id = q.quiz_id " +
+                                  "WHERE g.datetime_start > (NOW() - INTERVAL '7 DAY') " +
+                                  "GROUP BY g.quiz_id, q.title " + "ORDER BY games_amount DESC " + "LIMIT (?) ", new Object[]{amount},
+                                  (resultSet, i) -> DtoPopularQuiz.builder()
+                                                                  .quizId(resultSet.getString("quiz_id"))
+                                                                  .title(resultSet.getString("title"))
+                                                                  .gamesAmount(resultSet.getInt("games_amount"))
+                                                                  .build());
     }
 
     @Override
@@ -785,15 +797,15 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<QuizRates> getUserQuizzesRating(String userId) {
+    public List<DtoQuizRates> getUserQuizzesRating(String userId) {
         return jdbcTemplate.query(
-                "SELECT quiz_id, title, image, rating FROM quizzes WHERE creator_id = UUID(?) ORDER BY rating",
-                new Object[]{userId}, (resultSet, i) -> QuizRates.builder()
-                        .id(resultSet.getString("quiz_id"))
-                        .title(resultSet.getString("title"))
-                        .imageContent(resultSet.getBytes("image"))
-                        .rating(resultSet.getDouble("rating"))
-                        .build());
+                "SELECT quiz_id, title, image, rating FROM quizzes WHERE creator_id = UUID(?) ORDER BY rating DESC",
+                new Object[]{userId}, (resultSet, i) -> DtoQuizRates.builder()
+                                                                    .id(resultSet.getString("quiz_id"))
+                                                                    .title(resultSet.getString("title"))
+                                                                    .imageContent(resultSet.getBytes("image"))
+                                                                    .rating(resultSet.getDouble("rating"))
+                                                                    .build());
     }
 
     private List<String> loadTagNameList(String quizId) {

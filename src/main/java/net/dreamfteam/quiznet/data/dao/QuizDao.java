@@ -1,8 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.*;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import net.dreamfteam.quiznet.web.dto.*;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public interface QuizDao {
 
     List<QuizFiltered> getSuggestionsQuizListByCategoriesAndTags(String userId, int amount);
 
-    List<QuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
+    List<DtoQuizValid> getInvalidQuizzes(int startIndex, int amount, String adminId);
 
     int getQuizzesTotalSize();
 
@@ -66,7 +65,7 @@ public interface QuizDao {
 
     void removeQuestionImage(String questionId);
 
-    List<QuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
+    List<DtoQuizValid> getValidQuizzes(int startIndex, int amount, String adminId);
 
     int getInvalidQuizzesTotalSize();
 
@@ -76,11 +75,13 @@ public interface QuizDao {
 
     Question loadAnswersForQuestion(Question question, int i);
 
-    List<QuizRates> getUserQuizzesRating(String userId);
+    List<DtoQuizRates> getUserQuizzesRating(String userId);
 
     int getAmountSuccessCreated(String userId);
 
-    List<QuizLastPlayed> getLastPlayedQuizzes(String userId);
+    List<DtoQuizLastPlayed> getLastPlayedQuizzes(String userId);
+
+    List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount);
 
     List<Rating> getUserQuizRating(String quizId, String userId);
 
