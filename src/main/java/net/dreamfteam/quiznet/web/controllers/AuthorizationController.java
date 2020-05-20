@@ -62,7 +62,11 @@ public class AuthorizationController {
         }
 
         if (currentUser == null) {
-            throw new ValidationException("User not found with such username or email" + loginRequest.getUsername());
+            throw new ValidationException("User not found with such username or email " + loginRequest.getUsername());
+        }
+
+        if (!currentUser.isActivated()) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
         userService.checkCorrectPassword(currentUser, loginRequest.getPassword());
