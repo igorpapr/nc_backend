@@ -456,7 +456,8 @@ public class QuizDaoImpl implements QuizDao {
         try {
 
             List<Question> listQ = jdbcTemplate.query(
-                    "SELECT q.question_id, q.quiz_id, q.title, q.content, " + "q.image, q.points, q.type_id, q.img " +
+                    "SELECT q.question_id, q.quiz_id, q.title, q.content, " +
+                            "q.points, q.type_id, q.img " +
                             "FROM questions q WHERE q.quiz_id = UUID(?)",
 
                     new Object[]{quizId}, (rs, i) -> Question.builder()
@@ -464,7 +465,6 @@ public class QuizDaoImpl implements QuizDao {
                             .quizId(rs.getString("quiz_id"))
                             .title(rs.getString("title"))
                             .content(rs.getString("content"))
-                            .image(rs.getString("image"))
                             .points(rs.getInt("points"))
                             .typeId(rs.getInt("type_id"))
                             .imageContent(rs.getBytes("img"))
