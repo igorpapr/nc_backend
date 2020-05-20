@@ -9,7 +9,9 @@ import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
+import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,19 +25,22 @@ public class AchievementServiceImpl implements AchievementService {
 	private final QuizDao quizDao;
 	private final GameDao gameDao;
 	private final ActivitiesService activitiesService;
+	private final NotificationService notificationService;
 
 	
 	@Autowired
 	public AchievementServiceImpl(GameSessionDao gameSessionDao, AchievementDao achievementDao,
 								  ActivitiesService activitiesService, 
 								  QuizDao quizDao, GameDao gameDao,
-								  IAuthenticationFacade authenticationFacade) {
+								  IAuthenticationFacade authenticationFacade,
+	                              NotificationService notificationService) {
 		this.gameSessionDao = gameSessionDao;
 		this.achievementDao = achievementDao;
 		this.authenticationFacade = authenticationFacade;
 		this.quizDao = quizDao;
 		this.gameDao = gameDao;
 		this.activitiesService = activitiesService;
+		this.notificationService = notificationService;
 	}
 
 	@Override
@@ -140,26 +145,33 @@ public class AchievementServiceImpl implements AchievementService {
 
 	private void addAchievementForUser(String userId, int achievementId, boolean repeatable){
 		int resAssigning = 0;
-		if (repeatable){//For future use
+		if (repeatable){
 			resAssigning = achievementDao.assignAchievementRepeating(userId, achievementId);
 		} else {
 			resAssigning = achievementDao.assignAchievement(userId, achievementId);
 		}
 		if (resAssigning > 0){
-			//adding to notifications and activities
 			UserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
 			if(userAchievement != null){
 				DtoActivity activity = DtoActivity.builder()
 												  .activityType(ActivityType.ACHIEVEMENTS_RELATED)
 												  .userId(userId)
 												  .build();
+				DtoNotification notification = DtoNotification.builder()
+						.userId(userId).build();
 				if(userAchievement.getTimesGained() == 1){
-					activity.setContent("Got achievement: " + userAchievement.getTitle() + "!");
+					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");
+					notification.setContent("Congratulations! You've got the achievement: "
+							+ userAchievement.getTitle() + "!");
 				}else{
-					activity.setContent("Got achievement: " + userAchievement.getTitle() +
+					activity.setContent("Got the achievement: " + userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained()+ " times!");
+					notification.setContent("Congratulations! You've got the achievement: "
+							+ userAchievement.getTitle() +
+							" " + userAchievement.getTimesGained() + " times!");
 				}
 				activitiesService.addActivityForUser(activity);
+				notificationService.insert(notification);
 			}
 		}
 	}
