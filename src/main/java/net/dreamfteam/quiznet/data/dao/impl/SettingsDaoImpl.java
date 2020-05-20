@@ -64,4 +64,5 @@ public class SettingsDaoImpl implements SettingsDao {
                 "user_settings on settings.setting_id=user_settings.setting_id " +
                 "WHERE user_id=UUID(?);", new Object[]{userId}, new SettingMapper());
     }
+
 }

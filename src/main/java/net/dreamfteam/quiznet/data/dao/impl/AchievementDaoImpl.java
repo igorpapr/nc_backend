@@ -68,4 +68,21 @@ public class AchievementDaoImpl implements AchievementDao {
                 "WHERE user_id = UUID(?)" + "ORDER BY datetime_gained", new Object[]{userId},
                 new UserAchievementMapper());
     }
+	@Override
+	public UserAchievement getUserAchievementByIds(String userId, int achievementId) {
+		try{
+			return jdbcTemplate
+					.queryForObject("SELECT a.achievement_id, a.title, a.description, a.image_content, " +
+										"a.category_id, c.title AS category_title, " +
+										"ua.datetime_gained, ua.times_gained " +
+										"FROM achievements a INNER JOIN users_achievements ua ON a.achievement_id = ua.achievement_id " +
+										"LEFT JOIN categories c ON a.category_id = c.category_id " +
+										"WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;",
+					new Object[]{userId, achievementId}, new UserAchievementMapper());
+		}catch (EmptyResultDataAccessException | NullPointerException e){
+			System.err.println("Couldn't find user achievement info by userId: " + userId
+					+ ", and achievementId: " + achievementId);
+			return null;
+		}
+	}
 }

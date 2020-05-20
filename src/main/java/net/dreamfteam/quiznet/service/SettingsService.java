@@ -12,4 +12,6 @@ public interface SettingsService {
     void editSettings(List<DtoSettings> settings, String userId);
 
     List<Setting> getSettings(String userId);
+
+    Setting getLanguage(String userId);
 }
