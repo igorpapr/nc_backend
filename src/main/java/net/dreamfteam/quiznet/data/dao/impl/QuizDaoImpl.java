@@ -799,7 +799,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public List<DtoQuizRates> getUserQuizzesRating(String userId) {
         return jdbcTemplate.query(
-                "SELECT quiz_id, title, image, rating FROM quizzes WHERE creator_id = UUID(?) ORDER BY rating",
+                "SELECT quiz_id, title, image, rating FROM quizzes WHERE creator_id = UUID(?) ORDER BY rating DESC",
                 new Object[]{userId}, (resultSet, i) -> DtoQuizRates.builder()
                                                                     .id(resultSet.getString("quiz_id"))
                                                                     .title(resultSet.getString("title"))
