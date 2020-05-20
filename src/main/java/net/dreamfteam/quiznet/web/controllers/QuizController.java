@@ -309,4 +309,12 @@ public class QuizController {
 
         return new ResponseEntity<>(quizService.getMostPopularQuizzesForLastWeek(amount), HttpStatus.OK);
     }
+    
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/{quizId}/rating")
+    public ResponseEntity<?> getUserQuizzesRating(@PathVariable String quizId) throws ValidationException {
+        return new ResponseEntity<>(quizService.getUserQuizRating(quizId, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+
 }

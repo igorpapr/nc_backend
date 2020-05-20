@@ -113,4 +113,15 @@ public class GameServiceImpl implements GameService {
         return quizDao.loadAnswersForQuestion(gameDao.getQuestion(gameId), 0);
     }
 
+    @Override
+    public void rateGame(String gameSessionId, int rating, String userId) {
+        if(getGameById(gameSessionId) == null){
+            throw new ValidationException("No game with such id found, cannot rate the quiz");
+        }
+        quizDao.rateQuiz(gameSessionId, rating, userId);
+        quizDao.updateQuizRating(gameSessionId);
+
+    }
+
+
 }

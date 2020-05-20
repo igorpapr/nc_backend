@@ -82,4 +82,11 @@ public interface QuizDao {
     List<DtoQuizLastPlayed> getLastPlayedQuizzes(String userId);
 
     List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount);
+
+    List<Rating> getUserQuizRating(String quizId, String userId);
+
+    void rateQuiz(String sessionId, int ratingPoints, String userId);
+
+    void updateQuizRating(String quizId);
+
 }

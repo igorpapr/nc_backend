@@ -76,5 +76,6 @@ public interface QuizService {
 
     List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount);
 
+    Rating getUserQuizRating(String quizId, String userId);
 
 }

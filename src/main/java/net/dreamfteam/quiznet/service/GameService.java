@@ -4,7 +4,7 @@ import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 
-public interface GameService{
+public interface GameService {
     Game createGame(DtoGame game, String userId, String username);
 
     void updateGame(DtoGame game);
@@ -17,5 +17,6 @@ public interface GameService{
 
     Question getQuestion(String gameId);
 
+    void rateGame(String gameSessionId, int rating, String userId);
 
 }
