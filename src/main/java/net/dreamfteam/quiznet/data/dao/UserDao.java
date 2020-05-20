@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserDao {
 
-    String SELECT_QUERY = "SELECT user_id, email, password, username, is_online, is_activated, is_verified, last_time_online," +
+    String SELECT_QUERY = "SELECT user_id, email, password, username, CURRENT_TIMESTAMP - last_time_online <= '10 MINUTE' as is_online, is_activated, is_verified, last_time_online," +
             "image, about_me, recovery_url, recovery_sent_time, activation_url, date_acc_creation, role, roles.role_id " +
             "FROM users INNER JOIN roles ON users.role_id=roles.role_id\n";
 
