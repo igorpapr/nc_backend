@@ -3,7 +3,10 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
+import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
+import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
+import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 
 @Repository
@@ -118,6 +122,72 @@ public class GameDaoImpl implements GameDao {
         }
     }
 
+    //Get info about the number of games played by user of some category by given game id
+    @Override
+    public UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId) {
+        try {
+            UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
+                        "FROM users_games ug INNER JOIN games g1 ON ug.game_id = g1.game_id " +
+                        "    INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
+                            "INNER JOIN categories c ON cq1.category_id = c.category_id " +
+                        "WHERE cq1.category_id = " +
+                        "                  (SELECT category_id " +
+                        "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
+                        "                  WHERE game_id = uuid(?)) " +
+                        "      AND ug.user_id = uuid(?) " +
+                        "GROUP BY cq1.category_id, c.title;", new Object[]{gameId, userId},
+                    (rs, i) -> UserCategoryAchievementInfo.builder()
+                            .amountPlayed(rs.getInt("amount"))
+                            .categoryId(rs.getString("category_id"))
+                            .categoryTitle(rs.getString("title"))
+                            .build());
+            return info;
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
 
+    //For achievements: returns the number of all games with quizzes that created the creator of given gameId
+    @Override
+    public QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId) {
+        try {
+            QuizCreatorFullStatistics info = jdbcTemplate
+                    .queryForObject("SELECT COUNT(*) AS amount, q.creator_id AS creator " +
+                            "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
+                            "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
+                                                "FROM quizzes q1 " +
+                                                "WHERE q1.creator_id = (SELECT creator_id " +
+                                                                        "FROM quizzes qq INNER JOIN games gg " +
+                                                                        "ON qq.quiz_id = gg.quiz_id " +
+                                                                        "WHERE gg.game_id = uuid(?))) " +
+                                    "GROUP BY q.creator_id;",
+                    new Object[]{gameId},
+                            (rs, i) -> QuizCreatorFullStatistics.builder()
+                                    .creatorId(rs.getString("creator"))
+                                    .amountGamesPlayedAllQuizzes(rs.getInt("amount"))
+                                    .build());
+            return info;
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
+    }
 
+    @Override
+    public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
+        try{
+            return jdbcTemplate.query("SELECT ug.user_id, q.title " +
+                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                            "INNER JOIN quizzes q ON g.quiz_id = q.quiz_id " +
+                    "WHERE ug.game_id = uuid(?) AND " +
+                    "ug.is_winner = true",
+                    new Object[]{gameId},
+                    (rs, i) -> DtoGameWinner.builder()
+                                .userId(rs.getString("user_id"))
+                                .quizTitle(rs.getString("title"))
+                                .build());
+        }catch (EmptyResultDataAccessException | NullPointerException e){
+            return null;
+        }
+    }
 }

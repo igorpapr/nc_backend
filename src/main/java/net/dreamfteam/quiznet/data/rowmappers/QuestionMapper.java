@@ -15,7 +15,6 @@ public class QuestionMapper implements RowMapper<Question> {
                 .title(rs.getString("title"))
                 .content(rs.getString("content"))
                 .imageContent(rs.getBytes("img"))  // NOT A REFERENCE(REAL IMAGE)
-                .image(rs.getString("image"))
                 .points(rs.getInt("points"))
                 .typeId(rs.getInt("type_id"))
                 .build();

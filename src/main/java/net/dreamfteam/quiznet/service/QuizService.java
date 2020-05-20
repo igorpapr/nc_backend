@@ -54,9 +54,13 @@ public interface QuizService {
 
     List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount);
 
+    int findQuizzesFilterSize(DtoQuizFilter quizFilter);
+
     List<QuizFiltered> shortListOfQuizzes();
 
-    List<QuizView> getSuggestionsQuizList(String userId, int amount);
+    List<QuizRates> getUserQuizzesRating();
+
+    List<QuizFiltered> getSuggestionsQuizList(String userId, int amount);
 
     int getQuestionsAmountInQuiz(String quizId);
 
@@ -69,6 +73,8 @@ public interface QuizService {
     Quiz setValidator(String quizId, String adminId);
 
     List<Quiz> getUserFavouriteList(String userId);
+
+    List<QuizLastPlayed> getLastPlayedQuizzes();
 
 
 }

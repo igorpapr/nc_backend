@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivationService;
@@ -37,17 +38,16 @@ public class AuthorizationController {
     private String ACTIVATION_REDIRECT_URL;
 
     private final SettingsService settingsService;
-    private final IAuthenticationFacade authenticationFacade;
 
     final private UserService userService;
     final private ActivationService activationService;
 
     @Autowired
-    public AuthorizationController(UserService userService, ActivationService activationService, SettingsService settingsService, IAuthenticationFacade authenticationFacade) {
+    public AuthorizationController(UserService userService, ActivationService activationService,
+                                   SettingsService settingsService) {
         this.userService = userService;
         this.activationService = activationService;
         this.settingsService = settingsService;
-        this.authenticationFacade = authenticationFacade;
     }
 
     @PostMapping("/log-in")
@@ -78,7 +78,7 @@ public class AuthorizationController {
     public ResponseEntity<DtoUser> registerUser(@RequestBody DtoUserSignUp user) throws ValidationException {
         UserValidator.validate(user);
         User saved = userService.save(user.toUser());
-        settingsService.initSettings(saved.getId());
+        settingsService.initSettings(saved.getId(), Role.ROLE_USER);
         System.out.println(saved.getId());
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.CREATED);
     }

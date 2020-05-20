@@ -7,7 +7,9 @@ import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
+import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.GameService;
+import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +20,17 @@ public class GameServiceImpl implements GameService {
     private final GameDao gameDao;
     private final QuizDao quizDao;
     private final GameSessionDao gameSessionDao;
+    private final SseService sseService;
+    private final AchievementService achievementService;
 
     @Autowired
-    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, GameSessionDao gameSessionDao) {
+    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, GameSessionDao gameSessionDao, SseService sseService,
+                           AchievementService achievementService) {
         this.gameDao = gameDao;
         this.quizDao = quizDao;
         this.gameSessionDao = gameSessionDao;
+        this.sseService = sseService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -86,7 +93,10 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void startGame(String gameId) {
+        sseService.send(gameId,"start");
         gameDao.startGame(gameId);
+        //checking for achievements
+        achievementService.checkOnStartGameAchievements(gameId);
     }
 
     private void checkQuizExistance(String quizId) {

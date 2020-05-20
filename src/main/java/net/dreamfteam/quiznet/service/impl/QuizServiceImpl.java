@@ -1,13 +1,14 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.ImageService;
+import net.dreamfteam.quiznet.service.AchievementService;
+import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.QuizService;
-import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import net.dreamfteam.quiznet.web.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,12 +21,24 @@ import java.util.Map;
 @Service
 public class QuizServiceImpl implements QuizService {
 
-    private QuizDao quizDao;
+    private final QuizDao quizDao;
+    private final NotificationService notificationService;
+    private final ActivitiesService activitiesService;
+    private final IAuthenticationFacade authenticationFacade;
+    private final AchievementService achievementService;
 
 
     @Autowired
-    public QuizServiceImpl(QuizDao quizDao) {
+    public QuizServiceImpl(QuizDao quizDao, 
+                           NotificationService notificationService,
+                           ActivitiesService activitiesService, 
+                           IAuthenticationFacade authenticationFacade, 
+                           AchievementService achievementService) {
         this.quizDao = quizDao;
+        this.notificationService = notificationService;
+        this.activitiesService = activitiesService;
+        this.authenticationFacade = authenticationFacade;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -116,7 +129,22 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
-        quizDao.validateQuiz(quiz);
+        //adding notification
+        notificationService.insert(DtoNotification.builder()
+                                                  .content("Your quiz "+ quiz.getTitle()+" was validated")
+                                                  .userId(quiz.getCreatorId())
+                                                  .build());
+        if(quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()){
+            //adding activity
+            DtoActivity activity = DtoActivity.builder()
+                    .content("Successfully created a quiz - \"" + quiz.getTitle() +"\". It is playable now.")
+                    .activityType(ActivityType.VALIDATION_RELATED)
+                    .userId(quiz.getCreatorId())
+                    .build();
+            activitiesService.addActivityForUser(activity);
+            //checking achievements
+            achievementService.checkQuizCreationAchievements(quiz.getCreatorId());
+        }
     }
 
     @Override
@@ -241,19 +269,33 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public List<QuizLastPlayed> getLastPlayedQuizzes() {
+        return quizDao.getLastPlayedQuizzes(authenticationFacade.getUserId());
+    }
+
+    @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }
 
     @Override
-    public List<QuizFiltered> shortListOfQuizzes() {
-        DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
-        List<QuizFiltered> shortList = quizDao.findQuizzesByFilter(quizFilter, 0, 10);
-        return shortList;
+    public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
+        return quizDao.findQuizzesFilterSize(quizFilter);
     }
 
     @Override
-    public List<QuizView> getSuggestionsQuizList(String userId, int amount) {
+    public List<QuizFiltered> shortListOfQuizzes() {
+        DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
+        return quizDao.findQuizzesByFilter(quizFilter, 0, 5);
+    }
+
+    @Override
+    public List<QuizRates> getUserQuizzesRating() {
+        return quizDao.getUserQuizzesRating(authenticationFacade.getUserId());
+    }
+
+    @Override
+    public List<QuizFiltered> getSuggestionsQuizList(String userId, int amount) {
         return quizDao.getSuggestionsQuizListByCategoriesAndTags(userId, amount);
     }
 

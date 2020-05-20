@@ -17,4 +17,5 @@ public class DtoQuizFilter {
     private List<String> tags; // Tags list
     private List<String> categories; // Categories list
     private Boolean orderByRating;
+    private String quizLang; // Filter quizzes by language
 }

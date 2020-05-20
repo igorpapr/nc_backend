@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.SETTING_URLS)
@@ -27,26 +29,24 @@ public class SettingsController {
 
     }
 
-    @PreAuthorize("hasAnyRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping
-    public ResponseEntity<?> setSettings(@RequestBody DtoSettings dtoSettings) throws ValidationException {
+    public ResponseEntity<?> setSettings(@RequestBody List<DtoSettings> dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
-        return new ResponseEntity<>(settingsService.editSettings(dtoSettings), HttpStatus.OK);
+        settingsService.editSettings(dtoSettings, authenticationFacade.getUserId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
-    @PreAuthorize("hasAnyRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping
     public ResponseEntity<?> getSettings() throws ValidationException {
         return new ResponseEntity<>(settingsService.getSettings(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER')")
-    @PostMapping("/init")
-    public ResponseEntity<?> initSettings() throws ValidationException {
-        settingsService.initSettings(authenticationFacade.getUserId());
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("language")
+    public ResponseEntity<?> getLanguage(){
+        return new ResponseEntity<>(settingsService.getLanguage(authenticationFacade.getUserId()), HttpStatus.OK);
     }
-
-
 }
