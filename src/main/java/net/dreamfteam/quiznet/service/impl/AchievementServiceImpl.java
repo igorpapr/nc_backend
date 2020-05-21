@@ -163,12 +163,17 @@ public class AchievementServiceImpl implements AchievementService {
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() + "!");
+					notification.setContentUk("Вітання! Ви отримали ачівмент: "
+							+ userAchievement.getTitle() + "!");
 				}else{
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained()+ " times!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained() + " times!");
+					notification.setContentUk("Вітання! Ви отримали ачівмент: "
+							+ userAchievement.getTitle() +
+							" " + userAchievement.getTimesGained() + " разів!");
 				}
 				activitiesService.addActivityForUser(activity);
 				notificationService.insert(notification);

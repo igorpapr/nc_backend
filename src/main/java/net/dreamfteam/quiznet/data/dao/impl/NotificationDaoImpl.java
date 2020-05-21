@@ -26,20 +26,23 @@ public class NotificationDaoImpl implements NotificationDao {
 
     @Override
     public List<Notification> getUnseenByUserId(String userId) {
-        List<Notification> res = jdbcTemplate.query(
-                "SELECT * " +
-                        "FROM user_notifications " +
-                        "WHERE seen = false AND user_id = UUID(?)",
+        return jdbcTemplate.query(
+                "SELECT CASE value WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
+                        "notif_id, n.user_id, date_time, seen " +
+                        "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
+                        "WHERE seen = false AND n.user_id = UUID(?) " +
+                        "AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
                 new Object[]{userId}, new NotificationMapper());
-        return res;
     }
 
     @Override
     public Notification getById(String notifId) {
         return jdbcTemplate.queryForObject(
-                "SELECT * " +
-                        "FROM user_notifications " +
-                        "WHERE notif_id = UUID(?);", new Object[]{notifId}, new NotificationMapper());
+                "SELECT CASE value WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
+                        "notif_id, n.user_id, date_time, seen " +
+                        "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
+                        "WHERE notif_id = UUID(?) AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416';",
+                new Object[]{notifId}, new NotificationMapper());
     }
 
     @Override

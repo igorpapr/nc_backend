@@ -129,11 +129,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public void validateQuiz(DtoQuiz quiz) {
-        //adding notification
-        notificationService.insert(DtoNotification.builder()
-                .content("Your quiz " + quiz.getTitle() + " was validated")
-                .userId(quiz.getCreatorId())
-                .build());
+
         if (quizDao.validateQuiz(quiz) > 0 && quiz.isValidated()) {
             //adding activity
             DtoActivity activity = DtoActivity.builder()
@@ -145,6 +141,13 @@ public class QuizServiceImpl implements QuizService {
             //checking achievements
             achievementService.checkQuizCreationAchievements(quiz.getCreatorId());
         }
+
+        //adding notification
+        notificationService.insert(DtoNotification.builder()
+                .content("Your quiz " + quiz.getTitle() + " was validated")
+                .contentUk("Ваш квіз " + quiz.getTitle() + " був провалідований")
+                .userId(quiz.getCreatorId())
+                .build());
     }
 
     @Override
