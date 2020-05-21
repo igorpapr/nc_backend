@@ -346,7 +346,7 @@ public class QuizDaoImpl implements QuizDao {
                             "published, activated " +
                             "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                             "WHERE validated = true AND validator_id = UUID(?)" +
-                            "ORDER BY ver_creation_datetime DESC " +
+                            "ORDER BY validation_date DESC " +
                             "LIMIT ? OFFSET ?;",
                     new Object[]{adminId, amount, startIndex}, new QuizValidMapper());
         } catch (EmptyResultDataAccessException e) {
