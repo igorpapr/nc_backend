@@ -194,11 +194,11 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public List<DtoGameCount> getGamesAmountForDay() {
-        return jdbcTemplate.query("SELECT dt_start, COUNT(*) amount" +
-                                        "FROM (SELECT DATE(datetime_start) as dt_start" +
-                                              "FROM games) dts" +
-                                        "GROUP BY dt_start" +
-                                        "ORDER BY dt_start", (rs,i) -> DtoGameCount.builder()
+        return jdbcTemplate.query("SELECT dt_start, COUNT(*) amount " +
+                                        "FROM (SELECT DATE(datetime_start) as dt_start " +
+                                              "FROM games) dts " +
+                                        "GROUP BY dt_start " +
+                                        "ORDER BY dt_start ", (rs,i) -> DtoGameCount.builder()
                                                                                    .date(rs.getDate("dt_start"))
                                                                                    .gamesAmount(rs.getInt("amount"))
                                                                                    .build());
