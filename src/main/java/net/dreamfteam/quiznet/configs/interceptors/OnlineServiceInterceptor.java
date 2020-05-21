@@ -28,8 +28,9 @@ public class OnlineServiceInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (authenticationFacade.getUserId() != null) {
-            User currentUser = userService.getById(authenticationFacade.getUserId());
+        String userId = authenticationFacade.getUserId();
+        if (userId != null && !userId.startsWith("-")) {
+            User currentUser = userService.getById(userId);
             currentUser.setLastTimeOnline(new Date());
             userService.update(currentUser);
         }
