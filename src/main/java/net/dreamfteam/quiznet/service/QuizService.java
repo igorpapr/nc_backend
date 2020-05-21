@@ -78,4 +78,7 @@ public interface QuizService {
 
     Rating getUserQuizRating(String quizId, String userId);
 
+    int countValidatedQuizzesByAdmin();
+
+    int countValidatedQuizzesByModerator();
 }

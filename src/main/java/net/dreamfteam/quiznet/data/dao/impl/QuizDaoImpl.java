@@ -769,6 +769,28 @@ public class QuizDaoImpl implements QuizDao {
         jdbcTemplate.update("update quizzes set rating = (select sum(rating_points)/count(*) from user_quiz_rating where quiz_id =(select quiz_id from games where game_id=uuid(?))) where quiz_id =(select quiz_id from games where game_id=uuid(?))", quizId, quizId);
     }
 
+    @Override
+    public int countValidatedQuizzesByAdmin() {
+        Integer result = jdbcTemplate.queryForObject("SELECT count(*) FROM quizzes " +
+                        "JOIN users u ON quizzes.validator_id = u.user_id " +
+                        "WHERE role_id = 3 and CURRENT_TIMESTAMP - validation_date <= '7 DAY' ",
+                Integer.class);
+        if (result == null) {
+            return 0;
+        } else return result;
+    }
+
+    @Override
+    public int countValidatedQuizzesByModerator() {
+        Integer result = jdbcTemplate.queryForObject("SELECT count(*) FROM quizzes " +
+                        "JOIN users u ON quizzes.validator_id = u.user_id " +
+                        "WHERE role_id = 2 and CURRENT_TIMESTAMP - validation_date <= '7 DAY' ",
+                Integer.class);
+        if (result == null) {
+            return 0;
+        } else return result;
+    }
+
     public Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):

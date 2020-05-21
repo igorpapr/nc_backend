@@ -89,4 +89,7 @@ public interface QuizDao {
 
     void updateQuizRating(String quizId);
 
+    int countValidatedQuizzesByAdmin();
+
+    int countValidatedQuizzesByModerator();
 }

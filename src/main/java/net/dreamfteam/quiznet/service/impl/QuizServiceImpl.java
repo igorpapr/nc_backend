@@ -288,6 +288,16 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public int countValidatedQuizzesByAdmin() {
+        return quizDao.countValidatedQuizzesByAdmin();
+    }
+
+    @Override
+    public int countValidatedQuizzesByModerator() {
+        return quizDao.countValidatedQuizzesByModerator();
+    }
+
+    @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }
