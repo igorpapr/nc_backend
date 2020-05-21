@@ -11,8 +11,11 @@ import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
+import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class GameServiceImpl implements GameService {
@@ -121,6 +124,11 @@ public class GameServiceImpl implements GameService {
         quizDao.rateQuiz(gameSessionId, rating, userId);
         quizDao.updateQuizRating(gameSessionId);
 
+    }
+
+    @Override
+    public List<DtoGameCount> getGamesAmountForDay() {
+        return gameDao.getGamesAmountForDay();
     }
 
 

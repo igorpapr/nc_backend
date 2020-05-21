@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
+import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface GameDao {
     QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId);
 
     List<DtoGameWinner> getWinnersOfTheGame(String gameId);
+
+    List<DtoGameCount> getGamesAmountForDay();
 }

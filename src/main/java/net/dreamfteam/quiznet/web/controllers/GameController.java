@@ -119,5 +119,11 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/amount-per-day")
+    public ResponseEntity<?> getGamesAmountForDay() {
+        return new ResponseEntity<>(gameService.getGamesAmountForDay(), HttpStatus.OK);
+    }
+
 
 }

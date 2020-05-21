@@ -6,6 +6,7 @@ import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.QuizCreatorFullStatistics;
 import net.dreamfteam.quiznet.data.entities.UserCategoryAchievementInfo;
 import net.dreamfteam.quiznet.data.rowmappers.GameMapper;
+import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,5 +190,17 @@ public class GameDaoImpl implements GameDao {
         }catch (EmptyResultDataAccessException | NullPointerException e){
             return null;
         }
+    }
+
+    @Override
+    public List<DtoGameCount> getGamesAmountForDay() {
+        return jdbcTemplate.query("SELECT dt_start, COUNT(*) amount" +
+                                        "FROM (SELECT DATE(datetime_start) as dt_start" +
+                                              "FROM games) dts" +
+                                        "GROUP BY dt_start" +
+                                        "ORDER BY dt_start", (rs,i) -> DtoGameCount.builder()
+                                                                                   .date(rs.getDate("dt_start"))
+                                                                                   .gamesAmount(rs.getInt("amount"))
+                                                                                   .build());
     }
 }
