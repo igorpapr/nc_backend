@@ -795,6 +795,31 @@ public class QuizDaoImpl implements QuizDao {
         } else return result;
     }
 
+    @Override
+    public int getQuizzesNumber() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM quizzes", new Object[]{}, Integer.class);
+    }
+
+    @Override
+    public int getActivatedNumber() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM quizzes WHERE activated = true", new Object[]{}, Integer.class);
+    }
+
+    @Override
+    public int getPublishedNumber() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM quizzes WHERE published = true", new Object[]{}, Integer.class);
+    }
+
+    @Override
+    public int getRejectedNumber() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM quizzes WHERE validated = true AND activated = false", new Object[]{}, Integer.class);
+    }
+
+    @Override
+    public int getUnvalidatedNumber() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM quizzes WHERE validated = false", new Object[]{}, Integer.class);
+    }
+
     public Question loadAnswersForQuestion(Question question, int i) {
         switch (question.getTypeId()) {
             case (1):

@@ -81,4 +81,6 @@ public interface QuizService {
     int countValidatedQuizzesByAdmin();
 
     int countValidatedQuizzesByModerator();
+
+    DtoQuizzesStatuses getQuizStatusesData();
 }
