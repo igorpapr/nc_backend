@@ -35,9 +35,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void insert(DtoNotification dtoNotification) {
         Notification notification = Notification.builder()
-                                                .content(dtoNotification.getContent())
-                                                .userId(dtoNotification.getUserId())
-                                                .build();
+                .content(dtoNotification.getContent())
+                .contentUk(dtoNotification.getContentUk())
+                .userId(dtoNotification.getUserId())
+                .build();
 
 
         sseService.send(dtoNotification.getUserId(), "sent", notificationDao.insert(notification));
