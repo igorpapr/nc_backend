@@ -333,7 +333,7 @@ public class QuizController {
         return new ResponseEntity<>(statistic, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("/statuses")
     public ResponseEntity<?> getQuizStatusesStatistic() {
         return new ResponseEntity<>(quizService.getQuizStatusesData(), HttpStatus.OK);
