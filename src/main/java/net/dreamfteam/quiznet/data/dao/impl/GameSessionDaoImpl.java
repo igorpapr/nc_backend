@@ -62,7 +62,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
             name = name + "(Another)";
         }
 
-        if (gameHasAvailableSlots(accessId)) {
+        if (!gameHasAvailableSlots(accessId)) {
             throw new ValidationException("Sorry, no slots are available");
         }
 
