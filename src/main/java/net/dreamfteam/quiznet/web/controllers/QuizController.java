@@ -8,10 +8,7 @@ import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.UserService;
-import net.dreamfteam.quiznet.web.dto.DtoAdminStatistic;
-import net.dreamfteam.quiznet.web.dto.DtoEditQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuiz;
-import net.dreamfteam.quiznet.web.dto.DtoQuizFilter;
+import net.dreamfteam.quiznet.web.dto.*;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -336,4 +333,9 @@ public class QuizController {
         return new ResponseEntity<>(statistic, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/statuses")
+    public ResponseEntity<?> getQuizStatusesStatistic() {
+        return new ResponseEntity<>(quizService.getQuizStatusesData(), HttpStatus.OK);
+    }
 }

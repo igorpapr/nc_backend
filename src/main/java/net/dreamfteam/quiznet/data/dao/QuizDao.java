@@ -92,4 +92,14 @@ public interface QuizDao {
     int countValidatedQuizzesByAdmin();
 
     int countValidatedQuizzesByModerator();
+
+    int getQuizzesNumber();
+
+    int getActivatedNumber();
+
+    int getPublishedNumber();
+
+    int getRejectedNumber();
+
+    int getUnvalidatedNumber();
 }

@@ -301,6 +301,18 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public DtoQuizzesStatuses getQuizStatusesData() {
+        DtoQuizzesStatuses statuses = DtoQuizzesStatuses.builder()
+                .total(quizDao.getQuizzesNumber())
+                .activated(quizDao.getActivatedNumber())
+                .published(quizDao.getPublishedNumber())
+                .rejected(quizDao.getRejectedNumber())
+                .unvalidated(quizDao.getUnvalidatedNumber())
+                .build();
+        return statuses;
+    }
+
+    @Override
     public List<QuizFiltered> findQuizzesByFilter(DtoQuizFilter quizFilter, int startIndex, int amount) {
         return quizDao.findQuizzesByFilter(quizFilter, startIndex, amount);
     }
