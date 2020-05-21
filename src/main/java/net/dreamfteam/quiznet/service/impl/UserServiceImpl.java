@@ -9,8 +9,10 @@ import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.MailService;
+import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
+import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,21 +30,23 @@ public class UserServiceImpl implements UserService {
     @Value("${reg.url.activate}")
     private String REG_URL_ACTIVATE;
 
-    final private MailService mailService;
-    final private BCryptPasswordEncoder bCryptPasswordEncoder;
-    final private UserDao userDao;
-    final private ActivitiesService activitiesService;
-    final private IAuthenticationFacade authenticationFacade;
+    private final MailService mailService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserDao userDao;
+    private final ActivitiesService activitiesService;
+    private final  IAuthenticationFacade authenticationFacade;
+    private final NotificationService notificationService;
 
     @Autowired
     public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
                            UserDao userDao, ActivitiesService activitiesService,
-                           IAuthenticationFacade authenticationFacade) {
+                           IAuthenticationFacade authenticationFacade, NotificationService notificationService) {
         this.mailService = mailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userDao = userDao;
         this.activitiesService = activitiesService;
         this.authenticationFacade = authenticationFacade;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -207,6 +211,14 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
         userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite);
+
+        String parentUsername = getById(parentId).getUsername();
+        //adding notification
+        notificationService.insert(DtoNotification.builder()
+                .content("You've got a friend request from " + parentUsername)
+                .contentUk("Ви отримали запит на дружбу від "+ parentUsername)
+                .userId(targetId)
+                .build());
     }
 
     @Override

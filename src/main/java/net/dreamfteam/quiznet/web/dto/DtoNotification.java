@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class DtoNotification {
     private String content;
+    private String contentUk;
     private String userId;
 }
