@@ -277,7 +277,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void rejectInvitation(String parentId, String targetId) {
         jdbcTemplate.update("DELETE FROM friends " +
-                "WHERE parent_id = uuid(?) AND friend_id = uuid(?)", targetId, parentId);
+                "WHERE parent_id = uuid(?) AND friend_id = uuid(?)", parentId, targetId);
     }
 
     @Override
