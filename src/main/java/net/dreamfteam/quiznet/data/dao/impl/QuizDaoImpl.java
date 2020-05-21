@@ -345,7 +345,9 @@ public class QuizDaoImpl implements QuizDao {
                             "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary, " +
                             "published, activated " +
                             "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
-                            "WHERE validated = true AND validator_id = UUID(?) LIMIT ? OFFSET ?;",
+                            "WHERE validated = true AND validator_id = UUID(?)" +
+                            "ORDER BY ver_creation_datetime DESC " +
+                            "LIMIT ? OFFSET ?;",
                     new Object[]{adminId, amount, startIndex}, new QuizValidMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -624,7 +626,9 @@ public class QuizDaoImpl implements QuizDao {
                             "ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary " +
                             "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                             "WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) " +
-                            "AND published = true LIMIT ? OFFSET ?;",
+                            "AND published = true " +
+                            "ORDER BY ver_creation_datetime DESC " +
+                            "LIMIT ? OFFSET ?;",
 
                     new Object[]{adminId, amount, startIndex}, (rs, i) -> DtoQuizValid.builder()
                                                                                       .id(rs.getString(
