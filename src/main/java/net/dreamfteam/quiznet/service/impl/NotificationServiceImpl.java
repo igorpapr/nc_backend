@@ -35,6 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void insert(DtoNotification dtoNotification) {
         Notification notification = Notification.builder()
+                .link(dtoNotification.getLink())
                 .content(dtoNotification.getContent())
                 .contentUk(dtoNotification.getContentUk())
                 .userId(dtoNotification.getUserId())

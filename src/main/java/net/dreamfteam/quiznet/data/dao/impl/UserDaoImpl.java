@@ -249,15 +249,17 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite) {
+    public boolean processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite) {
         if (toInvite) {
             jdbcTemplate.update("INSERT INTO friends (parent_id, friend_id, invite_datetime) " +
                             "VALUES (UUID(?), UUID(?), CURRENT_TIMESTAMP);",
                     parentId, targetId
             );
+            return true;
         } else {
             jdbcTemplate.update("delete from friends where friend_id in ( UUID(?), UUID(?)) and parent_id in ( UUID(?), UUID(?));",
                     parentId, targetId, parentId, targetId);
+            return false;
         }
 
     }

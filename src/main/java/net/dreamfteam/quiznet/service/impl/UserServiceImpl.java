@@ -210,16 +210,18 @@ public class UserServiceImpl implements UserService {
             System.out.println("Friend invitation target has bad role: " + target.getRole());
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
-        userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite);
+        if(userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite)){
+            String parentUsername = getById(parentId).getUsername();
+            //adding notification
+            notificationService.insert(DtoNotification.builder()
+                    .link("/requests")
+                    .content("You've got a friend request from " + parentUsername)
+                    .contentUk("Ви отримали запит на дружбу від "+ parentUsername)
+                    .userId(targetId)
+                    .build());
+        }
 
-        String parentUsername = getById(parentId).getUsername();
-        //adding notification
-        notificationService.insert(DtoNotification.builder()
-                .link("/requests")
-                .content("You've got a friend request from " + parentUsername)
-                .contentUk("Ви отримали запит на дружбу від "+ parentUsername)
-                .userId(targetId)
-                .build());
+
     }
 
     @Override

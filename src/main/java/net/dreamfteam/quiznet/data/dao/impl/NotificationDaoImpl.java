@@ -47,6 +47,7 @@ public class NotificationDaoImpl implements NotificationDao {
 
     @Override
     public String insert(Notification notification) {
+        System.out.println(notification.getLink());
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO user_notifications " +
