@@ -11,6 +11,7 @@ public class NotificationMapper implements RowMapper<Notification> {
     public Notification mapRow(ResultSet resultSet, int i) throws SQLException {
         return Notification.builder()
                 .content(resultSet.getString("content"))
+                .link(resultSet.getString("link"))
                 .id(resultSet.getString("notif_id"))
                 .date(resultSet.getDate("date_time"))
                 .seen(resultSet.getBoolean("seen"))
