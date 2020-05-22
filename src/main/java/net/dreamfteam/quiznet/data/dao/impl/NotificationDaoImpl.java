@@ -28,7 +28,7 @@ public class NotificationDaoImpl implements NotificationDao {
     public List<Notification> getUnseenByUserId(String userId) {
         return jdbcTemplate.query(
                 "SELECT CASE value WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
-                        "notif_id, n.user_id, date_time, seen " +
+                        "notif_id, n.user_id, date_time, seen, link " +
                         "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
                         "WHERE seen = false AND n.user_id = UUID(?) " +
                         "AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
@@ -39,7 +39,7 @@ public class NotificationDaoImpl implements NotificationDao {
     public Notification getById(String notifId) {
         return jdbcTemplate.queryForObject(
                 "SELECT CASE value WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
-                        "notif_id, n.user_id, date_time, seen " +
+                        "notif_id, n.user_id, date_time, seen, link " +
                         "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
                         "WHERE notif_id = UUID(?) AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416';",
                 new Object[]{notifId}, new NotificationMapper());
