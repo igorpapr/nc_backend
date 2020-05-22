@@ -50,11 +50,12 @@ public class NotificationDaoImpl implements NotificationDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement("INSERT INTO user_notifications " +
-                    "(content, user_id, content_uk) " +
-                    "VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "(content, user_id, content_uk, link) " +
+                    "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, notification.getContent());
             ps.setObject(2, java.util.UUID.fromString(notification.getUserId()));
             ps.setString(3, notification.getContentUk());
+            ps.setString(4,notification.getLink());
             return ps;
         }, keyHolder);
 

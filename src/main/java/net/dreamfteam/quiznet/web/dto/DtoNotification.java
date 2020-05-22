@@ -10,5 +10,6 @@ import lombok.Setter;
 public class DtoNotification {
     private String content;
     private String contentUk;
+    private String link;
     private String userId;
 }

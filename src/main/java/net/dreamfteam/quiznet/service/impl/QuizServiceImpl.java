@@ -144,6 +144,7 @@ public class QuizServiceImpl implements QuizService {
 
         //adding notification
         notificationService.insert(DtoNotification.builder()
+                .link("/viewquiz/"+quiz.getQuizId())
                 .content("Your quiz " + quiz.getTitle() + " was validated")
                 .contentUk("Ваш квіз " + quiz.getTitle() + " був провалідований")
                 .userId(quiz.getCreatorId())

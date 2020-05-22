@@ -16,6 +16,7 @@ public class Notification {
     private String userId;
     private String content;
     private String contentUk;
+    private String link;
     private Date date;
     private boolean seen;
 }
