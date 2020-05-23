@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DtoSetting {
-    private Object value;
+public class DtoSetting<T> {
+    private T value;
 }

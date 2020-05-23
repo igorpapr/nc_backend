@@ -42,12 +42,12 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public DtoSetting getLanguage() {
-        return new DtoSetting(settingsDao.getLanguage(authenticationFacade.getUserId()));
+    public DtoSetting<String> getLanguage() {
+        return new DtoSetting<>(settingsDao.getLanguage(authenticationFacade.getUserId()));
     }
 
     @Override
-    public DtoSetting getNotificationSetting() {
-        return new DtoSetting(settingsDao.getNotificationSetting(authenticationFacade.getUserId()));
+    public DtoSetting<Boolean> getNotificationSetting() {
+        return new DtoSetting<>(settingsDao.getNotificationSetting(authenticationFacade.getUserId()));
     }
 }
