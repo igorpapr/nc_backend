@@ -31,9 +31,9 @@ public class SettingsDaoImpl implements SettingsDao {
         List<String> titles = getTitles(role == Role.ROLE_USER);
 
         for (String title:titles) {
-            jdbcTemplate.update("insert into user_settings (user_id, setting_id, value) " +
-                    "select uuid(?) , setting_id, default_value from settings " +
-                    "where title=?;",userId,title);
+            jdbcTemplate.update("INSERT INTO user_settings (user_id, setting_id, value) " +
+                    "SELECT uuid(?) , setting_id, default_value FROM settings " +
+                    "WHERE title=?;",userId,title);
         }
 
 
@@ -58,11 +58,34 @@ public class SettingsDaoImpl implements SettingsDao {
     @Override
     public List<Setting> getSettings(String userId) {
 
-        return jdbcTemplate.query("SELECT settings.setting_id, title, " +
-                "description, value " +
+        return jdbcTemplate.query("SELECT settings.setting_id, " +
+                "CASE WHEN " +
+                "(SELECT value FROM user_settings " +
+                "WHERE user_id = ? AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416') = 'uk' " +
+                "THEN title_uk ELSE title END AS title, " +
+                "CASE WHEN " +
+                "(SELECT value FROM user_settings " +
+                "WHERE user_id = ? AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416') = 'uk' " +
+                "THEN description_uk ELSE description END AS description, " +
+                "value " +
                 "FROM settings INNER JOIN " +
                 "user_settings on settings.setting_id=user_settings.setting_id " +
-                "WHERE user_id=UUID(?);", new Object[]{userId}, new SettingMapper());
+                "WHERE user_id=UUID(?);", new Object[]{userId,userId,userId}, new SettingMapper());
     }
 
+    @Override
+    public String getLanguage(String userId){
+        return jdbcTemplate.queryForObject("SELECT value " +
+                        "FROM user_settings WHERE userId = ? AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
+                new Object[]{userId},
+                String.class);
+    }
+
+    @Override
+    public boolean getNotificationSetting(String userId){
+        return Boolean.parseBoolean(jdbcTemplate.queryForObject("SELECT value " +
+                        "FROM user_settings WHERE userId = ? AND setting_id = '34c00e41-9eab-49f9-8a9a-4862f6379dd0'",
+                new Object[]{userId},
+                String.class));
+    }
 }
