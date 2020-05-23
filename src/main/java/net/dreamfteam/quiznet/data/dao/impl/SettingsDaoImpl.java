@@ -77,7 +77,7 @@ public class SettingsDaoImpl implements SettingsDao {
     @Override
     public String getLanguage(String userId){
         return jdbcTemplate.queryForObject("SELECT value " +
-                        "FROM user_settings WHERE userId = UUID(?) AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
+                        "FROM user_settings WHERE user_id = UUID(?) AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
                 new Object[]{userId},
                 String.class);
     }

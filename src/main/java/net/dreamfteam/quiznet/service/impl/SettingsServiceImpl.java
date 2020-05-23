@@ -5,6 +5,7 @@ import net.dreamfteam.quiznet.data.dao.SettingsDao;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.Setting;
 import net.dreamfteam.quiznet.service.SettingsService;
+import net.dreamfteam.quiznet.web.dto.DtoSetting;
 import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,12 +42,12 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public String getLanguage() {
-        return settingsDao.getLanguage(authenticationFacade.getUserId());
+    public DtoSetting getLanguage() {
+        return new DtoSetting(settingsDao.getLanguage(authenticationFacade.getUserId()));
     }
 
     @Override
-    public boolean getNotificationSetting() {
-        return settingsDao.getNotificationSetting(authenticationFacade.getUserId());
+    public DtoSetting getNotificationSetting() {
+        return new DtoSetting(settingsDao.getNotificationSetting(authenticationFacade.getUserId()));
     }
 }
