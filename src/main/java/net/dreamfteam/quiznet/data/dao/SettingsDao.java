@@ -15,5 +15,7 @@ public interface SettingsDao {
 
     String getLanguage(String userId);
 
+    boolean getNotificationSetting(String userId);
+
 
 }

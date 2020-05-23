@@ -19,21 +19,19 @@ import java.util.List;
 @RequestMapping(Constants.SETTING_URLS)
 public class SettingsController {
 
-    private SettingsService settingsService;
-    private AuthenticationFacade authenticationFacade;
+    private final SettingsService settingsService;
+
 
     @Autowired
-    public SettingsController(SettingsService settingsService, AuthenticationFacade authenticationFacade) {
+    public SettingsController(SettingsService settingsService) {
         this.settingsService = settingsService;
-        this.authenticationFacade = authenticationFacade;
-
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping
     public ResponseEntity<?> setSettings(@RequestBody List<DtoSettings> dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
-        settingsService.editSettings(dtoSettings, authenticationFacade.getUserId());
+        settingsService.editSettings(dtoSettings);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -41,12 +39,12 @@ public class SettingsController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping
     public ResponseEntity<?> getSettings() throws ValidationException {
-        return new ResponseEntity<>(settingsService.getSettings(authenticationFacade.getUserId()), HttpStatus.OK);
+        return new ResponseEntity<>(settingsService.getSettings(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("language")
     public ResponseEntity<?> getLanguage(){
-        return new ResponseEntity<>(settingsService.getLanguage(authenticationFacade.getUserId()), HttpStatus.OK);
+        return new ResponseEntity<>(settingsService.getLanguage(), HttpStatus.OK);
     }
 }

@@ -7,11 +7,13 @@ import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import java.util.List;
 
 public interface SettingsService {
-    void initSettings(String id, Role role);
+    void initSettings(String userId, Role role);
 
-    void editSettings(List<DtoSettings> settings, String userId);
+    void editSettings(List<DtoSettings> settings);
 
-    List<Setting> getSettings(String userId);
+    List<Setting> getSettings();
 
-    String getLanguage(String userId);
+    String getLanguage();
+
+    boolean getNotificationSetting();
 }

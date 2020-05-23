@@ -80,4 +80,12 @@ public class SettingsDaoImpl implements SettingsDao {
                 new Object[]{userId},
                 String.class);
     }
+
+    @Override
+    public boolean getNotificationSetting(String userId){
+        return Boolean.parseBoolean(jdbcTemplate.queryForObject("SELECT value " +
+                        "FROM user_settings WHERE userId = ? AND setting_id = '34c00e41-9eab-49f9-8a9a-4862f6379dd0'",
+                new Object[]{userId},
+                String.class));
+    }
 }
