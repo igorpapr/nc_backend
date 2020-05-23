@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.Setting;
+import net.dreamfteam.quiznet.web.dto.DtoSetting;
 import net.dreamfteam.quiznet.web.dto.DtoSettings;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface SettingsService {
 
     List<Setting> getSettings();
 
-    String getLanguage();
+    DtoSetting getLanguage();
 
-    boolean getNotificationSetting();
+    DtoSetting getNotificationSetting();
 }

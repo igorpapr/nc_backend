@@ -25,7 +25,7 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
         log.error(String.format("Exception received, path: '%s'",
                 request.getRequestURI(), exception));
-
+        System.out.println(exception);
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .message(exception.getMessage())
                 .statusCode(httpStatus.value())
