@@ -82,7 +82,7 @@ public class AuthorizationController {
     public ResponseEntity<DtoUser> registerUser(@RequestBody DtoUserSignUp user) throws ValidationException {
         UserValidator.validate(user);
         User saved = userService.save(user.toUser());
-        settingsService.initSettings(saved.getId(), Role.ROLE_USER);
+        settingsService.initSettings(saved.getId(), Role.ROLE_USER, user.getLanguage());
         System.out.println(saved.getId());
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.CREATED);
     }

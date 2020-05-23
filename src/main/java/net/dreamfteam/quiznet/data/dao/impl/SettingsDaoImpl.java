@@ -3,17 +3,13 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.data.dao.SettingsDao;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.Setting;
-import net.dreamfteam.quiznet.data.entities.Settings;
 import net.dreamfteam.quiznet.data.rowmappers.SettingMapper;
-import net.dreamfteam.quiznet.data.rowmappers.SettingsMapper;
 import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -27,23 +23,28 @@ public class SettingsDaoImpl implements SettingsDao {
     }
 
     @Override
-    public void initSettings(String userId, Role role) {
+    @Transactional
+    public void initSettings(String userId, Role role, String language) {
         List<String> titles = getTitles(role == Role.ROLE_USER);
 
         for (String title:titles) {
             jdbcTemplate.update("INSERT INTO user_settings (user_id, setting_id, value) " +
-                    "SELECT uuid(?) , setting_id, default_value FROM settings " +
+                    "SELECT UUID(?) , setting_id, default_value FROM settings " +
                     "WHERE title=?;",userId,title);
         }
 
-
+        jdbcTemplate.update("INSERT INTO user_settings (user_id, setting_id, value) " +
+                "VALUES (UUID(?),UUID('e8449301-6d6f-4376-8247-b7d1f8df6416'),?)",userId,language);
     }
 
     private List<String> getTitles(boolean isUser){
         if(isUser){
-            return jdbcTemplate.queryForList("SELECT title FROM settings",String.class);
+            return jdbcTemplate.queryForList(
+                    "SELECT title FROM settings WHERE default_value IS NOT NULL",String.class);
         }else{
-            return jdbcTemplate.queryForList("SELECT title FROM settings WHERE privileged = TRUE;",String.class);
+            return jdbcTemplate.queryForList(
+                    "SELECT title FROM settings WHERE privileged = TRUE AND default_value IS NOT NULL;",
+                    String.class);
         }
     }
 

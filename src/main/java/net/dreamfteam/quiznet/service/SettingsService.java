@@ -7,7 +7,7 @@ import net.dreamfteam.quiznet.web.dto.DtoSettings;
 import java.util.List;
 
 public interface SettingsService {
-    void initSettings(String userId, Role role);
+    void initSettings(String userId, Role role, String language);
 
     void editSettings(List<DtoSettings> settings);
 
