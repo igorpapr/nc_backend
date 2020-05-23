@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class NotificationDaoImpl implements NotificationDao {
@@ -54,7 +55,7 @@ public class NotificationDaoImpl implements NotificationDao {
                     "(content, user_id, content_uk, link) " +
                     "VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, notification.getContent());
-            ps.setObject(2, java.util.UUID.fromString(notification.getUserId()));
+            ps.setObject(2, UUID.fromString(notification.getUserId()));
             ps.setString(3, notification.getContentUk());
             ps.setString(4,notification.getLink());
             return ps;
