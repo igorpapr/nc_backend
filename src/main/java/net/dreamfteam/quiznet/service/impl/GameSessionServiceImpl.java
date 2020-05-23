@@ -14,6 +14,7 @@ import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -68,13 +69,7 @@ public class GameSessionServiceImpl implements GameSessionService {
     @Override
     public void removePlayer(String sessionId) {
         gameSessionDao.removePlayer(sessionId);
-        String gameId = gameSessionDao.getGameId(sessionId);
-        checkForGameOver(gameId);
-    }
-
-    @Override
-    public GameSession getSession(String sessionId) {
-        return gameSessionDao.getById(sessionId);
+        checkForGameOver(gameSessionDao.getGameId(sessionId));
     }
 
     @Override
@@ -83,11 +78,8 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     private void checkForGameOver(String gameId) {
-        boolean isGameFinished = gameSessionDao.isGameFinished(gameId);
-        if (isGameFinished) {
-            int res = gameSessionDao.setWinnersForTheGame(gameId);
-            sseService.send(gameId, "finished", gameId);
-            if (res > 0) {//setting activities
+        if (gameSessionDao.isGameFinished(gameId)) {
+            if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {   //setting activities
                 List<DtoGameWinner> winners = gameDao.getWinnersOfTheGame(gameId);
                 for (DtoGameWinner winner : winners) {
                     DtoActivity activity = DtoActivity.builder()
@@ -98,6 +90,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                     activitiesService.addActivityForUser(activity);
                 }
             }
+
             //checking achievements
             List<DtoPlayerSession> sessionsMaps = getSessions(gameId);
             for (DtoPlayerSession session : sessionsMaps) {

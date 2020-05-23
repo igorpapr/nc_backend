@@ -96,8 +96,10 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void startGame(String gameId) {
-        sseService.send(gameId,"start");
+
         gameDao.startGame(gameId);
+        sseService.send(gameId,"start");
+
         //checking for achievements
         achievementService.checkOnStartGameAchievements(gameId);
     }
