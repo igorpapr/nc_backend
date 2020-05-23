@@ -19,7 +19,6 @@ public class UserMapper implements RowMapper<User> {
                 .username(resultSet.getString("username"))
                 .lastTimeOnline(resultSet.getTimestamp("last_time_online"))
                 .aboutMe(resultSet.getString("about_me"))
-                .online(resultSet.getBoolean("is_online"))
                 .activated(resultSet.getBoolean("is_activated"))
                 .verified(resultSet.getBoolean("is_verified"))
                 .creationDate(resultSet.getTimestamp("date_acc_creation"))

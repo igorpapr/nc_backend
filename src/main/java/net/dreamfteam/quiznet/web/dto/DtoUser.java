@@ -33,8 +33,6 @@ public class DtoUser {
 
     private String aboutMe;
 
-    private boolean online;
-
     private boolean activated;
 
     private boolean verified;
@@ -44,7 +42,6 @@ public class DtoUser {
     private boolean outgoingRequest;
 
     private boolean incomingRequest;
-
 
     private Role role;
 
@@ -63,7 +60,6 @@ public class DtoUser {
                 .lastTimeOnline(user.getLastTimeOnline())
                 .image(user.getImage())
                 .aboutMe(user.getAboutMe())
-                .online(user.isOnline())
                 .activated(user.isActivated())
                 .verified(user.isVerified())
                 .role(user.getRole())

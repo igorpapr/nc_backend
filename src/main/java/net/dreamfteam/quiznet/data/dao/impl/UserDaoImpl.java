@@ -128,7 +128,7 @@ public class UserDaoImpl implements UserDao {
     public User save(User user) {
         jdbcTemplate.update(SAVE_QUERY,
                 UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
-                user.isVerified(), user.isOnline(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
+                user.isVerified(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
                 user.getRole().ordinal() + 1
         );
 
@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao {
     public int deleteIfLinkExpired() {
         return jdbcTemplate
                 .update(DELETE_QUERY +
-                        " WHERE is_verified = 'false' and current_timestamp at time zone 'EETDST'  - date_acc_creation >= '1 DAY'");
+                        " WHERE is_verified = 'false' and current_timestamp - date_acc_creation >= '1 DAY'");
     }
 
 
@@ -154,7 +154,7 @@ public class UserDaoImpl implements UserDao {
         jdbcTemplate.update(UPDATE_QUERY +
                         "WHERE user_id = UUID(?)",
                 user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
-                user.isOnline(), user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
+                user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
                 user.getRecoverySentTime(), user.getRole().ordinal() + 1, user.getId());
 
     }
