@@ -13,4 +13,7 @@ public interface SettingsDao {
 
     List<Setting> getSettings(String userId);
 
+    String getLanguage(String userId);
+
+
 }

@@ -31,9 +31,9 @@ public class SettingsDaoImpl implements SettingsDao {
         List<String> titles = getTitles(role == Role.ROLE_USER);
 
         for (String title:titles) {
-            jdbcTemplate.update("insert into user_settings (user_id, setting_id, value) " +
-                    "select uuid(?) , setting_id, default_value from settings " +
-                    "where title=?;",userId,title);
+            jdbcTemplate.update("INSERT INTO user_settings (user_id, setting_id, value) " +
+                    "SELECT uuid(?) , setting_id, default_value FROM settings " +
+                    "WHERE title=?;",userId,title);
         }
 
 
@@ -73,4 +73,11 @@ public class SettingsDaoImpl implements SettingsDao {
                 "WHERE user_id=UUID(?);", new Object[]{userId,userId,userId}, new SettingMapper());
     }
 
+    @Override
+    public String getLanguage(String userId){
+        return jdbcTemplate.queryForObject("SELECT value " +
+                        "FROM user_settings WHERE userId = ? AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
+                new Object[]{userId},
+                String.class);
+    }
 }

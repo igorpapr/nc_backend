@@ -13,5 +13,5 @@ public interface SettingsService {
 
     List<Setting> getSettings(String userId);
 
-    Setting getLanguage(String userId);
+    String getLanguage(String userId);
 }

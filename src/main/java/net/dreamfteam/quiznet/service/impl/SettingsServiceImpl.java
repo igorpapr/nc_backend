@@ -39,12 +39,7 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public Setting getLanguage(String userId) {
-        Setting language = getSettings(userId).stream()
-                .filter(setting -> setting.getTitle().equals("Language"))
-                .findFirst()
-                .orElse(null);
-
-        return language;
+    public String getLanguage(String userId) {
+        return settingsDao.getLanguage(userId);
     }
 }
