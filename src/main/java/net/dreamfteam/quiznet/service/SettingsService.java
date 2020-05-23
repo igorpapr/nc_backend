@@ -10,11 +10,11 @@ import java.util.List;
 public interface SettingsService {
     void initSettings(String userId, Role role, String language);
 
-    void editSettings(List<DtoSettings> settings);
+    void editSettings(List<DtoSettings> settings, String userId);
 
-    List<Setting> getSettings();
+    List<Setting> getSettings(String userId);
 
-    DtoSetting getLanguage();
+    DtoSetting<String> getLanguage(String userId);
 
-    DtoSetting getNotificationSetting();
+    DtoSetting<Boolean> getNotificationSetting(String userId);
 }

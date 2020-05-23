@@ -16,13 +16,12 @@ import java.util.List;
 public class SettingsServiceImpl implements SettingsService {
 
     private final SettingsDao settingsDao;
-    private final IAuthenticationFacade authenticationFacade;
+
 
 
     @Autowired
-    public SettingsServiceImpl(SettingsDao settingsDao, IAuthenticationFacade authenticationFacade) {
+    public SettingsServiceImpl(SettingsDao settingsDao) {
         this.settingsDao = settingsDao;
-        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -31,23 +30,23 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public void editSettings(List<DtoSettings> settings) {
+    public void editSettings(List<DtoSettings> settings, String userId) {
 
-        settingsDao.editSettings(settings, authenticationFacade.getUserId());
+        settingsDao.editSettings(settings, userId);
     }
 
     @Override
-    public List<Setting> getSettings() {
-        return settingsDao.getSettings(authenticationFacade.getUserId());
+    public List<Setting> getSettings(String userId) {
+        return settingsDao.getSettings(userId);
     }
 
     @Override
-    public DtoSetting<String> getLanguage() {
-        return new DtoSetting<>(settingsDao.getLanguage(authenticationFacade.getUserId()));
+    public DtoSetting<String> getLanguage(String userId) {
+        return new DtoSetting<>(settingsDao.getLanguage(userId));
     }
 
     @Override
-    public DtoSetting<Boolean> getNotificationSetting() {
-        return new DtoSetting<>(settingsDao.getNotificationSetting(authenticationFacade.getUserId()));
+    public DtoSetting<Boolean> getNotificationSetting(String userId) {
+        return new DtoSetting<>(settingsDao.getNotificationSetting(userId));
     }
 }
