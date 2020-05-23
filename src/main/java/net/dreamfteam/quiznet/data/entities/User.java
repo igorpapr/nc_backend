@@ -34,8 +34,6 @@ public class User {
 
     private Date recoverySentTime;
 
-    private boolean online;
-
     private boolean activated;
 
     private boolean verified;
