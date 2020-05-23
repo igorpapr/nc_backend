@@ -18,7 +18,7 @@ public interface UserDao {
     String DELETE_QUERY = "DELETE FROM users";
 
     String SAVE_QUERY = "INSERT INTO users (user_id, username, email, password, is_activated," +
-            " is_verified, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+            " is_verified, activation_url, date_acc_creation, last_time_online, role_id) VALUES (?,?,?,?,?,?,?,?,?,?)";
 
     User getByEmail(String email);
 
