@@ -33,18 +33,14 @@ import static java.util.Objects.isNull;
 @CrossOrigin
 @RequestMapping(Constants.QUIZ_URLS)
 public class QuizController {
-    final private UserService userService;
     final private QuizService quizService;
     final private IAuthenticationFacade authenticationFacade;
     final private Gson gson;
 
 
     @Autowired
-    public QuizController(QuizService quizService, UserService userService, IAuthenticationFacade authenticationFacade,
-                          Gson gson) {
-
+    public QuizController(QuizService quizService, IAuthenticationFacade authenticationFacade, Gson gson) {
         this.quizService = quizService;
-        this.userService = userService;
         this.authenticationFacade = authenticationFacade;
         this.gson = gson;
     }
@@ -52,9 +48,8 @@ public class QuizController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,
-                                        @RequestParam(value = "img", required = false) MultipartFile image) throws
-            ValidationException,
-            IOException {
+                                        @RequestParam("img") MultipartFile image) throws
+            ValidationException {
         DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
         Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId(), image);
@@ -65,7 +60,7 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,
-                                      @RequestParam(value = "img", required = false) MultipartFile image) throws
+                                      @RequestParam("img") MultipartFile image) throws
             ValidationException,
             IOException {
         DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
