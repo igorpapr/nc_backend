@@ -27,19 +27,16 @@ public class GameController {
     private final GameSessionService gameSessionService;
     private final IAuthenticationFacade authenticationFacade;
     private final SseService sseService;
-    private final QuizService quizService;
 
     @Autowired
     public GameController(GameService gameService,
                           GameSessionService gameSessionService,
                           IAuthenticationFacade authenticationFacade,
-                          SseService sseService,
-                          QuizService quizService) {
+                          SseService sseService) {
         this.gameService = gameService;
         this.gameSessionService = gameSessionService;
         this.authenticationFacade = authenticationFacade;
         this.sseService = sseService;
-        this.quizService = quizService;
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
