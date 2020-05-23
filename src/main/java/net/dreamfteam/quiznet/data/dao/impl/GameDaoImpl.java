@@ -20,14 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Repository
 public class GameDaoImpl implements GameDao {
 
     private final JdbcTemplate jdbcTemplate;
-
     private final Hashids hashids;
 
     @Autowired
@@ -52,7 +53,7 @@ public class GameDaoImpl implements GameDao {
             ps.setInt(4, game.getRoundDuration());
             ps.setBoolean(5, game.isAdditionalPoints());
             ps.setInt(6, game.getBreakTime());
-            ps.setObject(7, java.util.UUID.fromString(game.getQuizId()));
+            ps.setObject(7, UUID.fromString(game.getQuizId()));
             return ps;
         }, keyHolder);
 
@@ -61,11 +62,11 @@ public class GameDaoImpl implements GameDao {
 
 
         jdbcTemplate.update("UPDATE games SET access_code = ? WHERE game_id = ?",
-                accessId, java.util.UUID.fromString(id));
+                accessId, UUID.fromString(id));
 
         game.setAccessId(accessId);
         game.setId(id);
-        game.setStartDatetime((java.util.Date) Objects.requireNonNull(keyHolder.getKeys()).get("datetime_start"));
+        game.setStartDatetime((Date) Objects.requireNonNull(keyHolder.getKeys()).get("datetime_start"));
 
         return game;
     }
@@ -100,13 +101,17 @@ public class GameDaoImpl implements GameDao {
     }
 
 
-    private String generateAccessId(String gameId) {
-        return hashids.encodeHex(gameId.substring(0, gameId.indexOf("-")));
-    }
+
 
     public Question getQuestion(String gameId) {
         try {
-            Question question = jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, q.image, q.points, q.type_id, i.image as imgcontent FROM questions q LEFT JOIN images i ON q.image = i.image_id where quiz_id = ( select games.quiz_id from  games where game_id = (select game_id from users_games where game_session_id =uuid(?))) offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;",
+            return jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, " +
+                            "q.image, q.points, q.type_id, i.image as imgcontent " +
+                            "FROM questions q LEFT JOIN images i ON q.image = i.image_id " +
+                            "where quiz_id = ( select games.quiz_id from  games where game_id = " +
+                            "(select game_id from users_games where game_session_id =uuid(?))) " +
+                            "offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;",
+
                     new Object[]{gameId, gameId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
                             .quizId(rs.getString("quiz_id"))
@@ -117,7 +122,6 @@ public class GameDaoImpl implements GameDao {
                             .typeId(rs.getInt("type_id"))
                             .imageContent(rs.getBytes("imgcontent"))
                             .build());
-            return question;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -153,22 +157,22 @@ public class GameDaoImpl implements GameDao {
     @Override
     public QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId) {
         try {
-            QuizCreatorFullStatistics info = jdbcTemplate
+            QuizCreatorFullStatistics quizCreatorFullStatistics = jdbcTemplate
                     .queryForObject("SELECT COUNT(*) AS amount, q.creator_id AS creator " +
-                            "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
-                            "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
-                                                "FROM quizzes q1 " +
-                                                "WHERE q1.creator_id = (SELECT creator_id " +
-                                                                        "FROM quizzes qq INNER JOIN games gg " +
-                                                                        "ON qq.quiz_id = gg.quiz_id " +
-                                                                        "WHERE gg.game_id = uuid(?))) " +
+                                    "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
+                                    "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
+                                    "FROM quizzes q1 " +
+                                    "WHERE q1.creator_id = (SELECT creator_id " +
+                                    "FROM quizzes qq INNER JOIN games gg " +
+                                    "ON qq.quiz_id = gg.quiz_id " +
+                                    "WHERE gg.game_id = uuid(?))) " +
                                     "GROUP BY q.creator_id;",
-                    new Object[]{gameId},
+                            new Object[]{gameId},
                             (rs, i) -> QuizCreatorFullStatistics.builder()
                                     .creatorId(rs.getString("creator"))
                                     .amountGamesPlayedAllQuizzes(rs.getInt("amount"))
                                     .build());
-            return info;
+            return quizCreatorFullStatistics;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }
@@ -198,9 +202,14 @@ public class GameDaoImpl implements GameDao {
                                         "FROM (SELECT DATE(datetime_start) as dt_start " +
                                               "FROM games) dts " +
                                         "GROUP BY dt_start " +
-                                        "ORDER BY dt_start ", (rs,i) -> DtoGameCount.builder()
-                                                                                   .date(rs.getDate("dt_start"))
-                                                                                   .gamesAmount(rs.getInt("amount"))
-                                                                                   .build());
+                                        "ORDER BY dt_start ",
+                (rs, i) -> DtoGameCount.builder()
+                        .date(rs.getDate("dt_start"))
+                        .gamesAmount(rs.getInt("amount"))
+                        .build());
+    }
+
+    private String generateAccessId(String gameId) {
+        return hashids.encodeHex(gameId.substring(0, gameId.indexOf("-")));
     }
 }

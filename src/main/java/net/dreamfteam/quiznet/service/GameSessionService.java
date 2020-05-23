@@ -16,7 +16,5 @@ public interface GameSessionService {
 
     void removePlayer(String sessionId);
 
-    GameSession getSession(String sessionId);
-
     String getGameIdBySessionId(String sessionId);
 }
