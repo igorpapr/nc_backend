@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.Constants;
-import net.dreamfteam.quiznet.configs.security.AuthenticationFacade;
+import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.SettingsService;
 import net.dreamfteam.quiznet.web.dto.DtoSettings;
@@ -20,18 +20,20 @@ import java.util.List;
 public class SettingsController {
 
     private final SettingsService settingsService;
+    private final IAuthenticationFacade authenticationFacade;
 
 
     @Autowired
-    public SettingsController(SettingsService settingsService) {
+    public SettingsController(SettingsService settingsService, IAuthenticationFacade authenticationFacade) {
         this.settingsService = settingsService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping
     public ResponseEntity<?> setSettings(@RequestBody List<DtoSettings> dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
-        settingsService.editSettings(dtoSettings);
+        settingsService.editSettings(dtoSettings, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -39,18 +41,18 @@ public class SettingsController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping
     public ResponseEntity<?> getSettings() throws ValidationException {
-        return new ResponseEntity<>(settingsService.getSettings(), HttpStatus.OK);
+        return new ResponseEntity<>(settingsService.getSettings(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @GetMapping("language")
     public ResponseEntity<?> getLanguage(){
-        return new ResponseEntity<>(settingsService.getLanguage(), HttpStatus.OK);
+        return new ResponseEntity<>(settingsService.getLanguage(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("notifications")
     public ResponseEntity<?> getNotificationsSetting(){
-        return new ResponseEntity<>(settingsService.getNotificationSetting(), HttpStatus.OK);
+        return new ResponseEntity<>(settingsService.getNotificationSetting(authenticationFacade.getUserId()), HttpStatus.OK);
     }
 }
