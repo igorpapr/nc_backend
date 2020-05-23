@@ -121,7 +121,7 @@ public class AdminController {
 
         User saved = userService.saveAdmin(newAdmin.toUser());
 
-        settingsService.initSettings(saved.getId(), saved.getRole());
+        settingsService.initSettings(saved.getId(), saved.getRole(), "en");
 
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.OK);
     }

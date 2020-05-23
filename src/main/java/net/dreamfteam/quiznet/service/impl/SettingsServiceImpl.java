@@ -25,8 +25,8 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     @Override
-    public void initSettings(String userId, Role role) {
-        settingsDao.initSettings(userId,role);
+    public void initSettings(String userId, Role role, String language) {
+        settingsDao.initSettings(userId, role, language);
     }
 
     @Override
