@@ -47,4 +47,10 @@ public class SettingsController {
     public ResponseEntity<?> getLanguage(){
         return new ResponseEntity<>(settingsService.getLanguage(), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("notifications")
+    public ResponseEntity<?> getNotificationsSetting(){
+        return new ResponseEntity<>(settingsService.getNotificationSetting(), HttpStatus.OK);
+    }
 }
