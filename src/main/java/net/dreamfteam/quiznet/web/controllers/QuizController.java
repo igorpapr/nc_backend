@@ -48,7 +48,7 @@ public class QuizController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,
-                                        @RequestParam("img") MultipartFile image) throws
+                                        @RequestParam(value = "img", required = false) MultipartFile image) throws
             ValidationException {
         DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
@@ -60,7 +60,7 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,
-                                      @RequestParam("img") MultipartFile image) throws
+                                      @RequestParam(value = "img", required = false) MultipartFile image) throws
             ValidationException,
             IOException {
         DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
