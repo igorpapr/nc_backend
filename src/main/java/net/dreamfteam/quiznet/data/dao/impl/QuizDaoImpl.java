@@ -740,7 +740,7 @@ public class QuizDaoImpl implements QuizDao {
                                                    .isWinner(resultSet.getBoolean("is_winner"))
                                                    .score(resultSet.getInt("score"))
                                                    .datetimeStart(
-                                resultSet.getDate("datetime_start"))
+                                resultSet.getTimestamp("datetime_start"))
                                                    .title(resultSet.getString("title"))
                                                    .build());
     }
