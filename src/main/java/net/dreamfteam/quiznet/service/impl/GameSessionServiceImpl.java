@@ -68,8 +68,9 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     @Override
     public void removePlayer(String sessionId) {
+        String gameId = gameSessionDao.getGameId(sessionId);
         gameSessionDao.removePlayer(sessionId);
-        checkForGameOver(gameSessionDao.getGameId(sessionId));
+        checkForGameOver(gameId);
     }
 
     @Override

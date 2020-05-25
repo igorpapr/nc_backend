@@ -22,16 +22,14 @@ public class GameServiceImpl implements GameService {
 
     private final GameDao gameDao;
     private final QuizDao quizDao;
-    private final GameSessionDao gameSessionDao;
     private final SseService sseService;
     private final AchievementService achievementService;
 
     @Autowired
-    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, GameSessionDao gameSessionDao, SseService sseService,
+    public GameServiceImpl(GameDao gameDao, QuizDao quizDao, SseService sseService,
                            AchievementService achievementService) {
         this.gameDao = gameDao;
         this.quizDao = quizDao;
-        this.gameSessionDao = gameSessionDao;
         this.sseService = sseService;
         this.achievementService = achievementService;
     }
@@ -50,20 +48,6 @@ public class GameServiceImpl implements GameService {
                 .build();
 
         game = gameDao.createGame(game);
-
-        // CREATING SESSION OF CREATOR
-        GameSession gameSession = GameSession.builder()
-                .userId(userId.startsWith("-") ? null : userId)
-                .username(username)
-                .gameId(game.getId())
-                .score(0)
-                .winner(false)
-                .creator(true)
-                .savedByUser(!userId.startsWith("-"))
-                .durationTime(0)
-                .build();
-
-        gameSessionDao.createSession(gameSession);
 
         return game;
     }
