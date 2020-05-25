@@ -325,7 +325,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public List<QuizFiltered> shortListOfQuizzes() {
-        DtoQuizFilter quizFilter = DtoQuizFilter.builder().moreThanRating(2).orderByRating(true).build();
+        DtoQuizFilter quizFilter = DtoQuizFilter.builder().orderByRating(true).build();
         return quizDao.findQuizzesByFilter(quizFilter, 0, 5);
     }
 
