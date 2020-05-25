@@ -44,9 +44,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         try {
             gameSession = jdbcTemplate.queryForObject("SELECT * " +
-                            "FROM users_games WHERE username = ? AND game_id IN (" +
+                            "FROM users_games WHERE (user_id = ? OR username = ?) AND game_id IN (" +
                             "SELECT game_id FROM games WHERE access_code = ?);",
-                    new Object[]{username, accessId}, new GameSessionMapper());
+                    new Object[]{userId, username, accessId}, new GameSessionMapper());
         } catch (EmptyResultDataAccessException e) {
             gameSession = null;
         }
@@ -54,11 +54,13 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         String name = username;
 
-        //IF SESSION CREATED
-        if (gameSession != null && !userId.startsWith("-")) {
+        //IF SESSION CREATED FOR USER
+        if (gameSession != null && Objects.equals(gameSession.getId(), userId)) {
             return gameSession;
-        } else if (gameSession != null && userId.startsWith("-")) {
-            name = name + "(Another)";
+        }
+        //IF GAME CONTAINS PLAYER SESSION WITH SAME NAME
+        else if (gameSession != null) {
+            name = name + "(1)";
         }
 
         if (!gameHasAvailableSlots(accessId)) {
@@ -75,8 +77,8 @@ public class GameSessionDaoImpl implements GameSessionDao {
                 .gameId(gameId)
                 .score(0)
                 .winner(false)
-                .creator(false)
-                .savedByUser(!userId.startsWith("-"))   // REFACTOR FORM ANONYMOUS
+                .creator(isCreator(gameId))
+                .savedByUser(!userId.startsWith("-"))
                 .durationTime(0)
                 .build();
 
@@ -253,5 +255,11 @@ public class GameSessionDaoImpl implements GameSessionDao {
             System.err.println("Error occurred while setting winners for the game (" + gameId + "): " + e.getMessage());
             return 0;
         }
+    }
+
+    private boolean isCreator(String gameId){
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM users_games WHERE game_id = UUID(?)",
+                new Object[]{gameId},Integer.class)).orElse(0) == 0;
     }
 }
