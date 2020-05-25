@@ -124,7 +124,6 @@ public class GameServiceImpl implements GameService {
             throw new ValidationException("No game with such id found, cannot rate the quiz");
         }
         quizDao.rateQuiz(gameSessionId, rating, userId);
-        quizDao.updateQuizRating(gameSessionId);
 
     }
 

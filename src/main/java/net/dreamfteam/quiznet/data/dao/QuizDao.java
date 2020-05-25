@@ -87,8 +87,6 @@ public interface QuizDao {
 
     void rateQuiz(String sessionId, int ratingPoints, String userId);
 
-    void updateQuizRating(String quizId);
-
     int countValidatedQuizzesByAdmin();
 
     int countValidatedQuizzesByModerator();
