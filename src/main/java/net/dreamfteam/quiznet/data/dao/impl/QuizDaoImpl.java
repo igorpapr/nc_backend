@@ -149,7 +149,7 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId) {
         try {
             Quiz quiz =
-                    jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
+                    jdbcTemplate.queryForObject("SELECT *, quiz_rating(quizzes.quiz_id), FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
                             new QuizMapper());
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
@@ -204,7 +204,7 @@ public class QuizDaoImpl implements QuizDao {
     @Override
     public Quiz getUserQuizByTitle(String title, String userId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM quizzes " + "WHERE title = ? AND creator_id = UUID(?)",
+            return jdbcTemplate.queryForObject("SELECT quiz_rating(quizzes.quiz_id), * FROM quizzes " + "WHERE title = ? AND creator_id = UUID(?)",
                     new Object[]{title, userId}, new QuizMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
