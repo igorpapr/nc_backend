@@ -68,4 +68,7 @@ public interface UserDao {
 
     void removeFriend(String targetId, String thisId);
 
+    List<User> getPopularCreators();
+
+    List<User> getPrivilegedUsers();
 }
