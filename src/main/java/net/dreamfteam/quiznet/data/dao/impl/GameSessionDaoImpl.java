@@ -46,7 +46,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
             gameSession = jdbcTemplate.queryForObject("SELECT * " +
                             "FROM users_games WHERE (user_id = UUID(?) OR username = ?) AND game_id IN (" +
                             "SELECT game_id FROM games WHERE access_code = ?);",
-                    new Object[]{userId, username, accessId}, new GameSessionMapper());
+                    new Object[]{
+                            userId.startsWith("-") ? null : userId, username, accessId},
+                    new GameSessionMapper());
+
         } catch (EmptyResultDataAccessException e) {
             gameSession = null;
         }
