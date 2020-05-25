@@ -179,6 +179,13 @@ public class UserController {
 
     }
 
+
+    @GetMapping("/{userId}/achievements/size")
+    public ResponseEntity<?> getUserAchievementsAmount(@PathVariable String userId) throws ValidationException {
+        return new ResponseEntity<>(achievementService.getUserAchievementsAmount(userId), HttpStatus.OK);
+
+    }
+
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/friends/remove")
     public ResponseEntity<?> proceedInvitation(@RequestParam String targetId) throws ValidationException {

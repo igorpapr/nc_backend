@@ -93,4 +93,13 @@ public class AchievementDaoImpl implements AchievementDao {
             return null;
         }
     }
+
+    @Override
+    public Integer getUserAchievementsAmount(String userId){
+        return jdbcTemplate
+                .queryForObject("SELECT count(*) FROM users_achievements " +
+                                "WHERE user_id = uuid(?);",
+                        new Object[]{userId}, Integer.class);
+    };
+
 }

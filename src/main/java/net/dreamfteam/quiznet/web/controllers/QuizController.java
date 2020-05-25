@@ -285,7 +285,7 @@ public class QuizController {
     }
 
 
-    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/user-fav-list")
     public ResponseEntity<?> getUserFavouriteQuizList() throws ValidationException {
 
@@ -333,4 +333,20 @@ public class QuizController {
     public ResponseEntity<?> getQuizStatusesStatistic() {
         return new ResponseEntity<>(quizService.getQuizStatusesData(), HttpStatus.OK);
     }
+
+
+    @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/user-list/size")
+    public ResponseEntity<?> getUserQuizListAmount(@RequestParam String userId) {
+        return new ResponseEntity<>(quizService.getUserQuizListAmount(userId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/user-fav-list/size")
+    public  ResponseEntity<?> getUserFavQuizListAmount() {
+        return new ResponseEntity<>(quizService.getUserFavQuizListAmount(authenticationFacade.getUserId()), HttpStatus.OK);
+
+    }
+
+
 }

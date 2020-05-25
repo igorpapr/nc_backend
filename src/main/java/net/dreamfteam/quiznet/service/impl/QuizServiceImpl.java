@@ -144,7 +144,7 @@ public class QuizServiceImpl implements QuizService {
 
         //adding notification
         notificationService.insert(DtoNotification.builder()
-                .link("/viewquiz/"+quiz.getQuizId())
+                .link("/viewquiz/" + quiz.getQuizId())
                 .content("Your quiz " + quiz.getTitle() + " was validated")
                 .contentUk("Ваш квіз " + quiz.getTitle() + " був провалідований")
                 .userId(quiz.getCreatorId())
@@ -281,7 +281,7 @@ public class QuizServiceImpl implements QuizService {
     public List<DtoPopularQuiz> getMostPopularQuizzesForLastWeek(int amount) {
         return quizDao.getMostPopularQuizzesForLastWeek(amount);
     }
-    
+
     @Override
     public Rating getUserQuizRating(String quizId, String userId) {
         if (quizDao.getQuiz(quizId) == null) {
@@ -365,5 +365,16 @@ public class QuizServiceImpl implements QuizService {
             default:
                 throw new ValidationException("Question type should be in range of [1 - 4]");
         }
+    }
+
+    @Override
+    public Integer getUserQuizListAmount(String userId) {
+        return quizDao.getUserQuizListAmount(userId);
+    }
+
+    @Override
+    public Integer getUserFavQuizListAmount(String userId) {
+        return quizDao.getUserFavQuizListAmount(userId);
+
     }
 }

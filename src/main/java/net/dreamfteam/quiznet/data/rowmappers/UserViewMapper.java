@@ -15,7 +15,6 @@ public class UserViewMapper implements RowMapper<UserView> {
 				.id(resultSet.getString("user_id"))
 				.username(resultSet.getString("username"))
 				.lastTimeOnline(resultSet.getTimestamp("last_time_online"))
-				.online(resultSet.getBoolean("is_online"))
 				.imageContent(resultSet.getBytes("image_content"))
 				.build();
 	}

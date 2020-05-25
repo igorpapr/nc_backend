@@ -16,4 +16,6 @@ public interface AchievementService {
 
 	void checkOnStartGameAchievements(String gameId);
 
+	Integer getUserAchievementsAmount(String userId);
+
 }

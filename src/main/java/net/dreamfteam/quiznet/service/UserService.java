@@ -47,4 +47,6 @@ public interface UserService {
     void proceedInvitation(String parentId, String targetId, boolean toAccept);
 
     void removeFriend( String targetId, String thisId);
+
+
 }

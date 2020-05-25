@@ -63,7 +63,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAllByRoleUser() {
         return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE roles.role_id = 1 and is_activated = true order by is_online desc, last_time_online desc",
+                        "WHERE roles.role_id = 1 and is_activated = true order by last_time_online desc",
                 new UserMapper()
         );
     }
@@ -71,7 +71,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getBySubStr(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE LOWER(username) LIKE LOWER(?) order by role , is_online desc, last_time_online desc",
+                        "WHERE LOWER(username) LIKE LOWER(?) order by role , last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -80,7 +80,7 @@ public class UserDaoImpl implements UserDao {
     public List<User> getBySubStrAndRoleUser(String str) {
         return jdbcTemplate.query(SELECT_QUERY +
                         "WHERE LOWER(username) LIKE LOWER(?)" +
-                        "AND roles.role_id = 1 and is_activated = true ORDER BY is_online desc, last_time_online desc",
+                        "AND roles.role_id = 1 and is_activated = true ORDER BY  last_time_online desc",
                 new UserMapper(),
                 str + "%");
     }
@@ -163,7 +163,7 @@ public class UserDaoImpl implements UserDao {
     public List<UserView> getFriendsByUserId(int startIndex, int amount, String userId) {
         try {
             return jdbcTemplate
-                    .query("SELECT user_id, username, last_time_online, is_online, image AS image_content " +
+                    .query("SELECT user_id, username, last_time_online, image AS image_content " +
                             "FROM users WHERE user_id IN   (SELECT f.friend_id AS id " +
                             "FROM friends f " +
                             "WHERE f.parent_id = uuid(?) " +
