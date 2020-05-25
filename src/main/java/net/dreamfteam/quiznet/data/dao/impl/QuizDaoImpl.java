@@ -770,7 +770,7 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     public void updateQuizRating(String quizId) {
-        jdbcTemplate.update("update quizzes set rating = (select sum(rating_points)/count(*) from user_quiz_rating where quiz_id =(select quiz_id from games where game_id=uuid(?))) where quiz_id =(select quiz_id from games where game_id=uuid(?))", quizId, quizId);
+        jdbcTemplate.update("update quizzes set rating = (select sum(rating_points)::decimal/count(*) from user_quiz_rating where quiz_id =(select quiz_id from games where game_id=uuid(?))) where quiz_id =(select quiz_id from games where game_id=uuid(?))", quizId, quizId);
     }
 
     @Override
@@ -900,4 +900,23 @@ public class QuizDaoImpl implements QuizDao {
                     }
                 });
     }
+
+
+    @Override
+    public Integer getUserQuizListAmount(String userId) {
+            return jdbcTemplate.queryForObject("SELECT count(*) as amount FROM quizzes where creator_id=uuid(?) ",
+                   new Object[]{ userId}, Integer.class);
+
+    }
+
+    @Override
+    public Integer getUserFavQuizListAmount(String userId) {
+        return jdbcTemplate.queryForObject("select count(*) from quizzes " +
+                        "where quiz_id in ( select quiz_id from favourite_quizzes where user_id=uuid(?))",
+                new Object[]{userId}, Integer.class);
+
+    }
+
+
+
 }

@@ -102,4 +102,9 @@ public interface QuizDao {
     int getRejectedNumber();
 
     int getUnvalidatedNumber();
+
+    Integer getUserQuizListAmount(String userId);
+
+    Integer getUserFavQuizListAmount(String userId);
+
 }

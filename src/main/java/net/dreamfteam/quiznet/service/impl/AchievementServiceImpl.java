@@ -70,6 +70,11 @@ public class AchievementServiceImpl implements AchievementService {
 
 	}
 
+	@Override
+	public Integer getUserAchievementsAmount(String userId){
+		return achievementDao.getUserAchievementsAmount(userId);
+
+	};
 
 
 	@Override

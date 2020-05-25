@@ -83,4 +83,8 @@ public interface QuizService {
     int countValidatedQuizzesByModerator();
 
     DtoQuizzesStatuses getQuizStatusesData();
+
+    Integer getUserQuizListAmount(String userId);
+
+    Integer getUserFavQuizListAmount(String userId);
 }
