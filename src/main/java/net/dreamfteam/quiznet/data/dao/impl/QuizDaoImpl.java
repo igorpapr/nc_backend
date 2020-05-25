@@ -124,7 +124,7 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz =
-                    jdbcTemplate.queryForObject("SELECT *, quiz_rating(quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
+                    jdbcTemplate.queryForObject("SELECT quizzes.*, quiz_rating(quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
                             new QuizMapper());
             if (userId != null) {
                 if (jdbcTemplate.queryForObject(
@@ -149,7 +149,7 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId) {
         try {
             Quiz quiz =
-                    jdbcTemplate.queryForObject("SELECT *, quiz_rating(quizzes.quiz_id), FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
+                    jdbcTemplate.queryForObject("SELECT quizzes.*, quiz_rating(quizzes.quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
                             new QuizMapper());
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
             quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
