@@ -124,7 +124,7 @@ public class QuizDaoImpl implements QuizDao {
     public Quiz getQuiz(String quizId, String userId) {
         try {
             Quiz quiz =
-                    jdbcTemplate.queryForObject("SELECT * FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
+                    jdbcTemplate.queryForObject("SELECT *, quiz_rating(quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
                             new QuizMapper());
             if (userId != null) {
                 if (jdbcTemplate.queryForObject(
@@ -250,10 +250,10 @@ public class QuizDaoImpl implements QuizDao {
                     "') AND ";
         }
         if (quizFilter.getMoreThanRating() > 0) {
-            sql = sql + "rating >= " + quizFilter.getMoreThanRating() + " AND ";
+            sql = sql + "quiz_rating(q.quiz_id) >= " + quizFilter.getMoreThanRating() + " AND ";
         }
         if (quizFilter.getLessThanRating() > 0) {
-            sql = sql + "rating <= " + quizFilter.getLessThanRating() + " AND ";
+            sql = sql + "quiz_rating(q.quiz_id) <= " + quizFilter.getLessThanRating() + " AND ";
         }
         if (quizFilter.getQuizLang() != null) {
             sql = sql + "quiz_lang LIKE '" + quizFilter.getQuizLang() + "' AND ";
@@ -284,6 +284,7 @@ public class QuizDaoImpl implements QuizDao {
             sql = sql + " ORDER BY ver_creation_datetime DESC LIMIT ? OFFSET ?";
         }
         System.out.println("FILTERED");
+        System.out.println(sql);
         try {
             List<QuizFiltered> quizList =
                     jdbcTemplate.query(sql, new Object[]{amount, startIndex}, new QuizFilteredMapper());
