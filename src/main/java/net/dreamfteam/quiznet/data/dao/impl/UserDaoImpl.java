@@ -306,4 +306,19 @@ public class UserDaoImpl implements UserDao {
                 "where parent_id in ( UUID(?), UUID(?)) and friend_id in ( UUID(?), UUID(?))", targetId, thisId, targetId, thisId, targetId, thisId);
     }
 
+    @Override
+    public List<User> getPopularCreators() {
+        return jdbcTemplate.query(SELECT_QUERY + "inner join " +
+                        "(select creator_id, count(quiz_id) as count from quizzes " +
+                        "where validated = true and published = true group by creator_id) as cic " +
+                        "on creator_id = user_id where roles.role_id = 1 and is_activated = true order by count desc limit 20;\n",
+                new UserMapper());
+    }
+
+    @Override
+    public List<User> getPrivilegedUsers() {
+        return jdbcTemplate.query(SELECT_QUERY + "where roles.role_id > 1 order by last_time_online desc;\n",
+                new UserMapper());
+    }
+
 }

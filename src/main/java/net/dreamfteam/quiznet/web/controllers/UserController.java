@@ -67,6 +67,7 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/{userName}")
     public ResponseEntity<DtoUser> getProfile(@PathVariable String userName) {
 
@@ -88,6 +89,7 @@ public class UserController {
         return new ResponseEntity<>(dtoUser, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/search")
     public ResponseEntity<List<DtoUser>> getProfileByStr(@PathParam("key") String key) {
 
@@ -98,6 +100,18 @@ public class UserController {
         List<DtoUser> dtoUsers = DtoUser.fromUser(users);
 
         return new ResponseEntity<>(dtoUsers, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/popular-creators")
+    public  ResponseEntity<List<?>> getPopularCreators() {
+        return new ResponseEntity<>(userService.getPopularCreators(), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
+    @GetMapping("/privileged-users")
+    public ResponseEntity<List<?>> getPrivileged() {
+        return new ResponseEntity<>(userService.getPrivilegedUsers(), HttpStatus.OK);
     }
 
     @GetMapping

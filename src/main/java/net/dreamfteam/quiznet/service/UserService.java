@@ -49,4 +49,8 @@ public interface UserService {
     void removeFriend( String targetId, String thisId);
 
 
+    List<User> getPopularCreators();
+
+    List<User> getPrivilegedUsers();
+
 }

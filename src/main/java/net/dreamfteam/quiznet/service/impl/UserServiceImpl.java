@@ -255,6 +255,16 @@ public class UserServiceImpl implements UserService {
         userDao.removeFriend(targetId, thisId);
     }
 
+    @Override
+    public List<User> getPopularCreators() {
+        return userDao.getPopularCreators();
+    }
+
+    @Override
+    public List<User> getPrivilegedUsers() {
+        return userDao.getPrivilegedUsers();
+    }
+
 
 }
 
