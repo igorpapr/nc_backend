@@ -214,7 +214,7 @@ public class UserServiceImpl implements UserService {
             String parentUsername = getById(parentId).getUsername();
             //adding notification
             notificationService.insert(DtoNotification.builder()
-                    .link("_")
+                    .link("")
                     .typeId(1)
                     .content("You've got a friend request from " + parentUsername)
                     .contentUk("Ви отримали запит на дружбу від "+ parentUsername)
