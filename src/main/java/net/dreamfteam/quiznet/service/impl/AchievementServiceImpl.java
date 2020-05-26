@@ -175,7 +175,8 @@ public class AchievementServiceImpl implements AchievementService {
 													.linkInfo(userAchievement.getUsername())
 												  .build();
 				DtoNotification notification = DtoNotification.builder()
-						.link("/profile/"+userAchievement.getUsername()+"/3")  //Link for achievements
+						.link(userAchievement.getUsername())  //Link for achievements
+						.typeId(3)
 						.userId(userId).build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");
