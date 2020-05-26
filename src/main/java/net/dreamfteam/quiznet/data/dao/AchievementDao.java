@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
+import net.dreamfteam.quiznet.web.dto.DtoUserAchievement;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface AchievementDao {
 
     List<UserAchievement> getUserAchievementsLastWeek(String userId);
 
-    UserAchievement getUserAchievementByIds(String userId, int achievementId);
+    DtoUserAchievement getUserAchievementByIds(String userId, int achievementId);
 
     Integer getUserAchievementsAmount(String userId);
 

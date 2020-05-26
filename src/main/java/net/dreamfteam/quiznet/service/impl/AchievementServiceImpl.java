@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
+import net.dreamfteam.quiznet.web.dto.DtoUserAchievement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -156,7 +157,7 @@ public class AchievementServiceImpl implements AchievementService {
 			resAssigning = achievementDao.assignAchievement(userId, achievementId);
 		}
 		if (resAssigning > 0){
-			UserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
+			DtoUserAchievement userAchievement = achievementDao.getUserAchievementByIds(userId, achievementId);
 			if(userAchievement != null){
 				DtoActivity activity = DtoActivity.builder()
 												  .activityType(ActivityType.ACHIEVEMENTS_RELATED)
@@ -167,21 +168,21 @@ public class AchievementServiceImpl implements AchievementService {
 						.userId(userId).build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");
-					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitle() + "!");
+					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitleUk() + "!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() + "!");
 					notification.setContentUk("Вітання! Ви отримали досягнення: "
-							+ userAchievement.getTitle() + "!");
+							+ userAchievement.getTitleUk() + "!");
 				}else{
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained()+ " times!");
-					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitle() + " "
+					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitleUk() + " "
 							+ userAchievement.getTimesGained() + "-ий раз!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained() + " times!");
 					notification.setContentUk("Вітання! Ви отримали досягенння: "
-							+ userAchievement.getTitle() +
+							+ userAchievement.getTitleUk() +
 							" " + userAchievement.getTimesGained() + "-ий раз!");
 				}
 				activitiesService.addActivityForUser(activity);
