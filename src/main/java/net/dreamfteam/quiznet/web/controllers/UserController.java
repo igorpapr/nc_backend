@@ -52,7 +52,6 @@ public class UserController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/edit/image")
     public ResponseEntity<?> editImage(@RequestParam("key") MultipartFile image){
-        //TODO universal method for edit
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
         try {
@@ -67,7 +66,7 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN', 'USER')")
     @GetMapping("/{userName}")
     public ResponseEntity<DtoUser> getProfile(@PathVariable String userName) {
 
@@ -89,7 +88,7 @@ public class UserController {
         return new ResponseEntity<>(dtoUser, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN', 'USER')")
     @GetMapping("/search")
     public ResponseEntity<List<DtoUser>> getProfileByStr(@PathParam("key") String key) {
 
@@ -193,7 +192,7 @@ public class UserController {
 
     }
 
-
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN', 'USER')")
     @GetMapping("/{userId}/achievements/size")
     public ResponseEntity<?> getUserAchievementsAmount(@PathVariable String userId) throws ValidationException {
         return new ResponseEntity<>(achievementService.getUserAchievementsAmount(userId), HttpStatus.OK);
