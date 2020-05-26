@@ -60,9 +60,9 @@ public class AchievementDaoImpl implements AchievementDao {
                                 "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
                                 "FROM achievements a INNER JOIN users_achievements ua " +
                                 "ON a.achievement_id = ua.achievement_id " +
-                                "INNER JOIN (SELECT value, user_id " + //selecting language settings
-                                            "FROM user_settings " +
-                                            "WHERE user_id = uuid(?) AND setting_id = uuid(?)) " +
+                                "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
+                                            "FROM user_settings us " +
+                                            "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
                                     "AS tmp ON ua.user_id = tmp.user_id " +
                                 "LEFT JOIN categories c ON a.category_id = c.category_id " +
                                 "WHERE ua.user_id = uuid(?);",
@@ -82,12 +82,12 @@ public class AchievementDaoImpl implements AchievementDao {
                 "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
                 "FROM achievements a INNER JOIN users_achievements ua " +
                 "ON a.achievement_id = ua.achievement_id " +
-                "INNER JOIN (SELECT value, user_id " + //selecting language settings
-                            "FROM user_settings " +
-                            "WHERE user_id = uuid(?) AND setting_id = uuid(?)) " +
+                "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
+                            "FROM user_settings us " +
+                            "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
                     "AS tmp ON ua.user_id = tmp.user_id " +
                 "LEFT JOIN categories c ON a.category_id = c.category_id " +
-                "WHERE user_id = UUID(?) " +
+                "WHERE ua.user_id = UUID(?) " +
                 "ORDER BY datetime_gained", new Object[]{userId, Constants.SETTING_LANG_ID, userId},
                 new UserAchievementMapper());
     }
