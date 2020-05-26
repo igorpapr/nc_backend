@@ -219,7 +219,6 @@ public class GameSessionDaoImpl implements GameSessionDao {
                             "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
                     gameId, gameId);
         } catch (DataAccessException e) {
-            System.err.println("Error occurred while setting winners for the game (" + gameId + "): " + e.getMessage());
             return 0;
         }
     }
