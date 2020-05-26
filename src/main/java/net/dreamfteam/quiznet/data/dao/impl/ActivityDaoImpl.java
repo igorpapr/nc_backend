@@ -63,8 +63,9 @@ public class ActivityDaoImpl implements ActivityDao {
 	@Override
 	public void addActivity(DtoActivity activity) {
 		try{
-			jdbcTemplate.update("INSERT INTO user_activities (content, type_id, user_id) " +
+			jdbcTemplate.update("INSERT INTO user_activities (content, content_uk, type_id, user_id) " +
 									"VALUES (?, ?, uuid(?))", activity.getContent(),
+					activity.getContentUk(),
 					activity.getActivityType().ordinal() + 1, activity.getUserId());
 		}catch (DataAccessException e){
 			System.err.println("Couldn't add new activity for user "+ activity.getUserId() +
