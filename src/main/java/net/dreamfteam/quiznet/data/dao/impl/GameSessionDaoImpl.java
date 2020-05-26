@@ -27,74 +27,33 @@ import java.util.UUID;
 public class GameSessionDaoImpl implements GameSessionDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final GameDao gameDao;
-    private final SseService sseService;
 
     @Autowired
-    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate, GameDao gameDao, SseService sseService) {
+    public GameSessionDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.gameDao = gameDao;
-        this.sseService = sseService;
     }
 
     @Override
     public GameSession getSessionByAccessId(String accessId, String userId, String username) {
 
-        GameSession gameSession;
 
         try {
             if(!userId.startsWith("-")){
-                gameSession = jdbcTemplate.queryForObject("SELECT * " +
+                return jdbcTemplate.queryForObject("SELECT * " +
                                 "FROM users_games WHERE (user_id = UUID(?) OR username = ?) AND game_id IN (" +
                                 "SELECT game_id FROM games WHERE access_code = ?);",
                         new Object[]{userId, username, accessId}, new GameSessionMapper());
             }else{
-                gameSession = jdbcTemplate.queryForObject("SELECT * " +
+                return jdbcTemplate.queryForObject("SELECT * " +
                                 "FROM users_games WHERE username = ? AND game_id IN (" +
                                 "SELECT game_id FROM games WHERE access_code = ?);",
                         new Object[]{username, accessId}, new GameSessionMapper());
             }
 
         } catch (EmptyResultDataAccessException e) {
-            gameSession = null;
+            return null;
         }
 
-
-        String name = username;
-
-        //IF SESSION CREATED FOR USER
-        if (gameSession != null && Objects.equals(gameSession.getId(), userId)) {
-            return gameSession;
-        }
-        //IF GAME CONTAINS PLAYER SESSION WITH SAME NAME
-        else if (gameSession != null) {
-            name = name + "(1)";
-        }
-
-        if (!gameHasAvailableSlots(accessId)) {
-            throw new ValidationException("Sorry, no slots are available");
-        }
-
-
-        String gameId = gameDao.getGameByAccessId(accessId).getId();
-
-
-        gameSession = GameSession.builder()
-                .userId(userId.startsWith("-") ? null : userId)
-                .username(name)
-                .gameId(gameId)
-                .score(0)
-                .winner(false)
-                .creator(isCreator(gameId))
-                .savedByUser(!userId.startsWith("-"))
-                .durationTime(0)
-                .build();
-
-        gameSession = createSession(gameSession);
-
-        sseService.send(gameId, "join", name);
-
-        return gameSession;
     }
 
     @Override
@@ -265,7 +224,9 @@ public class GameSessionDaoImpl implements GameSessionDao {
         }
     }
 
-    private boolean isCreator(String gameId){
+    //Returns true if player that joined to current game is first
+    @Override
+    public boolean isCreator(String gameId){
         return Optional.ofNullable(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM users_games WHERE game_id = UUID(?)",
                 new Object[]{gameId},Integer.class)).orElse(0) == 0;
