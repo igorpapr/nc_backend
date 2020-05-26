@@ -192,7 +192,7 @@ public class UserController {
 
     }
 
-
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN', 'USER')")
     @GetMapping("/{userId}/achievements/size")
     public ResponseEntity<?> getUserAchievementsAmount(@PathVariable String userId) throws ValidationException {
         return new ResponseEntity<>(achievementService.getUserAchievementsAmount(userId), HttpStatus.OK);

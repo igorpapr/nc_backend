@@ -341,7 +341,7 @@ public class QuizController {
         return new ResponseEntity<>(quizService.getUserQuizListAmount(userId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN', 'USER')")
     @GetMapping("/user-fav-list/size")
     public  ResponseEntity<?> getUserFavQuizListAmount() {
         return new ResponseEntity<>(quizService.getUserFavQuizListAmount(authenticationFacade.getUserId()), HttpStatus.OK);
