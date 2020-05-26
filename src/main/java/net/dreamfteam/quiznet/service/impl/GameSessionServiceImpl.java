@@ -127,6 +127,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                             .activityType(ActivityType.GAMEPLAY_RELATED)
                             .content("Won the game while playing the quiz: \"" + winner.getQuizTitle() + "\"")
                             .contentUk("Виграв/ла гру граючи квіз: \"" + winner.getQuizTitle() + "\"")
+                            .linkInfo(gameId)
                             .build();
                     activitiesService.addActivityForUser(activity);
                 }

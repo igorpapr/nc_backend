@@ -96,14 +96,16 @@ public class AchievementDaoImpl implements AchievementDao {
     public DtoUserAchievement getUserAchievementByIds(String userId, int achievementId) {
         try {
             return jdbcTemplate
-                    .queryForObject("SELECT a.title, a.title_uk, ua.times_gained " +
+                    .queryForObject("SELECT a.title, a.title_uk, ua.times_gained, u.username " +
                                     "FROM achievements a INNER JOIN users_achievements ua " +
                                     "ON a.achievement_id = ua.achievement_id " +
+                                    "INNER JOIN users u ON ua.user_id = u.user_id " +
                                     "WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;",
                             new Object[]{userId, achievementId}, (rs, i) -> DtoUserAchievement.builder()
                                     .title(rs.getString("title"))
                                     .titleUk(rs.getString("title_uk"))
                                     .timesGained(rs.getInt("times_gained"))
+                                    .username(rs.getString("username"))
                                     .build());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             System.err.println("Couldn't find user achievement info by userId: " + userId
