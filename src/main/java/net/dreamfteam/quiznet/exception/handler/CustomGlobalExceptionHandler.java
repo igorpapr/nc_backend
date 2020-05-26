@@ -23,9 +23,8 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
         HttpStatus httpStatus = exception.getHttpStatus();
 
-        log.error(String.format("Exception received, path: '%s'",
+        log.error(String.format("Exception received, path: '%s'\nException: '%s'",
                 request.getRequestURI(), exception));
-        System.out.println(exception);
         ErrorMessage errorMessage = ErrorMessage.builder()
                 .message(exception.getMessage())
                 .statusCode(httpStatus.value())

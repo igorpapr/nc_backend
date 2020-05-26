@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public class SettingsDaoImpl implements SettingsDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public SettingsDaoImpl(JdbcTemplate jdbcTemplate) {
