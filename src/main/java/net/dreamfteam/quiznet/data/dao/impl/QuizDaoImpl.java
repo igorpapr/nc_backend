@@ -241,43 +241,9 @@ public class QuizDaoImpl implements QuizDao {
         String sql = "SELECT q.quiz_id, q.title, q.image, quiz_rating(q.quiz_id) as rating  " +
                 "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
                 "WHERE activated = true AND validated = true AND ";
-        if (quizFilter.getQuizName() != null) {
 
-            sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
-        }
-        if (quizFilter.getUserName() != null) {
-            sql = sql + "creator_id = (SELECT user_id FROM users WHERE username LIKE '" + quizFilter.getUserName() +
-                    "') AND ";
-        }
-        if (quizFilter.getMoreThanRating() > 0) {
-            sql = sql + "quiz_rating(q.quiz_id) >= " + quizFilter.getMoreThanRating() + " AND ";
-        }
-        if (quizFilter.getLessThanRating() > 0) {
-            sql = sql + "quiz_rating(q.quiz_id) <= " + quizFilter.getLessThanRating() + " AND ";
-        }
-        if (quizFilter.getQuizLang() != null) {
-            sql = sql + "quiz_lang LIKE '" + quizFilter.getQuizLang() + "' AND ";
-        }
-        if (quizFilter.getTags() != null && quizFilter.getTags()
-                .size() > 0) {
-            for (int i = 0; i < quizFilter.getTags()
-                    .size(); i++) {
-                sql = sql + "quiz_id IN (SELECT quiz_id FROM quizzes_tags WHERE tag_id = '" + quizFilter.getTags()
-                        .get(i) +
-                        "') AND ";
-            }
-        }
-        if (quizFilter.getCategories() != null && quizFilter.getCategories()
-                .size() > 0) {
-            for (int i = 0; i < quizFilter.getCategories()
-                    .size(); i++) {
-                sql = sql + "quiz_id IN (SELECT quiz_id FROM categs_quizzes WHERE category_id = '" +
-                        quizFilter.getCategories()
-                                .get(i) + "') AND ";
-            }
-        }
+        sql = filterSqlGeneration(quizFilter, sql);
 
-        sql = sql.substring(0, sql.length() - 4);
         if (quizFilter.getOrderByRating() != null && quizFilter.getOrderByRating() == true) {
             sql = sql + "ORDER BY rating DESC LIMIT ? OFFSET ?";
         } else {
@@ -295,46 +261,52 @@ public class QuizDaoImpl implements QuizDao {
         }
     }
 
-    @Override
-    public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
-        String sql = "SELECT COUNT(*) FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
-                "WHERE activated = true AND validated = true AND ";
+    private String filterSqlGeneration(DtoQuizFilter quizFilter, String sql) {
         if (quizFilter.getQuizName() != null) {
+
             sql = sql + "title ILIKE '%" + quizFilter.getQuizName() + "%' AND ";
         }
         if (quizFilter.getUserName() != null) {
             sql = sql + "creator_id = (SELECT user_id FROM users WHERE username LIKE '" + quizFilter.getUserName() +
-                    "') AND ";
+                  "') AND ";
         }
         if (quizFilter.getMoreThanRating() > 0) {
-            sql = sql + "quiz_rating(quiz_id)  >= " + quizFilter.getMoreThanRating() + " AND ";
+            sql = sql + "quiz_rating(q.quiz_id) >= " + quizFilter.getMoreThanRating() + " AND ";
         }
         if (quizFilter.getLessThanRating() > 0) {
-            sql = sql + "quiz_rating(quiz_id)  <= " + quizFilter.getLessThanRating() + " AND ";
+            sql = sql + "quiz_rating(q.quiz_id) <= " + quizFilter.getLessThanRating() + " AND ";
         }
         if (quizFilter.getQuizLang() != null) {
             sql = sql + "quiz_lang LIKE '" + quizFilter.getQuizLang() + "' AND ";
         }
         if (quizFilter.getTags() != null && quizFilter.getTags()
-                .size() > 0) {
+                                                      .size() > 0) {
             for (int i = 0; i < quizFilter.getTags()
-                    .size(); i++) {
+                                          .size(); i++) {
                 sql = sql + "quiz_id IN (SELECT quiz_id FROM quizzes_tags WHERE tag_id = '" + quizFilter.getTags()
-                        .get(i) +
-                        "') AND ";
+                                                                                                        .get(i) +
+                      "') AND ";
             }
         }
         if (quizFilter.getCategories() != null && quizFilter.getCategories()
-                .size() > 0) {
+                                                            .size() > 0) {
             for (int i = 0; i < quizFilter.getCategories()
-                    .size(); i++) {
+                                          .size(); i++) {
                 sql = sql + "quiz_id IN (SELECT quiz_id FROM categs_quizzes WHERE category_id = '" +
-                        quizFilter.getCategories()
+                      quizFilter.getCategories()
                                 .get(i) + "') AND ";
             }
         }
         sql = sql.substring(0, sql.length() - 4);
+        return sql;
+    }
 
+    @Override
+    public int findQuizzesFilterSize(DtoQuizFilter quizFilter) {
+        String sql = "SELECT COUNT(*) FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+                "WHERE activated = true AND validated = true AND ";
+        sql = filterSqlGeneration(quizFilter, sql);
+        System.out.println(sql);
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
