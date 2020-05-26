@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
 import net.dreamfteam.quiznet.data.entities.GameSession;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.GameSessionService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class GameSessionServiceImpl implements GameSessionService {
@@ -42,7 +44,44 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     @Override
     public GameSession joinGame(String accessId, String userId, String username) {
-        return gameSessionDao.getSessionByAccessId(accessId, userId, username);
+        GameSession gameSession = gameSessionDao.getSessionByAccessId(accessId, userId, username);
+
+        String name = username;
+
+        //IF SESSION CREATED FOR USER
+        if (gameSession != null && Objects.equals(gameSession.getId(), userId)) {
+            return gameSession;
+        }
+        //IF GAME CONTAINS PLAYER SESSION WITH SAME NAME
+        else if (gameSession != null) {
+            name = name + "(1)";
+        }
+
+        if (!gameSessionDao.gameHasAvailableSlots(accessId)) {
+            throw new ValidationException("Sorry, no slots are available");
+        }
+
+
+        String gameId = gameDao.getGameByAccessId(accessId).getId();
+
+
+        gameSession = GameSession.builder()
+                .userId(userId.startsWith("-") ? null : userId)
+                .username(name)
+                .gameId(gameId)
+                .score(0)
+                .winner(false)
+                .creator(gameSessionDao.isCreator(gameId))
+                .savedByUser(!userId.startsWith("-"))
+                .durationTime(0)
+                .build();
+
+        gameSession = gameSessionDao.createSession(gameSession);
+
+        sseService.send(gameId, "join", name);
+
+        return gameSession;
+
     }
 
     @Override
