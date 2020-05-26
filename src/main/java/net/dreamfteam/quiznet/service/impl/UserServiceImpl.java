@@ -244,7 +244,7 @@ public class UserServiceImpl implements UserService {
                 activitiesService.addActivityForUser(activity);
 
                 activity.setContent("Added new friend: " + authenticationFacade.getUsername());
-                activity.setContent("Додав/ла нового друга: " + authenticationFacade.getUsername());
+                activity.setContentUk("Додав/ла нового друга: " + authenticationFacade.getUsername());
                 activity.setUserId(parentId);
                 activity.setLinkInfo(authenticationFacade.getUsername());
                 activitiesService.addActivityForUser(activity);
