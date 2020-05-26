@@ -3,14 +3,13 @@ package net.dreamfteam.quiznet.data.dao.impl;
 import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.ActivityDao;
 import net.dreamfteam.quiznet.data.entities.FriendsActivity;
-import net.dreamfteam.quiznet.data.rowmappers.ActivityMapper;
+import net.dreamfteam.quiznet.data.rowmappers.FriendsActivityMapper;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,7 +32,8 @@ public class ActivityDaoImpl implements ActivityDao {
 									"WHERE user_id = uuid(?) " +
 									"AND setting_id = uuid(?)) " +
 									"WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
-									"activity_id, datetime, ua.user_id, u.username, u.image AS image_content " +
+									"activity_id, datetime, ua.user_id, u.username, ua.type_id, ua.link_info, " +
+									"u.image AS image_content " +
 								"FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
 								"INNER JOIN activity_types at1 ON ua.type_id = at1.type_id " +
 								"WHERE ua.user_id IN " + //selecting friends
@@ -54,7 +54,7 @@ public class ActivityDaoImpl implements ActivityDao {
 													"AND value = 'true' " +
 													"AND activity_type_id IS NOT NULL) " +
 								"ORDER BY datetime DESC;",
-					new Object[]{userId, Constants.SETTING_LANG_ID, userId, userId, userId}, new ActivityMapper());
+					new Object[]{userId, Constants.SETTING_LANG_ID, userId, userId, userId}, new FriendsActivityMapper());
 		}catch (EmptyResultDataAccessException e){
 			return null;
 		}
@@ -63,10 +63,11 @@ public class ActivityDaoImpl implements ActivityDao {
 	@Override
 	public void addActivity(DtoActivity activity) {
 		try{
-			jdbcTemplate.update("INSERT INTO user_activities (content, content_uk, type_id, user_id) " +
-									"VALUES (?, ?, ?, uuid(?))", activity.getContent(),
+			jdbcTemplate.update("INSERT INTO user_activities (content, content_uk, type_id, user_id, link_info) " +
+									"VALUES (?, ?, ?, uuid(?), ?)", activity.getContent(),
 					activity.getContentUk(),
-					activity.getActivityType().ordinal() + 1, activity.getUserId());
+					activity.getActivityType().ordinal() + 1, activity.getUserId(),
+					activity.getLinkInfo());
 		}catch (DataAccessException e){
 			System.err.println("Couldn't add new activity for user "+ activity.getUserId() +
 					".\n Error: " + e.getMessage());

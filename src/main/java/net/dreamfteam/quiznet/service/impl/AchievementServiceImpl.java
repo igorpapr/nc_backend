@@ -102,12 +102,16 @@ public class AchievementServiceImpl implements AchievementService {
 
 	private void checkPlayedAmountOfDifferentQuizzes(String userId) {
 		int amountOfQuizzesPlayed = gameSessionDao.getNumberOfQuizzesPlayedByUser(userId);
-		if (amountOfQuizzesPlayed == 10){
-			addAchievementForUser(userId, Constants.ACHIEVEMENT_FRESHMAN_ID, false);
-		} else if (amountOfQuizzesPlayed == 25){
-			addAchievementForUser(userId, Constants.ACHIEVEMENT_CASUAL_ID, false);
-		} else if (amountOfQuizzesPlayed == 50){
-			addAchievementForUser(userId, Constants.ACHIEVEMENT_EXPERT_ID, false);
+		switch (amountOfQuizzesPlayed) {
+			case 10:
+				addAchievementForUser(userId, Constants.ACHIEVEMENT_FRESHMAN_ID, false);
+				break;
+			case 25:
+				addAchievementForUser(userId, Constants.ACHIEVEMENT_CASUAL_ID, false);
+				break;
+			case 50:
+				addAchievementForUser(userId, Constants.ACHIEVEMENT_EXPERT_ID, false);
+				break;
 		}
 	}
 
@@ -118,16 +122,22 @@ public class AchievementServiceImpl implements AchievementService {
 			int amount = info.getAmountPlayed();
 			if(amount > 0 && ((amount % 10) == 0)){ //works on every tenth game
 				String catTitle = info.getCategoryTitle();
-				if (catTitle.equals("Geography")){
-					addAchievementForUser(userId, Constants.ACHIEVEMENT_GEOGRAPHY_CATEGORY_ID,true);
-				} else if (catTitle.equals("Ukraine")){
-					addAchievementForUser(userId, Constants.ACHIEVEMENT_UKRAINE_CATEGORY_ID, true);
-				} else if (catTitle.equals("History")){
-					addAchievementForUser(userId, Constants.ACHIEVEMENT_HISTORY_CATEGORY_ID, true);
-				} else if (catTitle.equals("Science")){
-					addAchievementForUser(userId, Constants.ACHIEVEMENT_SCIENCE_CATEGORY_ID, true);
-				} else if (catTitle.equals("Other")){
-					addAchievementForUser(userId, Constants.ACHIEVEMENT_OTHERS_CATEGORY_ID, true);
+				switch (catTitle) {
+					case "Geography":
+						addAchievementForUser(userId, Constants.ACHIEVEMENT_GEOGRAPHY_CATEGORY_ID, true);
+						break;
+					case "Ukraine":
+						addAchievementForUser(userId, Constants.ACHIEVEMENT_UKRAINE_CATEGORY_ID, true);
+						break;
+					case "History":
+						addAchievementForUser(userId, Constants.ACHIEVEMENT_HISTORY_CATEGORY_ID, true);
+						break;
+					case "Science":
+						addAchievementForUser(userId, Constants.ACHIEVEMENT_SCIENCE_CATEGORY_ID, true);
+						break;
+					case "Other":
+						addAchievementForUser(userId, Constants.ACHIEVEMENT_OTHERS_CATEGORY_ID, true);
+						break;
 				}
 			}
 		}
@@ -162,9 +172,10 @@ public class AchievementServiceImpl implements AchievementService {
 				DtoActivity activity = DtoActivity.builder()
 												  .activityType(ActivityType.ACHIEVEMENTS_RELATED)
 												  .userId(userId)
+													.linkInfo(userAchievement.getUsername())
 												  .build();
 				DtoNotification notification = DtoNotification.builder()
-						.link("")  //Link for achievements
+						.link("/profile/"+userAchievement.getUsername()+"/3")  //Link for achievements
 						.userId(userId).build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");

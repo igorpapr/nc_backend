@@ -19,4 +19,6 @@ public class DtoActivity {
 
 	private ActivityType activityType;
 
+	private String linkInfo;
+
 }

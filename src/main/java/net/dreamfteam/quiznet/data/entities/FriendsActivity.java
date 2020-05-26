@@ -19,7 +19,12 @@ public class FriendsActivity {
 	//Id of the person owner of this activity
 	private String userId;
 
+	//owner
 	private String username;
+
+	private int activityTypeId;
+
+	private String linkInfo;
 
 	private byte[] imageContent;
 }

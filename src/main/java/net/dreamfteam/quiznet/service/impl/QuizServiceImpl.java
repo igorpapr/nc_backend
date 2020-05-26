@@ -137,6 +137,7 @@ public class QuizServiceImpl implements QuizService {
                     .contentUk("Успішно створив квіз - \"" + quiz.getTitle() + "\". Тепер в нього можна грати.")
                     .activityType(ActivityType.VALIDATION_RELATED)
                     .userId(quiz.getCreatorId())
+                    .linkInfo(quiz.getQuizId())
                     .build();
             activitiesService.addActivityForUser(activity);
             //checking achievements
