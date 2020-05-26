@@ -235,12 +235,14 @@ public class UserServiceImpl implements UserService {
                 DtoActivity activity = DtoActivity
                         .builder()
                         .content("Added new friend: " + parent.getUsername())
+                        .contentUk("Додав/ла нового друга: " + parent.getUsername())
                         .userId(targetId)
                         .activityType(ActivityType.FRIENDS_RELATED)
                         .build();
                 activitiesService.addActivityForUser(activity);
 
                 activity.setContent("Added new friend: " + authenticationFacade.getUsername());
+                activity.setContent("Додав/ла нового друга: " + authenticationFacade.getUsername());
                 activity.setUserId(parentId);
                 activitiesService.addActivityForUser(activity);
             }

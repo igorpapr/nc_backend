@@ -87,4 +87,7 @@ public class Constants {
     public static final int ACHIEVEMENT_POPULAR_CREATOR_ID = 12;
     public static final int ACHIEVEMENT_EXTREMELY_POPULAR_ID = 13;
     public static final int ACHIEVEMENT_MASTERPIECE_CREATOR_ID = 14;
+
+    //Language setting id
+    public static final String SETTING_LANG_ID = "e8449301-6d6f-4376-8247-b7d1f8df6416";
 }

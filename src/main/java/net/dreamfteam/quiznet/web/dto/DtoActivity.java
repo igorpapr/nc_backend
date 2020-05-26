@@ -13,6 +13,8 @@ public class DtoActivity {
 
 	private String content;
 
+	private String contentUk;
+
 	private String userId;
 
 	private ActivityType activityType;

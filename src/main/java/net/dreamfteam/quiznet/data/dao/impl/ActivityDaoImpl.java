@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.ActivityDao;
 import net.dreamfteam.quiznet.data.entities.FriendsActivity;
 import net.dreamfteam.quiznet.data.rowmappers.ActivityMapper;
@@ -27,7 +28,12 @@ public class ActivityDaoImpl implements ActivityDao {
 	public List<FriendsActivity> getFriendsActivitiesList(String userId) {
 		try{
 			return jdbcTemplate
-					.query("SELECT activity_id, content, datetime, ua.user_id, u.username, u.image AS image_content " +
+					.query("SELECT CASE (SELECT value " +//selecting language of user
+									"FROM user_settings " +
+									"WHERE user_id = uuid(?) " +
+									"AND setting_id = uuid(?)) " +
+									"WHEN 'uk' THEN content_uk WHEN 'en' THEN content END AS content, " +
+									"activity_id, datetime, ua.user_id, u.username, u.image AS image_content " +
 								"FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
 								"INNER JOIN activity_types at1 ON ua.type_id = at1.type_id " +
 								"WHERE ua.user_id IN " + //selecting friends
@@ -48,7 +54,7 @@ public class ActivityDaoImpl implements ActivityDao {
 													"AND value = 'true' " +
 													"AND activity_type_id IS NOT NULL) " +
 								"ORDER BY datetime DESC;",
-					new Object[]{userId, userId, userId}, new ActivityMapper());
+					new Object[]{userId, Constants.SETTING_LANG_ID, userId, userId, userId}, new ActivityMapper());
 		}catch (EmptyResultDataAccessException e){
 			return null;
 		}
