@@ -42,6 +42,7 @@ public class Constants {
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
     public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
     public static final String SECUR_ANONYM = "/api/anonym**";
+    public static final String CHAT_URLS = "/api/chats";
 
     public static final String SECRET_MD5 = "SecretQuiz";
     public static final String SECRET = "SecretKeyToGenJWTs";
@@ -69,6 +70,7 @@ public class Constants {
     public static final String RECOVER_MAIL_ARTICLE = "Changing password";
     public static final String RECOVER_MAIL_MESSAGE = "To change your password visit next link: ";
     public static final int AMOUNT_QUESTIONS_ON_PAGE = 3;
+
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));
 
