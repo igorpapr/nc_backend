@@ -134,6 +134,7 @@ public class QuizServiceImpl implements QuizService {
             //adding activity
             DtoActivity activity = DtoActivity.builder()
                     .content("Successfully created a quiz - \"" + quiz.getTitle() + "\". It is playable now.")
+                    .contentUk("Успішно створив квіз - \"" + quiz.getTitle() + "\". Тепер в нього можна грати.")
                     .activityType(ActivityType.VALIDATION_RELATED)
                     .userId(quiz.getCreatorId())
                     .build();

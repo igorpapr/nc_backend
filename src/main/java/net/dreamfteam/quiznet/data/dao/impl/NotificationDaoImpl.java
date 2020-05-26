@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.NotificationDao;
 import net.dreamfteam.quiznet.data.entities.Notification;
 import net.dreamfteam.quiznet.data.rowmappers.NotificationMapper;
@@ -32,8 +33,8 @@ public class NotificationDaoImpl implements NotificationDao {
                         "notif_id, n.user_id, date_time, seen, link " +
                         "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
                         "WHERE seen = false AND n.user_id = UUID(?) " +
-                        "AND setting_id = 'e8449301-6d6f-4376-8247-b7d1f8df6416'",
-                new Object[]{userId}, new NotificationMapper());
+                        "AND setting_id = UUID(?)",
+                new Object[]{userId, Constants.SETTING_LANG_ID}, new NotificationMapper());
     }
 
     @Override

@@ -167,19 +167,22 @@ public class AchievementServiceImpl implements AchievementService {
 						.userId(userId).build();
 				if(userAchievement.getTimesGained() == 1){
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() + "!");
+					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitle() + "!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() + "!");
-					notification.setContentUk("Вітання! Ви отримали ачівмент: "
+					notification.setContentUk("Вітання! Ви отримали досягнення: "
 							+ userAchievement.getTitle() + "!");
 				}else{
 					activity.setContent("Got the achievement: " + userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained()+ " times!");
+					activity.setContentUk("Отримав/ла досягнення: " + userAchievement.getTitle() + " "
+							+ userAchievement.getTimesGained() + "-ий раз!");
 					notification.setContent("Congratulations! You've got the achievement: "
 							+ userAchievement.getTitle() +
 							" " + userAchievement.getTimesGained() + " times!");
-					notification.setContentUk("Вітання! Ви отримали ачівмент: "
+					notification.setContentUk("Вітання! Ви отримали досягенння: "
 							+ userAchievement.getTitle() +
-							" " + userAchievement.getTimesGained() + " разів!");
+							" " + userAchievement.getTimesGained() + "-ий раз!");
 				}
 				activitiesService.addActivityForUser(activity);
 				notificationService.insert(notification);
