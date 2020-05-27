@@ -468,8 +468,7 @@ public class QuizDaoImpl implements QuizDao {
                     jdbcTemplate.queryForList("SELECT category_id, " +
                                     "CASE WHEN " +
                                     "? = 'uk' " +
-                                    "THEN title_uk ELSE title END AS title, "+
-                                    "description, cat_image_ref FROM categories",
+                                    "THEN title_uk ELSE title END AS title FROM categories",
                             language);
             return listT;
         } catch (EmptyResultDataAccessException e) {
