@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
@@ -81,5 +82,10 @@ public class ChatServiceImpl implements ChatService {
         DtoChatWithParticipants result = DtoChatWithParticipants.toDtoChatWithParticipants(chat);
         result.setParticipants(getAllUsersInChat(chatId));
         return result;
+    }
+
+    @Override
+    public List<UserView> getFriendByTerm(String term, String userId){
+        return chatDao.getFriendByTerm(term,userId);
     }
 }

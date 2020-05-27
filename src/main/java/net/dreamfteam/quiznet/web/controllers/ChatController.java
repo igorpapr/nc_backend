@@ -110,4 +110,8 @@ public class ChatController {
         messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
     }
 
+    @GetMapping("/friends/{term}")
+    public ResponseEntity<?> getFriends(@PathVariable String term){
+        return new ResponseEntity<>(chatService.getFriendByTerm(term,authenticationFacade.getUserId()),HttpStatus.OK);
+    }
 }

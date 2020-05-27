@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
@@ -33,5 +34,7 @@ public interface ChatService {
 //    List<ChatMessage> getAllMessagesInChat(String chatId);
 //
 //    void saveMessage(String content, String chatId);
+
+    List<UserView> getFriendByTerm(String term, String userId);
 
 }

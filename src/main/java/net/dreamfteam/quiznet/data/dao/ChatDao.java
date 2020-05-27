@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 
@@ -21,6 +22,8 @@ public interface ChatDao {
     List<Chat> getAllUsersChat(String userId);
 
     List<DtoChatUser> getAllUsersInChat(String chatId);
+
+    List<UserView> getFriendByTerm(String term, String userId);
 
     Chat getChatById(String chatId,String currentUserId);
 
