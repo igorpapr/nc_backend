@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.data.rowmappers.ChatMapper;
 import net.dreamfteam.quiznet.data.rowmappers.DtoChatUserMapper;
+import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -123,6 +124,20 @@ public class ChatDaoImpl implements ChatDao {
                 "           ELSE null END AS image " +
                 "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id\n" +
                 "WHERE c.chat_id = UUID(?) AND uc.user_id= UUID(?);", new ChatMapper(), UUID.fromString(currentUserId), UUID.fromString(currentUserId), UUID.fromString(chatId), UUID.fromString(currentUserId));
+    }
+
+    @Override
+    public boolean checkIfChatExist(String chatId) {
+        return jdbcTemplate.queryForObject("SELECT CASE WHEN EXISTS " +
+                        "(SELECT chat_id FROM chats WHERE chat_id = UUID(?)) " +
+                        "THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END ; ",
+                new Object[]{chatId}, Boolean.class);
+    }
+
+    @Override
+    public void saveMessage(String chatId, DtoChatMessage chatMessage) {
+        jdbcTemplate.update("INSERT INTO messages (message_id, chat_id, user_id, content, datetime_sent) VALUES (?, ?, ?, ?, ?)",
+                UUID.randomUUID(), UUID.fromString(chatId), UUID.fromString(chatMessage.getAuthorId()), chatMessage.getContent(), chatMessage.getSentDate());
     }
 
 

@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.data.dao;
 
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 
 import java.util.List;
@@ -22,4 +23,8 @@ public interface ChatDao {
     List<DtoChatUser> getAllUsersInChat(String chatId);
 
     Chat getChatById(String chatId,String currentUserId);
+
+    boolean checkIfChatExist(String chatId);
+
+    void saveMessage(String chatId, DtoChatMessage chatMessage);
 }

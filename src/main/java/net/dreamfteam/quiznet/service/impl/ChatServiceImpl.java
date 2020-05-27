@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.service.ChatService;
+import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
 import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
@@ -24,32 +25,23 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public DtoChatWithParticipants createPersonalChat(String currentUserId, String otherUserId) {
+    public String createPersonalChat(String currentUserId, String otherUserId) {
+
         String idIfCreated = chatDao.checkIsPersonalChatCreated(currentUserId, otherUserId);
-        DtoChatWithParticipants returnedChat;
 
         if (idIfCreated == null) {
-            String id = chatDao.savePersonalChat(currentUserId, otherUserId);
-            returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatDao.getChatById(id, currentUserId));
-            returnedChat.setParticipants(chatDao.getAllUsersInChat(id));
-            return returnedChat;
-        } else {
-            returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatDao.getChatById(idIfCreated, currentUserId));
-            returnedChat.setParticipants(chatDao.getAllUsersInChat(idIfCreated));
-            return returnedChat;
-        }
+            return chatDao.savePersonalChat(currentUserId, otherUserId);
+
+        } else
+            return idIfCreated;
+
     }
 
     @Override
-    public DtoChatWithParticipants createGroupChat(DtoCreateGroupChat groupChat, String userId) {
+    public String createGroupChat(DtoCreateGroupChat groupChat, String userId) {
         String chatId = chatDao.saveGroupChat(groupChat.getTitle(), userId);
         groupChat.getParticipants().forEach(participant -> chatDao.addUserToGroupChat(participant, chatId));
-
-        Chat chatById = chatDao.getChatById(chatId, userId);
-        DtoChatWithParticipants returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatById);
-        chatDao.getAllUsersInChat(chatId);
-        returnedChat.setParticipants(chatDao.getAllUsersInChat(chatId));
-        return returnedChat;
+        return chatId;
     }
 
     @Override
@@ -70,5 +62,24 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<DtoChatUser> getAllUsersInChat(String chatId) {
         return chatDao.getAllUsersInChat(chatId);
+    }
+
+    @Override
+    public boolean checkIfChatExist(String chatId) {
+        return chatDao.checkIfChatExist(chatId);
+    }
+
+    @Override
+    public void saveMessage(String chatId, DtoChatMessage chatMessage) {
+        chatDao.saveMessage(chatId, chatMessage);
+    }
+
+    //TODO CHECK IF CHAT EXIST CHECK NULL
+    @Override
+    public DtoChatWithParticipants getChatById(String chatId, String currentUserId) {
+        Chat chat = chatDao.getChatById(chatId, currentUserId);
+        DtoChatWithParticipants result = DtoChatWithParticipants.toDtoChatWithParticipants(chat);
+        result.setParticipants(getAllUsersInChat(chatId));
+        return result;
     }
 }
