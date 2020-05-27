@@ -173,7 +173,8 @@ public class UserDaoImpl implements UserDao {
                             "FROM friends f1 " +
                             "WHERE f1.friend_id = uuid(?) " +
                             "AND f1.accepted_datetime IS NOT NULL) " +
-                            "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
+                            "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex},
+                            new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

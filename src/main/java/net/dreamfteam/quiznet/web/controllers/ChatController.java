@@ -74,4 +74,9 @@ public class ChatController {
     public ResponseEntity<List<DtoChatUser>> getAllUsersInChat(@PathVariable String chatId) {
         return new ResponseEntity<>(chatService.getAllUsersInChat(chatId), HttpStatus.OK);
     }
+
+    @GetMapping("/friends/{term}")
+    public ResponseEntity<?> getFriends(@PathVariable String term){
+        return new ResponseEntity<>(chatService.getFriendByTerm(term,authenticationFacade.getUserId()),HttpStatus.OK);
+    }
 }

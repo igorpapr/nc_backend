@@ -2,10 +2,13 @@ package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.data.rowmappers.ChatMapper;
 import net.dreamfteam.quiznet.data.rowmappers.DtoChatUserMapper;
+import net.dreamfteam.quiznet.data.rowmappers.UserViewMapper;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -99,9 +102,33 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public List<DtoChatUser> getAllUsersInChat(String chatId) {
-        return jdbcTemplate.query("SELECT username, users.user_id as user_id, image, last_time_online, datetime_joined from users " +
+        return jdbcTemplate.query("SELECT username, users.user_id as user_id, image, " +
+                "last_time_online, datetime_joined " +
+                "from users " +
                 "join users_chats uc on users.user_id = uc.user_id " +
                 "WHERE chat_id = ?", new DtoChatUserMapper(), UUID.fromString(chatId));
+    }
+
+    @Override
+    public List<UserView> getFriendByTerm(String term, String userId){
+        term = "%"+term+"%";
+        try {
+            return jdbcTemplate
+                    .query("SELECT user_id, username, last_time_online, image AS image_content " +
+                                    "FROM users WHERE user_id IN (SELECT f.friend_id AS id " +
+                                    "FROM friends f " +
+                                    "WHERE f.parent_id = uuid(?) " +
+                                    "AND f.accepted_datetime IS NOT NULL " +
+                                    "UNION " +
+                                    "SELECT f1.parent_id AS id " +
+                                    "FROM friends f1 " +
+                                    "WHERE f1.friend_id = uuid(?) " +
+                                    "AND f1.accepted_datetime IS NOT NULL) AND username ILIKE ?" +
+                                    "LIMIT 10;", new Object[]{userId, userId, term},
+                            new UserViewMapper());
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
 

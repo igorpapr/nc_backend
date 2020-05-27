@@ -3,6 +3,7 @@ package net.dreamfteam.quiznet.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,10 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<DtoChatUser> getAllUsersInChat(String chatId) {
         return chatDao.getAllUsersInChat(chatId);
+    }
+
+    @Override
+    public List<UserView> getFriendByTerm(String term, String userId){
+        return chatDao.getFriendByTerm(term,userId);
     }
 }
