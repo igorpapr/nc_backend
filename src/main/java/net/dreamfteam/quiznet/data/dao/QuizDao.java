@@ -11,7 +11,7 @@ public interface QuizDao {
 
     Quiz updateQuiz(Quiz quiz, String quizId);
 
-    Quiz getQuiz(String quizId, String userId, String lang);
+    Quiz getQuiz(String quizId, String userId);
 
     Quiz getQuiz(String quizId);
 
@@ -71,7 +71,7 @@ public interface QuizDao {
 
     int getValidQuizzesTotalSize(String adminId);
 
-    Quiz setValidator(String quizId, String adminId, String lang);
+    Quiz setValidator(String quizId, String adminId);
 
     Question loadAnswersForQuestion(Question question, int i);
 

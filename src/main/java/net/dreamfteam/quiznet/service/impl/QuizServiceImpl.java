@@ -112,8 +112,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz getQuiz(String quizId, String userId, String lang) {
-        Quiz quiz = quizDao.getQuiz(quizId, userId, lang);
+    public Quiz getQuiz(String quizId, String userId) {
+        Quiz quiz = quizDao.getQuiz(quizId, userId);
         return quiz;
     }
 
@@ -265,8 +265,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz setValidator(String quizId, String adminId, String lang) {
-        Quiz quiz = quizDao.setValidator(quizId, adminId, lang);
+    public Quiz setValidator(String quizId, String adminId) {
+        Quiz quiz = quizDao.setValidator(quizId, adminId);
         return quiz;
     }
 
