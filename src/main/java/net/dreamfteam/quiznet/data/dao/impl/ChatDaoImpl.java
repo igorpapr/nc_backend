@@ -26,7 +26,7 @@ public class ChatDaoImpl implements ChatDao {
     }
 
     @Override
-    public void savePersonalChat(String currentUserId, String otherUserId) {
+    public String savePersonalChat(String currentUserId, String otherUserId) {
 
         UUID chatId = UUID.randomUUID();
 
@@ -40,11 +40,12 @@ public class ChatDaoImpl implements ChatDao {
         jdbcTemplate.update("INSERT INTO users_chats (chat_id, user_id, datetime_joined, is_creator) " +
                 "VALUES (?, ?, CURRENT_TIMESTAMP, true)", chatId, UUID.fromString(otherUserId));
 
+        return chatId.toString();
 
     }
 
     @Override
-    public void saveGroupChat(String title, String userId) {
+    public String saveGroupChat(String title, String userId) {
         UUID chatId = UUID.randomUUID();
 
         jdbcTemplate.update("INSERT INTO chats (chat_id, title, is_personal) " +
@@ -53,6 +54,7 @@ public class ChatDaoImpl implements ChatDao {
         jdbcTemplate.update("INSERT INTO users_chats (chat_id, user_id, datetime_joined, is_creator) " +
                 "VALUES (?, ?, CURRENT_TIMESTAMP, true)", chatId, UUID.fromString(userId));
 
+        return chatId.toString();
     }
 
     @Override
@@ -69,34 +71,34 @@ public class ChatDaoImpl implements ChatDao {
     }
 
     @Override
-    public boolean checkIsPersonalChatCreated(String currentUserId, String otherUserId) {
-        return jdbcTemplate.queryForObject("SELECT count(*)=1 " +
+    public String checkIsPersonalChatCreated(String currentUserId, String otherUserId) {
+        return jdbcTemplate.queryForObject("SELECT c.chat_id " +
                 "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id " +
                 "WHERE c.is_personal = true " +
                 "AND uc.user_id = UUID(?)" +
                 "AND uc.chat_id IN (SELECT uc1.chat_id " +
                 "                     FROM users_chats uc1 " +
                 "                     WHERE uc1.chat_id = uc.chat_id " +
-                "                       AND uc1.user_id = UUID(?));", new Object[]{currentUserId, otherUserId}, Boolean.class);
+                "                       AND uc1.user_id = UUID(?));", new Object[]{currentUserId, otherUserId}, String.class);
     }
 
     @Override
     public List<Chat> getAllUsersChat(String userId) {
         return jdbcTemplate.query("SELECT c.chat_id, uc.datetime_joined, uc.is_creator, c.is_personal, " +
-                "CASE c.is_personal " +
-                "        WHEN true THEN (SELECT u.username " +
-                "                        FROM users_chats uc1 INNER JOIN users u ON uc1.user_id = u.user_id " +
-                "                        WHERE uc1.chat_id = c.chat_id " +
-                "                        AND uc1.user_id <> uuid(?))" +
-                "                        WHEN false THEN c.title END AS title, " +
-                "CASE c.is_personal " +
-                "        WHEN true THEN (SELECT u1.image " +
-                "                        FROM users_chats uc2 INNER JOIN users u1 ON uc2.user_id = u1.user_id " +
-                "                        WHERE uc2.chat_id = c.chat_id " +
-                "                        AND uc2.user_id <> uuid(?)) " +
-                "                        ELSE null END AS image " +
-                "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id " +
-                "WHERE uc.user_id = uuid(?);"
+                        "CASE c.is_personal " +
+                        "        WHEN true THEN (SELECT u.username " +
+                        "                        FROM users_chats uc1 INNER JOIN users u ON uc1.user_id = u.user_id " +
+                        "                        WHERE uc1.chat_id = c.chat_id " +
+                        "                        AND uc1.user_id <> uuid(?))" +
+                        "                        WHEN false THEN c.title END AS title, " +
+                        "CASE c.is_personal " +
+                        "        WHEN true THEN (SELECT u1.image " +
+                        "                        FROM users_chats uc2 INNER JOIN users u1 ON uc2.user_id = u1.user_id " +
+                        "                        WHERE uc2.chat_id = c.chat_id " +
+                        "                        AND uc2.user_id <> uuid(?)) " +
+                        "                        ELSE null END AS image " +
+                        "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id " +
+                        "WHERE uc.user_id = uuid(?);"
                 , new ChatMapper(), UUID.fromString(userId), UUID.fromString(userId), UUID.fromString(userId));
     }
 
@@ -110,8 +112,8 @@ public class ChatDaoImpl implements ChatDao {
     }
 
     @Override
-    public List<UserView> getFriendByTerm(String term, String userId){
-        term = "%"+term+"%";
+    public List<UserView> getFriendByTerm(String term, String userId) {
+        term = "%" + term + "%";
         try {
             return jdbcTemplate
                     .query("SELECT user_id, username, last_time_online, image AS image_content " +
@@ -129,6 +131,25 @@ public class ChatDaoImpl implements ChatDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public Chat getChatById(String chatId, String currentUserId) {
+        return jdbcTemplate.queryForObject("SELECT c.chat_id, uc.datetime_joined, uc.is_creator, c.is_personal, " +
+                "       CASE c.is_personal" +
+                "           WHEN true THEN (SELECT u.username\n" +
+                "                           FROM users_chats uc1 INNER JOIN users u ON uc1.user_id = u.user_id\n" +
+                "                           WHERE uc1.chat_id = c.chat_id\n" +
+                "                             AND uc1.user_id <> UUID(?))\n" +
+                "           WHEN false THEN c.title END AS title," +
+                "       CASE c.is_personal " +
+                "           WHEN true THEN (SELECT u1.image" +
+                "                           FROM users_chats uc2 INNER JOIN users u1 ON uc2.user_id = u1.user_id " +
+                "                           WHERE uc2.chat_id = c.chat_id " +
+                "                             AND uc2.user_id <> UUID(?))" +
+                "           ELSE null END AS image " +
+                "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id\n" +
+                "WHERE c.chat_id = UUID(?) AND uc.user_id= UUID(?);", new ChatMapper(), UUID.fromString(currentUserId), UUID.fromString(currentUserId), UUID.fromString(chatId), UUID.fromString(currentUserId));
     }
 
 

@@ -5,22 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.Date;
+
+import java.util.List;
 
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DtoChatUser {
+public class DtoCreateGroupChat {
 
-    private String id;
+    private String title;
 
-    private String username;
+    private List<String> participants;
 
-    private Date lastTimeOnline;
-
-    private  byte[] image;
-
-    private Date joinedToChatDate;
 }

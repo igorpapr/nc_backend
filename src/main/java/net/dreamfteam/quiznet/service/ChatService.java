@@ -3,20 +3,22 @@ package net.dreamfteam.quiznet.service;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
+import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
+import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
 public interface ChatService {
 
-    HttpStatus createPersonalChat(String currentUserId, String otherUserId);
+    DtoChatWithParticipants createPersonalChat(String currentUserId, String otherUserId);
 
-    void createGroupChat(String title, String userId);
+    DtoChatWithParticipants createGroupChat(DtoCreateGroupChat groupChat, String userId);
 
-    //check if is creator change title
+    //TODO check if is creator change title than can change
     void updateChatTitle(String chatId, String newTitle);
 
-    //check if is creator add to chat
+    //TODO check if is creator add to chat
     void addUserToGroupChat(String userId, String chatId);
 
     List<Chat> getAllUsersChat(String userId);
