@@ -10,13 +10,12 @@ import java.util.Map;
 
 public interface QuizService {
 
-    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException;
+    Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image, String language)
+            throws ValidationException;
 
-    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image);
+    Quiz updateQuiz(DtoEditQuiz quiz, MultipartFile image, String language);
 
-    Quiz getQuiz(String quizId);
-
-    Quiz getQuiz(String quizId, String userId);
+    Quiz getQuiz(String quizId, String userId, String language);
 
     void markAsFavourite(DtoQuiz quiz);
 
@@ -40,7 +39,7 @@ public interface QuizService {
 
     List<Map<String, String>> getTagList();
 
-    List<List<Object>> getCategoryList();
+    List<List<Object>> getCategoryList(String language);
 
     List<Quiz> getUserQuizList(String userId, String thisUserId);
 
@@ -68,7 +67,7 @@ public interface QuizService {
 
     int getValidQuizzesTotalSize(String adminId);
 
-    Quiz setValidator(String quizId, String adminId);
+    Quiz setValidator(String quizId, String adminId, String language);
 
     List<Quiz> getUserFavouriteList(String userId);
 
