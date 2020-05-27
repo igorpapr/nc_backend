@@ -89,7 +89,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private void checkQuizExistance(String quizId) {
-        if (quizDao.getQuiz(quizId) == null) {
+        if (quizDao.getQuiz(quizId,"en") == null) {
             throw new ValidationException("Quiz with id: " + quizId + " not exists");
         }
     }

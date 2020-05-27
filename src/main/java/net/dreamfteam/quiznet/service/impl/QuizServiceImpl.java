@@ -4,10 +4,7 @@ import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.*;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.AchievementService;
-import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.service.NotificationService;
-import net.dreamfteam.quiznet.service.QuizService;
+import net.dreamfteam.quiznet.service.*;
 import net.dreamfteam.quiznet.web.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +39,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image) throws ValidationException {
+    public Quiz saveQuiz(DtoQuiz newQuiz, String currentUserId, MultipartFile image, String language)
+            throws ValidationException {
 
         newQuiz.setCreatorId(currentUserId);
         checkQuizUniqueness(newQuiz.getTitle(), newQuiz.getCreatorId());
@@ -70,18 +68,18 @@ public class QuizServiceImpl implements QuizService {
             quiz.setImageContent(null);
         }
 
-        quiz = quizDao.saveQuiz(quiz);
+        quiz = quizDao.saveQuiz(quiz, language);
 
         System.out.println("Saved in db:" + quiz.toString());
         return quiz;
     }
 
     @Override
-    public Quiz updateQuiz(DtoEditQuiz dtoQuiz, MultipartFile image) {
+    public Quiz updateQuiz(DtoEditQuiz dtoQuiz, MultipartFile image, String language) {
         Quiz quiz = Quiz.builder()
                 .title(dtoQuiz.getNewTitle())
                 .creationDate(Calendar.getInstance().getTime())
-                .creatorId(getQuiz(dtoQuiz.getQuizId()).getCreatorId())
+                .creatorId(quizDao.getQuiz(dtoQuiz.getQuizId(),"en").getCreatorId())
                 .language(dtoQuiz.getNewLanguage())
                 .description(dtoQuiz.getNewDescription())
                 .validated(false)
@@ -102,19 +100,12 @@ public class QuizServiceImpl implements QuizService {
             quiz.setImageContent(null);
         }
 
-        return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId());
+        return quizDao.updateQuiz(quiz, dtoQuiz.getQuizId(), language);
     }
 
     @Override
-    public Quiz getQuiz(String quizId) {
-        Quiz quiz = quizDao.getQuiz(quizId);
-        return quiz;
-    }
-
-    @Override
-    public Quiz getQuiz(String quizId, String userId) {
-        Quiz quiz = quizDao.getQuiz(quizId, userId);
-        return quiz;
+    public Quiz getQuiz(String quizId, String userId, String language) {
+        return quizDao.getQuiz(quizId, userId, language);
     }
 
     @Override
@@ -224,8 +215,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public List<List<Object>> getCategoryList() {
-        return quizDao.getCategoryList();
+    public List<List<Object>> getCategoryList(String language) {
+        return quizDao.getCategoryList(language);
     }
 
     @Override
@@ -265,9 +256,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public Quiz setValidator(String quizId, String adminId) {
-        Quiz quiz = quizDao.setValidator(quizId, adminId);
-        return quiz;
+    public Quiz setValidator(String quizId, String adminId, String language) {
+        return quizDao.setValidator(quizId, adminId, language);
     }
 
     @Override
@@ -287,7 +277,7 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Rating getUserQuizRating(String quizId, String userId) {
-        if (quizDao.getQuiz(quizId) == null) {
+        if (quizDao.getQuiz(quizId,"en") == null) { //No difference in language
             throw new ValidationException("No quiz with this id");
         }
         List<Rating> r = quizDao.getUserQuizRating(quizId, userId);

@@ -14,15 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -48,11 +40,12 @@ public class QuizController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<?> createQuiz(@RequestParam("obj") String quiz,
-                                        @RequestParam(value = "img", required = false) MultipartFile image) throws
+                                        @RequestParam(value = "img", required = false) MultipartFile image,
+                                        @RequestHeader("Lang") String language) throws
             ValidationException {
         DtoQuiz dtoQuiz = gson.fromJson(quiz, DtoQuiz.class);
         QuizValidator.validate(dtoQuiz);
-        Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId(), image);
+        Quiz resQuiz = quizService.saveQuiz(dtoQuiz, authenticationFacade.getUserId(), image, language);
 
         return new ResponseEntity<>(resQuiz, HttpStatus.CREATED);
     }
@@ -60,12 +53,13 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/edit")
     public ResponseEntity<?> editQuiz(@RequestParam("obj") String editquiz,
-                                      @RequestParam(value = "img", required = false) MultipartFile image) throws
+                                      @RequestParam(value = "img", required = false) MultipartFile image,
+                                      @RequestHeader("Lang") String language) throws
             ValidationException,
             IOException {
         DtoEditQuiz dtoEditQuiz = gson.fromJson(editquiz, DtoEditQuiz.class);
         QuizValidator.validateForEdit(dtoEditQuiz);
-        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz, image);
+        Quiz resQuiz = quizService.updateQuiz(dtoEditQuiz, image, language);
 
         return new ResponseEntity<>(resQuiz, HttpStatus.OK);
     }
@@ -74,7 +68,7 @@ public class QuizController {
     @DeleteMapping("/{quizId}")
     public ResponseEntity<?> deleteQuiz(@PathVariable String quizId) throws ValidationException {
 
-        Quiz quiz = quizService.getQuiz(quizId);
+        Quiz quiz = quizService.getQuiz(quizId, authenticationFacade.getUserId(), "en");
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
@@ -153,7 +147,7 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/deactivate/{quizId}")
     public ResponseEntity<?> deactivateQuiz(@PathVariable String quizId) throws ValidationException {
-        Quiz quiz = quizService.getQuiz(quizId);
+        Quiz quiz = quizService.getQuiz(quizId,authenticationFacade.getUserId(),"en");
 
         if (quiz == null) {
             throw new ValidationException("Quiz not found");
@@ -172,7 +166,7 @@ public class QuizController {
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/validate")
     public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
-        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId()))) {
+        if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId(),"en"))) {
             return ResponseEntity.notFound()
                     .build();
         }
@@ -234,8 +228,8 @@ public class QuizController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<?> getCategoryList() throws ValidationException {
-        return new ResponseEntity<>(quizService.getCategoryList(), HttpStatus.OK);
+    public ResponseEntity<?> getCategoryList(@RequestHeader("Lang") String language) throws ValidationException {
+        return new ResponseEntity<>(quizService.getCategoryList(language), HttpStatus.OK);
     }
 
     @GetMapping("/quiz-list/page/{page}")
@@ -257,15 +251,18 @@ public class QuizController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam(required = false) String userId) throws
-            ValidationException {
-        return new ResponseEntity<>(quizService.getQuiz(quizId, userId), HttpStatus.OK);
+    public ResponseEntity<?> getQuiz(@RequestParam String quizId, @RequestParam(required = false) String userId,
+                                     @RequestHeader("Lang") String language) throws ValidationException {
+        return new ResponseEntity<>(quizService.getQuiz(quizId, userId, language), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
     @PostMapping("/setvalidator")
-    public ResponseEntity<?> setQuizValidator(@RequestBody DtoQuiz quizDto) throws ValidationException {
-        return new ResponseEntity<>(quizService.setValidator(quizDto.getQuizId(), authenticationFacade.getUserId()),
+    public ResponseEntity<?> setQuizValidator(@RequestBody DtoQuiz quizDto,
+                                              @RequestHeader("Lang") String language) throws ValidationException {
+
+        return new ResponseEntity<>(quizService.setValidator(quizDto.getQuizId(), authenticationFacade.getUserId(),
+                language),
                 HttpStatus.OK);
     }
 

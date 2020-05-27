@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface QuizDao {
-    Quiz saveQuiz(Quiz quiz);
+    Quiz saveQuiz(Quiz quiz, String language);
 
-    Quiz updateQuiz(Quiz quiz, String quizId);
+    Quiz updateQuiz(Quiz quiz, String quizId, String language);
 
-    Quiz getQuiz(String quizId, String userId);
+    Quiz getQuiz(String quizId, String userId, String language);
 
-    Quiz getQuiz(String quizId);
+    Quiz getQuiz(String quizId, String language);
 
     void markAsFavourite(DtoQuiz dtoQuiz);
 
@@ -37,7 +37,7 @@ public interface QuizDao {
 
     List<Map<String, String>> getTagList();
 
-    List<List<Object>> getCategoryList();
+    List<List<Object>> getCategoryList(String language);
 
     List<Quiz> getUserQuizList(String userId, String thisUserId);
 
@@ -71,7 +71,7 @@ public interface QuizDao {
 
     int getValidQuizzesTotalSize(String adminId);
 
-    Quiz setValidator(String quizId, String adminId);
+    Quiz setValidator(String quizId, String adminId, String language);
 
     Question loadAnswersForQuestion(Question question, int i);
 
