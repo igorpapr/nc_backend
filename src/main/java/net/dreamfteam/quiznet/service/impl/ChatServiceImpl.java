@@ -77,11 +77,8 @@ public class ChatServiceImpl implements ChatService {
 
     //TODO CHECK IF CHAT EXIST CHECK NULL
     @Override
-    public DtoChatWithParticipants getChatById(String chatId, String currentUserId) {
-        Chat chat = chatDao.getChatById(chatId, currentUserId);
-        DtoChatWithParticipants result = DtoChatWithParticipants.toDtoChatWithParticipants(chat);
-        result.setParticipants(getAllUsersInChat(chatId));
-        return result;
+    public Chat getChatById(String chatId, String currentUserId) {
+        return chatDao.getChatById(chatId, currentUserId);
     }
 
     @Override

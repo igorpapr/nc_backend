@@ -29,7 +29,7 @@ public interface ChatService {
 
     void saveMessage(String chatId, DtoChatMessage chatMessage);
 
-    DtoChatWithParticipants getChatById(String chatId, String currentUserId);
+    Chat getChatById(String chatId, String currentUserId);
 
 //    List<ChatMessage> getAllMessagesInChat(String chatId);
 //

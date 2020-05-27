@@ -8,7 +8,7 @@ import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
-import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
+import net.dreamfteam.quiznet.web.dto.DtoChatUser;
 import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +47,7 @@ public class ChatController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    //TODO check if userId != currentUser
     @PostMapping("/personal")
     public ResponseEntity<?> createPersonalChat(@RequestParam String userId) {
 
@@ -87,7 +88,7 @@ public class ChatController {
     }
 
     @GetMapping("/{chatId}")
-    public ResponseEntity<DtoChatWithParticipants> getChat(@PathVariable String chatId) {
+    public ResponseEntity<Chat> getChat(@PathVariable String chatId) {
         return new ResponseEntity<>(chatService.getChatById(chatId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
@@ -110,8 +111,13 @@ public class ChatController {
         messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
     }
 
+    @GetMapping("/{chatId}/participants")
+    public ResponseEntity<List<DtoChatUser>> getChatParticipants(@PathVariable String chatId) {
+        return new ResponseEntity<>(chatService.getAllUsersInChat(chatId), HttpStatus.OK);
+    }
+
     @GetMapping("/friends/{term}")
-    public ResponseEntity<?> getFriends(@PathVariable String term){
-        return new ResponseEntity<>(chatService.getFriendByTerm(term,authenticationFacade.getUserId()),HttpStatus.OK);
+    public ResponseEntity<?> getFriends(@PathVariable String term) {
+        return new ResponseEntity<>(chatService.getFriendByTerm(term, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 }
