@@ -121,7 +121,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz getQuiz(String quizId, String userId) {
+    public Quiz getQuiz(String quizId, String userId, String lang) {
         try {
             Quiz quiz =
                     jdbcTemplate.queryForObject("SELECT quizzes.*, quiz_rating(quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
@@ -350,9 +350,9 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     @Transactional
-    public Quiz setValidator(String quizId, String adminId) {
+    public Quiz setValidator(String quizId, String adminId, String lang) {
         jdbcTemplate.update("UPDATE quizzes SET validator_id = uuid(?) WHERE quiz_id = UUID(?)", adminId, quizId);
-        return getQuiz(quizId);
+        return getQuiz(quizId, lang);
     }
 
     @Override
@@ -837,15 +837,21 @@ public class QuizDaoImpl implements QuizDao {
                 });
     }
 
-    private List<String> loadCategoryNameList(String quizId) {
-        return jdbcTemplate.query("SELECT c.title FROM categories c " +
+    private List<String> loadCategoryNameList(String quizId, String lang) {
+        return jdbcTemplate.query("SELECT " +
+                        "CASE ? WHEN 'en' THEN c.title " +
+                        "ELSE c.title_uk END AS title FROM categories c " +
                         "INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id WHERE quiz_id = UUID(?)",
-                new Object[]{quizId}, new RowMapper<String>() {
+                new Object[]{lang, quizId}, new RowMapper<String>() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                         return rs.getString(1);
                     }
                 });
+    }
+
+    private List<String> loadCategoryNameList(String quizId){
+        return loadCategoryNameList(quizId, "en");
     }
 
     private List<String> loadTagIdList(String quizId) {

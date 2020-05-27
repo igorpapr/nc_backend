@@ -16,7 +16,7 @@ public interface QuizService {
 
     Quiz getQuiz(String quizId);
 
-    Quiz getQuiz(String quizId, String userId);
+    Quiz getQuiz(String quizId, String userId, String lang);
 
     void markAsFavourite(DtoQuiz quiz);
 
@@ -68,7 +68,7 @@ public interface QuizService {
 
     int getValidQuizzesTotalSize(String adminId);
 
-    Quiz setValidator(String quizId, String adminId);
+    Quiz setValidator(String quizId, String adminId, String lang);
 
     List<Quiz> getUserFavouriteList(String userId);
 
