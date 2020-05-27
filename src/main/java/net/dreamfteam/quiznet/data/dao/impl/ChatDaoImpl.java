@@ -73,14 +73,18 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public String checkIsPersonalChatCreated(String currentUserId, String otherUserId) {
-        return jdbcTemplate.queryForObject("SELECT c.chat_id " +
-                "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id " +
-                "WHERE c.is_personal = true " +
-                "AND uc.user_id = UUID(?)" +
-                "AND uc.chat_id IN (SELECT uc1.chat_id " +
-                "                     FROM users_chats uc1 " +
-                "                     WHERE uc1.chat_id = uc.chat_id " +
-                "                       AND uc1.user_id = UUID(?));", new Object[]{currentUserId, otherUserId}, String.class);
+        try {
+            return jdbcTemplate.queryForObject("SELECT c.chat_id " +
+                    "FROM chats c INNER JOIN users_chats uc ON c.chat_id = uc.chat_id " +
+                    "WHERE c.is_personal = true " +
+                    "AND uc.user_id = UUID(?)" +
+                    "AND uc.chat_id IN (SELECT uc1.chat_id " +
+                    "                     FROM users_chats uc1 " +
+                    "                     WHERE uc1.chat_id = uc.chat_id " +
+                    "                       AND uc1.user_id = UUID(?));", new Object[]{currentUserId, otherUserId}, String.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -124,7 +128,7 @@ public class ChatDaoImpl implements ChatDao {
                                     "SELECT f1.parent_id AS id " +
                                     "FROM friends f1 " +
                                     "WHERE f1.friend_id = uuid(?) " +
-                                    "AND f1.accepted_datetime IS NOT NULL) AND username ILIKE ?" +
+                                    "AND f1.accepted_datetime IS NOT NULL) AND username LIKE ?" +
                                     "LIMIT 10;", new Object[]{userId, userId, term},
                             new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
