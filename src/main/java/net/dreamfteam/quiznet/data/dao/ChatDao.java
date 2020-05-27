@@ -7,18 +7,19 @@ import java.util.List;
 
 public interface ChatDao {
 
-    void savePersonalChat(String currentUserId, String otherUserId);
+    String savePersonalChat(String currentUserId, String otherUserId);
 
-    void saveGroupChat(String title, String userId);
+    String saveGroupChat(String title, String userId);
 
     void addUserToGroupChat(String userId, String chatId);
 
     void updateChatTitle(String chatId, String newTitle);
 
-    boolean checkIsPersonalChatCreated(String currentUserId, String otherUserId);
+    String checkIsPersonalChatCreated(String currentUserId, String otherUserId);
 
     List<Chat> getAllUsersChat(String userId);
 
     List<DtoChatUser> getAllUsersInChat(String chatId);
 
+    Chat getChatById(String chatId,String currentUserId);
 }

@@ -5,8 +5,9 @@ import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
+import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
+import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,18 +24,32 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public HttpStatus createPersonalChat(String currentUserId, String otherUserId) {
-        boolean isCreated = chatDao.checkIsPersonalChatCreated(currentUserId, otherUserId);
+    public DtoChatWithParticipants createPersonalChat(String currentUserId, String otherUserId) {
+        String idIfCreated = chatDao.checkIsPersonalChatCreated(currentUserId, otherUserId);
+        DtoChatWithParticipants returnedChat;
 
-        if (!isCreated) {
-            chatDao.savePersonalChat(currentUserId, otherUserId);
-            return HttpStatus.CREATED;
-        } else return HttpStatus.OK;
+        if (idIfCreated == null) {
+            String id = chatDao.savePersonalChat(currentUserId, otherUserId);
+            returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatDao.getChatById(id, currentUserId));
+            returnedChat.setParticipants(chatDao.getAllUsersInChat(id));
+            return returnedChat;
+        } else {
+            returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatDao.getChatById(idIfCreated, currentUserId));
+            returnedChat.setParticipants(chatDao.getAllUsersInChat(idIfCreated));
+            return returnedChat;
+        }
     }
 
     @Override
-    public void createGroupChat(String title, String userId) {
-        chatDao.saveGroupChat(title, userId);
+    public DtoChatWithParticipants createGroupChat(DtoCreateGroupChat groupChat, String userId) {
+        String chatId = chatDao.saveGroupChat(groupChat.getTitle(), userId);
+        groupChat.getParticipants().forEach(participant -> chatDao.addUserToGroupChat(participant, chatId));
+
+        Chat chatById = chatDao.getChatById(chatId, userId);
+        DtoChatWithParticipants returnedChat = DtoChatWithParticipants.toDtoChatWithParticipants(chatById);
+        chatDao.getAllUsersInChat(chatId);
+        returnedChat.setParticipants(chatDao.getAllUsersInChat(chatId));
+        return returnedChat;
     }
 
     @Override
