@@ -30,4 +30,6 @@ public interface ChatDao {
     boolean checkIfChatExist(String chatId);
 
     void saveMessage(String chatId, DtoChatMessage chatMessage);
+
+    List<DtoChatMessage> getMessagesInChat(String chatId, int page, int amountMessagesOnPage);
 }

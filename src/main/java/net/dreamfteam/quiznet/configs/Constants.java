@@ -3,7 +3,6 @@ package net.dreamfteam.quiznet.configs;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 public class Constants {
 
@@ -18,7 +17,7 @@ public class Constants {
     public static final String ADMIN_URLS = "/api/admins";
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
-    public static final String NOTIFICATION_URLS="/api/notifications";
+    public static final String NOTIFICATION_URLS = "/api/notifications";
     public static final String ACTIVITIES_URLS = "/api/activities";
     public static final String SSE_URLS = "/api/sse";
 
@@ -70,6 +69,7 @@ public class Constants {
     public static final String RECOVER_MAIL_ARTICLE = "Changing password";
     public static final String RECOVER_MAIL_MESSAGE = "To change your password visit next link: ";
     public static final int AMOUNT_QUESTIONS_ON_PAGE = 3;
+    public static final int AMOUNT_MESSAGES_ON_PAGE = 6;
 
 
     public static List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale("en"), new Locale("ru"));

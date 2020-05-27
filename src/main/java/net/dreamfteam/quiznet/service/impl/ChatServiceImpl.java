@@ -1,13 +1,13 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.Constants;
 import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
-import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
 import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,7 +82,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<UserView> getFriendByTerm(String term, String userId){
-        return chatDao.getFriendByTerm(term,userId);
+    public List<DtoChatMessage> getMessagesInChat(String chatId, int page) {
+        return chatDao.getMessagesInChat(chatId, page, Constants.AMOUNT_MESSAGES_ON_PAGE);
+    }
+
+    @Override
+    public List<UserView> getFriendByTerm(String term, String userId) {
+        return chatDao.getFriendByTerm(term, userId);
     }
 }

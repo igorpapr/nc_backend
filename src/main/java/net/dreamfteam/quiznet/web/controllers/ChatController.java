@@ -122,6 +122,12 @@ public class ChatController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/{chatId}/messages")
+    public ResponseEntity<List<DtoChatMessage>> getMessagesInChat(@PathVariable String chatId, @RequestParam int page) {
+
+        return new ResponseEntity<>(chatService.getMessagesInChat(chatId, page - 1), HttpStatus.OK);
+    }
+
     @GetMapping("/friends/{term}")
     public ResponseEntity<?> getFriends(@PathVariable String term) {
         return new ResponseEntity<>(chatService.getFriendByTerm(term, authenticationFacade.getUserId()), HttpStatus.OK);

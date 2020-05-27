@@ -4,7 +4,6 @@ import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
 import net.dreamfteam.quiznet.web.dto.DtoChatUser;
-import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
 import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 
 import java.util.List;
@@ -31,9 +30,7 @@ public interface ChatService {
 
     Chat getChatById(String chatId, String currentUserId);
 
-//    List<ChatMessage> getAllMessagesInChat(String chatId);
-//
-//    void saveMessage(String content, String chatId);
+    List<DtoChatMessage> getMessagesInChat(String chatId, int page);
 
     List<UserView> getFriendByTerm(String term, String userId);
 

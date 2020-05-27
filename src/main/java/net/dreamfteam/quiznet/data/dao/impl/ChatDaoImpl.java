@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.dao.ChatDao;
 import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.data.rowmappers.ChatMapper;
+import net.dreamfteam.quiznet.data.rowmappers.DtoChatMessageMapper;
 import net.dreamfteam.quiznet.data.rowmappers.DtoChatUserMapper;
 import net.dreamfteam.quiznet.data.rowmappers.UserViewMapper;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
@@ -167,6 +168,16 @@ public class ChatDaoImpl implements ChatDao {
     public void saveMessage(String chatId, DtoChatMessage chatMessage) {
         jdbcTemplate.update("INSERT INTO messages (message_id, chat_id, user_id, content, datetime_sent) VALUES (?, ?, ?, ?, ?)",
                 UUID.randomUUID(), UUID.fromString(chatId), UUID.fromString(chatMessage.getAuthorId()), chatMessage.getContent(), chatMessage.getSentDate());
+    }
+
+    @Override
+    public List<DtoChatMessage> getMessagesInChat(String chatId, int page, int amountMessagesOnPage) {
+        return jdbcTemplate.query("SELECT u.username, content, datetime_sent, " +
+                        "u.user_id FROM messages " +
+                        "JOIN users u ON messages.user_id = u.user_id " +
+                        "WHERE chat_id = ? " +
+                        "ORDER BY datetime_sent DESC LIMIT ? OFFSET ? ;",
+                new DtoChatMessageMapper(), UUID.fromString(chatId), amountMessagesOnPage, page);
     }
 
 
