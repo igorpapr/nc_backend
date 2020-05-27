@@ -109,7 +109,7 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public List<DtoChatUser> getAllUsersInChat(String chatId) {
-        return jdbcTemplate.query("SELECT username, users.user_id as user_id, image, last_time_online, datetime_joined from users " +
+        return jdbcTemplate.query("SELECT username, users.user_id as user_id, image, datetime_joined from users " +
                 "join users_chats uc on users.user_id = uc.user_id " +
                 "WHERE chat_id = ?", new DtoChatUserMapper(), UUID.fromString(chatId));
     }

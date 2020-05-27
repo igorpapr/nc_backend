@@ -8,7 +8,7 @@ import net.dreamfteam.quiznet.data.entities.Chat;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ChatService;
 import net.dreamfteam.quiznet.web.dto.DtoChatMessage;
-import net.dreamfteam.quiznet.web.dto.DtoChatUser;
+import net.dreamfteam.quiznet.web.dto.DtoChatWithParticipants;
 import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -111,9 +111,15 @@ public class ChatController {
         messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
     }
 
-    @GetMapping("/{chatId}/participants")
-    public ResponseEntity<List<DtoChatUser>> getChatParticipants(@PathVariable String chatId) {
-        return new ResponseEntity<>(chatService.getAllUsersInChat(chatId), HttpStatus.OK);
+    @GetMapping("/{chatId}/settings")
+    public ResponseEntity<DtoChatWithParticipants> getChatSettings(@PathVariable String chatId) {
+
+        DtoChatWithParticipants result = DtoChatWithParticipants.builder()
+                .title(chatService.getChatById(chatId, authenticationFacade.getUserId()).getTitle())
+                .participants(chatService.getAllUsersInChat(chatId))
+                .build();
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/friends/{term}")

@@ -18,8 +18,6 @@ public class DtoChatUser {
 
     private String username;
 
-    private Date lastTimeOnline;
-
     private  byte[] image;
 
     private Date joinedToChatDate;

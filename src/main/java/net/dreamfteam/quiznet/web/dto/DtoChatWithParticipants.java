@@ -16,26 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DtoChatWithParticipants {
-    private String id;
 
     private String title;
-
-    private boolean isCreator;
-
-    private boolean isPersonal;
-
-    private Date joinedDate;
-
-    private byte[] image;
 
     private List<DtoChatUser> participants;
 
     public static DtoChatWithParticipants toDtoChatWithParticipants(Chat chat) {
         return builder()
-                .id(chat.getId())
-                .image(chat.getImage())
-                .isCreator(chat.isCreator())
-                .isPersonal(chat.isPersonal())
                 .title(chat.getTitle()).build();
     }
 }
