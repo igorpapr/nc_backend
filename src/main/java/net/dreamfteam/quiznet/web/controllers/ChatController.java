@@ -13,6 +13,7 @@ import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,13 +39,13 @@ public class ChatController {
 
     final private ChatService chatService;
     final private IAuthenticationFacade authenticationFacade;
-    final private SimpMessagingTemplate messagingTemplate;
+
 
     @Autowired
-    public ChatController(ChatService chatService, IAuthenticationFacade authenticationFacade, SimpMessagingTemplate messagingTemplate) {
+    public ChatController(ChatService chatService, IAuthenticationFacade authenticationFacade) {
         this.chatService = chatService;
         this.authenticationFacade = authenticationFacade;
-        this.messagingTemplate = messagingTemplate;
+
     }
 
     //TODO check if userId != currentUser
@@ -90,25 +91,6 @@ public class ChatController {
     @GetMapping("/{chatId}")
     public ResponseEntity<Chat> getChat(@PathVariable String chatId) {
         return new ResponseEntity<>(chatService.getChatById(chatId, authenticationFacade.getUserId()), HttpStatus.OK);
-    }
-
-    @MessageMapping("/chat/{chatId}")
-    public void sendMessage(@PathVariable String chatId, String chatMessage) {
-
-        log.info(chatId);
-        log.info(authenticationFacade.getUserId());
-
-        DtoChatMessage dtoChatMessage = new Gson().fromJson(chatMessage, DtoChatMessage.class);
-
-        if (!chatService.checkIfChatExist(chatId)) {
-            throw new ValidationException("Not such chat");
-        }
-
-        dtoChatMessage.setSentDate(new Date());
-
-        chatService.saveMessage(chatId, dtoChatMessage);
-
-        messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
     }
 
     @GetMapping("/{chatId}/settings")
