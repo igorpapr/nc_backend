@@ -139,9 +139,10 @@ public class GameDaoImpl implements GameDao {
                         "WHERE cq1.category_id = " +
                         "                  (SELECT category_id " +
                         "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
-                        "                  WHERE game_id = uuid(?)) " +
+                        "                  WHERE game_id = uuid(?)" +
+                                            "LIMIT 1) " +
                         "      AND ug.user_id = uuid(?) " +
-                        "GROUP BY cq1.category_id, c.title;", new Object[]{gameId, userId},
+                        "GROUP BY cq1.category_id, c.title; ", new Object[]{gameId, userId},
                     (rs, i) -> UserCategoryAchievementInfo.builder()
                             .amountPlayed(rs.getInt("amount"))
                             .categoryId(rs.getString("category_id"))
