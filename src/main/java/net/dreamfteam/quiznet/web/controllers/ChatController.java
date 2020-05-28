@@ -122,8 +122,8 @@ public class ChatController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/{chatId}/messages")
-    public ResponseEntity<List<DtoChatMessage>> getMessagesInChat(@PathVariable String chatId, @RequestParam int page) {
+    @GetMapping("/{chatId}/messages/{page}")
+    public ResponseEntity<List<DtoChatMessage>> getMessagesInChat(@PathVariable String chatId, @PathVariable int page) {
 
         return new ResponseEntity<>(chatService.getMessagesInChat(chatId, page - 1), HttpStatus.OK);
     }
