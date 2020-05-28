@@ -92,25 +92,6 @@ public class ChatController {
         return new ResponseEntity<>(chatService.getChatById(chatId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @MessageMapping("/chat/{chatId}")
-    public void sendMessage(@PathVariable String chatId, String chatMessage) {
-
-        log.info(chatId);
-        log.info(authenticationFacade.getUserId());
-
-        DtoChatMessage dtoChatMessage = new Gson().fromJson(chatMessage, DtoChatMessage.class);
-
-        if (!chatService.checkIfChatExist(chatId)) {
-            throw new ValidationException("Not such chat");
-        }
-
-        dtoChatMessage.setSentDate(new Date());
-
-        chatService.saveMessage(chatId, dtoChatMessage);
-
-        messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
-    }
-
     @GetMapping("/{chatId}/settings")
     public ResponseEntity<DtoChatWithParticipants> getChatSettings(@PathVariable String chatId) {
 

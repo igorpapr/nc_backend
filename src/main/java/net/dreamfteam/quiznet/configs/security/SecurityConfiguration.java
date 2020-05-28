@@ -83,6 +83,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECUR_SHORT_QUIZ_LIST_URLS,
                         Constants.SECUR_SSE_URLS,
                         Constants.SECUR_FILTER_QUIZ_LIST_URLS,
+                        "/chat/**",
                         //for Swagger
                         "/v2/api-docs",
                         "/configuration/ui",
