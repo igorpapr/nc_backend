@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userDao.save(user);
 
         mailService.sendMail(savedUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
+                Constants.REG_MAIL_MESSAGE + "<a href=\"" + REG_URL_ACTIVATE + savedUser.getActivationUrl() + "\">Click to activate!</a>");
 
         return savedUser;
     }
