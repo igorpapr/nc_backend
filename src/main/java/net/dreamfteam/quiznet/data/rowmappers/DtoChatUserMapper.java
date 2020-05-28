@@ -14,7 +14,7 @@ public class DtoChatUserMapper implements RowMapper<DtoChatUser> {
                 .id(resultSet.getString("user_id"))
                 .username(resultSet.getString("username"))
                 .image(resultSet.getBytes("image"))
-                .joinedToChatDate(resultSet.getDate("datetime_joined"))
+                .joinedToChatDate(resultSet.getTimestamp("datetime_joined"))
                 .build();
     }
 }

@@ -13,7 +13,7 @@ public class DtoChatMessageMapper implements RowMapper<DtoChatMessage> {
                 .authorId(resultSet.getString("user_id"))
                 .authorUsername(resultSet.getString("username"))
                 .content(resultSet.getString("content"))
-                .sentDate(resultSet.getDate("datetime_sent"))
+                .sentDate(resultSet.getTimestamp("datetime_sent"))
                 .build();
     }
 }
