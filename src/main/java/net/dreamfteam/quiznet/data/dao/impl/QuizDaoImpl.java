@@ -33,25 +33,23 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     @Transactional
-    public Quiz saveQuiz(Quiz quiz) {
+    public Quiz saveQuiz(Quiz quiz, String language) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement(
-                        "INSERT INTO quizzes (title, description, creator_id, activated, validated, quiz_lang, " +
-                                "ver_creation_datetime, published, image)" +
-                                " VALUES (?,?,?,?,?,?,current_timestamp,?,?)", Statement.RETURN_GENERATED_KEYS);
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    "INSERT INTO quizzes (title, description, creator_id, activated, validated, quiz_lang, " +
+                            "ver_creation_datetime, published, image)" +
+                            " VALUES (?,?,?,?,?,?,current_timestamp,?,?)", Statement.RETURN_GENERATED_KEYS);
 
-                ps.setString(1, quiz.getTitle());
-                ps.setString(2, quiz.getDescription());
-                ps.setObject(3, java.util.UUID.fromString(quiz.getCreatorId()));
-                ps.setBoolean(4, quiz.isActivated());
-                ps.setBoolean(5, quiz.isValidated());
-                ps.setString(6, quiz.getLanguage());
-                ps.setBoolean(7, quiz.isPublished());
-                ps.setBytes(8, quiz.getImageContent());
-                return ps;
-            }
+            ps.setString(1, quiz.getTitle());
+            ps.setString(2, quiz.getDescription());
+            ps.setObject(3, java.util.UUID.fromString(quiz.getCreatorId()));
+            ps.setBoolean(4, quiz.isActivated());
+            ps.setBoolean(5, quiz.isValidated());
+            ps.setString(6, quiz.getLanguage());
+            ps.setBoolean(7, quiz.isPublished());
+            ps.setBytes(8, quiz.getImageContent());
+            return ps;
         }, keyHolder);
         quiz.setId(keyHolder.getKeys()
                 .get("quiz_id")
@@ -69,17 +67,17 @@ public class QuizDaoImpl implements QuizDao {
                             .get(i));
         }
         quiz.setTagNameList(loadTagNameList(quiz.getId()));
-        quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+        quiz.setCategoryNameList(loadCategoryNameList(quiz.getId(),language));
         quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)",
                 new Object[]{quiz.getCreatorId()}, String.class));
         return quiz;
     }
 
     @Override
-    public Quiz updateQuiz(Quiz quiz, String oldQuizId) {
+    public Quiz updateQuiz(Quiz quiz, String oldQuizId, String language) {
         if (jdbcTemplate.queryForObject("SELECT published FROM quizzes WHERE quiz_id = UUID(?)",
                 new Object[]{oldQuizId}, Boolean.class) == true) {
-            quiz = saveQuiz(quiz);
+            quiz = saveQuiz(quiz,language);
             jdbcTemplate.update("INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime)" +
                     " VALUES (UUID(?), UUID(?), current_timestamp)", oldQuizId, quiz.getId());
 
@@ -111,7 +109,7 @@ public class QuizDaoImpl implements QuizDao {
                                 .get(i));
             }
             quiz.setTagNameList(loadTagNameList(oldQuizId));
-            quiz.setCategoryNameList(loadCategoryNameList(oldQuizId));
+            quiz.setCategoryNameList(loadCategoryNameList(oldQuizId,language));
             quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)",
                     new Object[]{quiz.getCreatorId()}, String.class));
             quiz.setId(oldQuizId);
@@ -121,7 +119,7 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz getQuiz(String quizId, String userId) {
+    public Quiz getQuiz(String quizId, String userId, String language) {
         try {
             Quiz quiz =
                     jdbcTemplate.queryForObject("SELECT quizzes.*, quiz_rating(quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
@@ -134,7 +132,7 @@ public class QuizDaoImpl implements QuizDao {
                 }
             }
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
-            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId(),language));
             quiz.setTagIdList(loadTagIdList(quiz.getId()));
             quiz.setCategoryIdList(loadCategoryIdList(quiz.getId()));
             quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)",
@@ -146,13 +144,13 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public Quiz getQuiz(String quizId) {
+    public Quiz getQuiz(String quizId, String language) {
         try {
             Quiz quiz =
                     jdbcTemplate.queryForObject("SELECT quizzes.*, quiz_rating(quizzes.quiz_id) as rating FROM quizzes WHERE quiz_id = UUID(?)", new Object[]{quizId},
                             new QuizMapper());
             quiz.setTagNameList(loadTagNameList(quiz.getId()));
-            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId()));
+            quiz.setCategoryNameList(loadCategoryNameList(quiz.getId(),language));
             quiz.setTagIdList(loadTagIdList(quiz.getId()));
             quiz.setCategoryIdList(loadCategoryIdList(quiz.getId()));
             quiz.setAuthor(jdbcTemplate.queryForObject("SELECT username FROM users WHERE user_id = UUID(?)",
@@ -350,9 +348,9 @@ public class QuizDaoImpl implements QuizDao {
 
     @Override
     @Transactional
-    public Quiz setValidator(String quizId, String adminId) {
+    public Quiz setValidator(String quizId, String adminId, String language) {
         jdbcTemplate.update("UPDATE quizzes SET validator_id = uuid(?) WHERE quiz_id = UUID(?)", adminId, quizId);
-        return getQuiz(quizId);
+        return getQuiz(quizId,language);
     }
 
     @Override
@@ -464,11 +462,14 @@ public class QuizDaoImpl implements QuizDao {
     }
 
     @Override
-    public List<List<Object>> getCategoryList() {
+    public List<List<Object>> getCategoryList(String language) {
         try {
             List listT =
-                    jdbcTemplate.queryForList("SELECT category_id, title, description, cat_image_ref FROM categories",
-                            new Object[]{});
+                    jdbcTemplate.queryForList("SELECT category_id, " +
+                                    "CASE WHEN " +
+                                    "? = 'uk' " +
+                                    "THEN title_uk ELSE title END AS title FROM categories",
+                            language);
             return listT;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -837,15 +838,15 @@ public class QuizDaoImpl implements QuizDao {
                 });
     }
 
-    private List<String> loadCategoryNameList(String quizId) {
-        return jdbcTemplate.query("SELECT c.title FROM categories c " +
-                        "INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id WHERE quiz_id = UUID(?)",
-                new Object[]{quizId}, new RowMapper<String>() {
-                    @Override
-                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return rs.getString(1);
-                    }
-                });
+    private List<String> loadCategoryNameList(String quizId, String language) {
+        return jdbcTemplate.query("SELECT " +
+                        "CASE WHEN " +
+                        "? = 'uk' " +
+                        "THEN c.title_uk ELSE c.title END AS title "+
+                        "FROM categories c INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id " +
+                        "WHERE quiz_id = UUID(?)",
+
+                new Object[]{language,quizId}, (rs, rowNum) -> rs.getString(1));
     }
 
     private List<String> loadTagIdList(String quizId) {
