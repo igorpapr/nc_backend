@@ -40,7 +40,7 @@ public class WebSocketChatController {
 
 		chatService.saveMessage(chatId, dtoChatMessage);
 
-		messagingTemplate.convertAndSend("topic/message/" + chatId, new Gson().toJson(dtoChatMessage));
+		messagingTemplate.convertAndSend("topic/chat/" + chatId, new Gson().toJson(dtoChatMessage));
 	}
 
 }
