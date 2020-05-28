@@ -177,7 +177,7 @@ public class ChatDaoImpl implements ChatDao {
                         "JOIN users u ON messages.user_id = u.user_id " +
                         "WHERE chat_id = ? " +
                         "ORDER BY datetime_sent DESC LIMIT ? OFFSET ? ;",
-                new DtoChatMessageMapper(), UUID.fromString(chatId), amountMessagesOnPage, page);
+                new DtoChatMessageMapper(), UUID.fromString(chatId), amountMessagesOnPage, page*amountMessagesOnPage);
     }
 
 

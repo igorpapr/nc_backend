@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.web.dto.DtoCreateGroupChat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -83,7 +84,9 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<DtoChatMessage> getMessagesInChat(String chatId, int page) {
-        return chatDao.getMessagesInChat(chatId, page, Constants.AMOUNT_MESSAGES_ON_PAGE);
+        List<DtoChatMessage> res = chatDao.getMessagesInChat(chatId, page, Constants.AMOUNT_MESSAGES_ON_PAGE);
+        Collections.reverse(res);
+        return res;
     }
 
     @Override
