@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.AnnouncementDao;
 import net.dreamfteam.quiznet.data.entities.Announcement;
 import net.dreamfteam.quiznet.data.rowmappers.AnnouncementMapper;
@@ -32,9 +33,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement("INSERT INTO announcements " +
-                            "(creator_id, title, text_content, datetime_creation," +
-                            " datetime_publication, is_published, image) VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement(SqlConstants.ANNOUNCEMENTS_CREATE_ANNOUNCEMENT, Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, java.util.UUID.fromString(ann.getCreatorId()));
             ps.setString(2, ann.getTitle());
             ps.setString(3, ann.getTextContent());
@@ -54,7 +53,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public Announcement getAnnouncement(String announcementId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT announcement_id,  creator_id as username, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where announcement_id = UUID(?)",
+            return jdbcTemplate.queryForObject(SqlConstants.ANNOUNCEMENTS_GET_ANNOUNCEMENT_BY_ID,
                     new Object[]{announcementId},
                     new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -66,7 +65,7 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     @Override
     public List<Announcement> getAllAnnouncements(long start, long amount) {
         try {
-            return jdbcTemplate.query("SELECT announcement_id, username, title, text_content, announcements.image, datetime_creation, is_published, datetime_publication from announcements join users on announcements.creator_id = users.user_id where datetime_publication < current_timestamp order by datetime_publication desc limit ? offset ? rows;",
+            return jdbcTemplate.query(SqlConstants.ANNOUNCEMENTS_GET_ALL_ANNOUNCEMENTS,
                     new Object[]{amount, start}, new AnnouncementMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -77,13 +76,11 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
     public Announcement editAnnouncement(Announcement ann, boolean newImage) {
 
         if(newImage){
-            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
-                            + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)",
+            jdbcTemplate.update(SqlConstants.ANNOUNCEMENTS_EDIT_ANNOUNCEMENT_WITH_IMAGE,
                     ann.getCreatorId(),
                     ann.getTitle(), ann.getTextContent(), true , ann.getImage(), ann.getAnnouncementId());
-        }else{
-            jdbcTemplate.update("UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
-                            + ",is_published = ? WHERE  announcement_id = UUID(?)",
+        } else {
+            jdbcTemplate.update(SqlConstants.ANNOUNCEMENTS_EDIT_ANNOUNCEMENT_WITHOUT_IMAGE,
                     ann.getCreatorId(),
                     ann.getTitle(), ann.getTextContent(), true, ann.getAnnouncementId());
         }
@@ -93,13 +90,13 @@ public class AnnouncementDaoImpl implements AnnouncementDao {
 
     @Override
     public void deleteAnnouncementById(String announcementId) {
-        jdbcTemplate.update("DELETE FROM announcementS WHERE announcement_id = UUID(?) ", announcementId);
+        jdbcTemplate.update(SqlConstants.ANNOUNCEMENTS_DELETE_ANNOUNCEMENT, announcementId);
     }
 
     @Override
     public long getAmount() {
         try {
-            return jdbcTemplate.queryForObject("SELECT count(*) from announcements", Long.class);
+            return jdbcTemplate.queryForObject(SqlConstants.ANNOUNCEMENTS_GET_ANNOUNCEMENTS_AMOUNT, Long.class);
 
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return 0;
