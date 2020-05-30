@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.NotificationService;

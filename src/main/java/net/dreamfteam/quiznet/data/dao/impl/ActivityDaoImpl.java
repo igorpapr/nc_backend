@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.dao.ActivityDao;
 import net.dreamfteam.quiznet.data.entities.FriendsActivity;
 import net.dreamfteam.quiznet.data.rowmappers.FriendsActivityMapper;

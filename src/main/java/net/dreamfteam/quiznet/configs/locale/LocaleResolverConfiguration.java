@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.configs.locale;
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;

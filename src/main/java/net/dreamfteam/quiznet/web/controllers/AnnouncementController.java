@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import com.google.gson.Gson;
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AnnouncementService;
 import net.dreamfteam.quiznet.web.dto.DtoAnnouncement;

@@ -1,11 +1,10 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.service.GameSessionService;
-import net.dreamfteam.quiznet.service.QuizService;
 import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;

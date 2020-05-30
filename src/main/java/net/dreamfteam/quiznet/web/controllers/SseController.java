@@ -1,10 +1,8 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-import net.dreamfteam.quiznet.configs.Constants;
-import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Controller;

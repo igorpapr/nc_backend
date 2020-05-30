@@ -1,4 +1,4 @@
-package net.dreamfteam.quiznet.configs;
+package net.dreamfteam.quiznet.configs.constants;
 
 import java.util.Arrays;
 import java.util.List;
