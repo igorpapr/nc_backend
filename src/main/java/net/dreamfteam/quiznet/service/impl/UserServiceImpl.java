@@ -2,7 +2,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.*;

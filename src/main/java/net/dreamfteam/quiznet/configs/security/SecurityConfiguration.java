@@ -1,7 +1,7 @@
 package net.dreamfteam.quiznet.configs.security;
 
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.token.JwtAuthenticationEntryPoint;
 import net.dreamfteam.quiznet.configs.token.JwtConfigurer;
 import net.dreamfteam.quiznet.configs.token.JwtTokenProvider;

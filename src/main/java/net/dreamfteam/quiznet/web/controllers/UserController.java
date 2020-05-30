@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.web.controllers;
 
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController

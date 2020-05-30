@@ -8,7 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.dreamfteam.quiznet.configs.Constants.EXPIRATION_TIME;
-import static net.dreamfteam.quiznet.configs.Constants.SECRET;
+import static net.dreamfteam.quiznet.configs.constants.Constants.EXPIRATION_TIME;
+import static net.dreamfteam.quiznet.configs.constants.Constants.SECRET;
 
 
 /**

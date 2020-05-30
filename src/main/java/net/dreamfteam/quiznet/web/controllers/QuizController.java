@@ -1,13 +1,12 @@
 package net.dreamfteam.quiznet.web.controllers;
 
 import com.google.gson.Gson;
-import net.dreamfteam.quiznet.configs.Constants;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.data.entities.Quiz;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.QuizService;
-import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.*;
 import net.dreamfteam.quiznet.web.validators.QuizValidator;
 import org.springframework.beans.factory.annotation.Autowired;
