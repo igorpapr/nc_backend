@@ -100,4 +100,44 @@ public class SqlConstants {
             "SELECT value " +
                     "FROM user_settings " +
                     "WHERE userId = UUID(?) AND setting_id = '34c00e41-9eab-49f9-8a9a-4862f6379dd0'";
+
+    //Announcements constants
+
+    public static final String ANNOUNCEMENTS_CREATE_ANNOUNCEMENT =
+            "INSERT INTO announcements " +
+                    "(creator_id, title, text_content, datetime_creation," +
+                    " datetime_publication, is_published, image)" +
+                    " VALUES (?,?,?,?,?,?,?)";
+
+    public static final String ANNOUNCEMENTS_GET_ANNOUNCEMENT_BY_ID =
+            "SELECT announcement_id,  creator_id as username, " +
+                    "title, text_content, announcements.image, " +
+                    "datetime_creation, is_published, datetime_publication" +
+                    " from announcements join users " +
+                    "on announcements.creator_id = users.user_id " +
+                    "where announcement_id = UUID(?)";
+
+
+    public static final String ANNOUNCEMENTS_GET_ALL_ANNOUNCEMENTS =
+            "SELECT announcement_id, username, title, text_content," +
+                    " announcements.image, datetime_creation, is_published, " +
+                    "datetime_publication from announcements " +
+                    "join users on announcements.creator_id = users.user_id " +
+                    "where datetime_publication < current_timestamp " +
+                    "order by datetime_publication desc limit ? offset ? rows;";
+
+    public static final String ANNOUNCEMENTS_EDIT_ANNOUNCEMENT_WITH_IMAGE =
+            "UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                    + ",is_published = ?, image = ? WHERE  announcement_id = UUID(?)";
+
+    public static final String ANNOUNCEMENTS_EDIT_ANNOUNCEMENT_WITHOUT_IMAGE =
+            "UPDATE announcements SET creator_id = UUID(?), title = ?,  text_content = ?"
+                    + ",is_published = ? WHERE  announcement_id = UUID(?)";
+
+    public static final String ANNOUNCEMENTS_DELETE_ANNOUNCEMENT =
+            "DELETE FROM announcementS WHERE announcement_id = UUID(?)";
+
+    public static final String ANNOUNCEMENTS_GET_ANNOUNCEMENTS_AMOUNT =
+           "SELECT count(*) from announcements";
+
 }

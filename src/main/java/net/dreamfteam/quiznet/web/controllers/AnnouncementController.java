@@ -45,7 +45,7 @@ public class AnnouncementController {
 
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/edit")
+    @PutMapping("/edit")
     public ResponseEntity<?> editAnnouncement(@RequestParam("obj") String announcement,
                                               @RequestParam(value = "img", required = false) MultipartFile image,
                                               @RequestParam(value = "newimage", required = false) String newImage)
