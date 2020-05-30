@@ -17,7 +17,6 @@ public class UserValidator {
     private static final String REGEX_EXCEPTION_MESSAGE = "User field parameter '%s' must match these parameters: '%s'";
 
     //Regex
-    private static final String REGEX_PASSWORD = "^(?=.*\\d).{4,28}$";
     private static final String REGEX_EMAIL = "^[a-zA-Z0-9_+&*-]+(?:\\." +
             "[a-zA-Z0-9_+&*-]+)*@" +
             "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
@@ -31,7 +30,6 @@ public class UserValidator {
         validateNotEmptyProperty(user.getPassword(), "password");
         validateNotEmptyProperty(user.getEmail(), "email");
         validateWithRegularExpression(user.getUsername(), REGEX_USERNAME, "username");
-        validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
         validateWithRegularExpression(user.getEmail(), REGEX_EMAIL, "email");
     }
 
@@ -49,7 +47,6 @@ public class UserValidator {
         validateNotEmptyProperty(admin.getRole(), "role");
         validateWithRegularExpression(admin.getRole(), REGEX_ROLE, "role");
         validateWithRegularExpression(admin.getUsername(), REGEX_USERNAME, "username");
-        validateWithRegularExpression(admin.getPassword(), REGEX_PASSWORD, "password");
         validateWithRegularExpression(admin.getEmail(), REGEX_EMAIL, "email");
     }
 
