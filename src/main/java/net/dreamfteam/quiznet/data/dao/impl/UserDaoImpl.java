@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Repository
 public class UserDaoImpl implements UserDao {
 
-    private JdbcTemplate jdbcTemplate;
+    final private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
@@ -29,8 +30,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query(
-                SELECT_QUERY,
+        return jdbcTemplate.query(SqlConstants.SELECT_USER_QUERY,
                 new UserMapper()
 
         );
@@ -39,8 +39,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByActivationUrl(String activationUrl) {
         try {
-            return jdbcTemplate.queryForObject(SELECT_QUERY +
-                            "WHERE activation_url = ?",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_ACTIVATION_URL,
                     new Object[]{activationUrl},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -51,8 +50,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByRecoverUrl(String recoverUrl) {
         try {
-            return jdbcTemplate.queryForObject(SELECT_QUERY +
-                            "WHERE recovery_url = ?",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_RECOVERY_URL,
                     new Object[]{recoverUrl},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -62,25 +60,21 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getAllByRoleUser() {
-        return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE roles.role_id = 1 and is_activated = true order by last_time_online desc",
+        return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_BY_ROLE_USER,
                 new UserMapper()
         );
     }
 
     @Override
     public List<User> getBySubStr(String str) {
-        return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE LOWER(username) LIKE LOWER(?) order by role , last_time_online desc",
+        return jdbcTemplate.query(SqlConstants.USERS_GET_BY_USERNAME_SUBSTR,
                 new UserMapper(),
                 str + "%");
     }
 
     @Override
     public List<User> getBySubStrAndRoleUser(String str) {
-        return jdbcTemplate.query(SELECT_QUERY +
-                        "WHERE LOWER(username) LIKE LOWER(?)" +
-                        "AND roles.role_id = 1 and is_activated = true ORDER BY  last_time_online desc",
+        return jdbcTemplate.query(SqlConstants.USERS_GET_BY_USERNAME_SUBSTR_AND_ROLE_USER,
                 new UserMapper(),
                 str + "%");
     }
@@ -89,8 +83,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User getByEmail(String email) {
         try {
-            return jdbcTemplate.queryForObject(SELECT_QUERY +
-                            "WHERE email = ?",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_EMAIL,
                     new Object[]{email},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -102,8 +95,7 @@ public class UserDaoImpl implements UserDao {
     public User getByUsername(String username) {
 
         try {
-            return jdbcTemplate.queryForObject(SELECT_QUERY +
-                            "WHERE username=?",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_USERNAME,
                     new Object[]{username},
                     new UserMapper());
         } catch (EmptyResultDataAccessException exception) {
@@ -115,8 +107,7 @@ public class UserDaoImpl implements UserDao {
     public User getById(String id) {
 
         try {
-            return jdbcTemplate.queryForObject(SELECT_QUERY +
-                            " WHERE user_id = UUID(?)",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_ID,
                     new Object[]{id},
                     new UserMapper());
         } catch (EmptyResultDataAccessException e) {
@@ -126,10 +117,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        jdbcTemplate.update(SAVE_QUERY,
-                UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(),
-                user.isVerified(), user.getActivationUrl(), user.getCreationDate(), user.getCreationDate(),
-                user.getRole().ordinal() + 1
+        jdbcTemplate.update(SqlConstants.USERS_SAVE_QUERY,
+                UUID.randomUUID(), user.getUsername(), user.getEmail(), user.getPassword(),
+                user.isActivated(), user.isVerified(), user.getActivationUrl(),
+                user.getCreationDate(), user.getCreationDate(), user.getRole().ordinal() + 1
         );
 
         return getByEmail(user.getEmail());
@@ -138,21 +129,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void deleteById(String id) {
-        jdbcTemplate.update(DELETE_QUERY + " WHERE user_id = UUID( ?)", id);
+        jdbcTemplate.update(SqlConstants.USERS_DELETE_BY_ID, id);
     }
 
     @Override
     public int deleteIfLinkExpired() {
         return jdbcTemplate
-                .update(DELETE_QUERY +
-                        " WHERE is_verified = 'false' and current_timestamp - date_acc_creation >= '1 DAY'");
+                .update(SqlConstants.USERS_DELETE_IF_LINK_EXPIRED);
     }
 
 
     @Override
     public void update(User user) {
-        jdbcTemplate.update(UPDATE_QUERY +
-                        "WHERE user_id = UUID(?)",
+        jdbcTemplate.update(SqlConstants.USERS_UPDATE_QUERY_BY_ID,
                 user.getUsername(), user.getEmail(), user.getPassword(), user.isActivated(), user.isVerified(),
                 user.getLastTimeOnline(), user.getImage(), user.getAboutMe(), user.getRecoveryUrl(),
                 user.getRecoverySentTime(), user.getRole().ordinal() + 1, user.getId());
@@ -163,17 +152,9 @@ public class UserDaoImpl implements UserDao {
     public List<UserView> getFriendsByUserId(int startIndex, int amount, String userId) {
         try {
             return jdbcTemplate
-                    .query("SELECT user_id, username, last_time_online, image AS image_content " +
-                            "FROM users WHERE user_id IN   (SELECT f.friend_id AS id " +
-                            "FROM friends f " +
-                            "WHERE f.parent_id = uuid(?) " +
-                            "AND f.accepted_datetime IS NOT NULL " +
-                            "UNION " +
-                            "SELECT f1.parent_id AS id " +
-                            "FROM friends f1 " +
-                            "WHERE f1.friend_id = uuid(?) " +
-                            "AND f1.accepted_datetime IS NOT NULL) " +
-                            "LIMIT ? OFFSET ?;", new Object[]{userId, userId, amount, startIndex}, new UserViewMapper());
+                    .query(SqlConstants.USERS_GET_ALL_FRIENDS_BY_USER_ID,
+                            new Object[]{userId, userId, amount, startIndex},
+                            new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -182,11 +163,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int getFriendsTotalSize(String userId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
-                            "FROM friends " +
-                            "WHERE (parent_id = uuid(?) " +
-                            "OR friend_id = uuid(?))" +
-                            "AND accepted_datetime IS NOT NULL;",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_FRIENDS_TOTAL_SIZE,
                     new Object[]{userId, userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
@@ -197,11 +174,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserFriendInvitation> getFriendInvitationsIncomingByUserId(int startIndex, int amount, String userId) {
         try {
-            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, image AS image_content " +
-                    "FROM users INNER JOIN friends f ON users.user_id = f.parent_id " +
-                    "WHERE f.friend_id = uuid(?) " +
-                    "AND f.accepted_datetime IS NULL " +
-                    "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
+            return jdbcTemplate.query(SqlConstants.USERS_GET_FRIEND_INCOMING_INVITATIONS_BY_USER_ID,
+                    new Object[]{userId, amount, startIndex},
+                    new UserFriendInvitationMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -210,10 +185,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int getFriendInvitationsIncomingTotalSize(String userId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
-                            "FROM friends " +
-                            "WHERE friend_id = uuid(?) " +
-                            "AND accepted_datetime IS NULL;",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_FRIEND_INCOMING_INVITATIONS_TOTAL_SIZE,
                     new Object[]{userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
@@ -224,11 +196,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<UserFriendInvitation> getFriendInvitationsOutgoingByUserId(int startIndex, int amount, String userId) {
         try {
-            return jdbcTemplate.query("SELECT user_id, username, invite_datetime, image AS image_content " +
-                    "FROM users INNER JOIN friends f ON users.user_id = f.friend_id " +
-                    "WHERE f.parent_id = uuid(?) " +
-                    "AND f.accepted_datetime IS NULL " +
-                    "LIMIT ? OFFSET ?;", new Object[]{userId, amount, startIndex}, new UserFriendInvitationMapper());
+            return jdbcTemplate.query(SqlConstants.USERS_GET_FRIEND_OUTGOING_INVITATIONS_BY_USER_ID,
+                    new Object[]{userId, amount, startIndex},
+                    new UserFriendInvitationMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -237,10 +207,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int getFriendInvitationsOutgoingTotalSize(String userId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT COUNT(*) AS total_size " +
-                            "FROM friends " +
-                            "WHERE parent_id = uuid(?) " +
-                            "AND accepted_datetime IS NULL;",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_FRIEND_OUTGOING_INVITATIONS_TOTAL_SIZE,
                     new Object[]{userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
@@ -251,13 +218,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite) {
         if (toInvite) {
-            jdbcTemplate.update("INSERT INTO friends (parent_id, friend_id, invite_datetime) " +
-                            "VALUES (UUID(?), UUID(?), CURRENT_TIMESTAMP);",
+            jdbcTemplate.update(SqlConstants.USERS_SAVE_OUTGOING_FRIEND_INVITATION,
                     parentId, targetId
             );
             return true;
         } else {
-            jdbcTemplate.update("delete from friends where friend_id in ( UUID(?), UUID(?)) and parent_id in ( UUID(?), UUID(?));",
+            jdbcTemplate.update(SqlConstants.USERS_DELETE_OUTGOING_FRIEND_INVITATION,
                     parentId, targetId, parentId, targetId);
             return false;
         }
@@ -266,11 +232,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public int acceptInvitation(String parentId, String targetId) {
-        try{
-            return jdbcTemplate.update("UPDATE friends " +
-                    "SET accepted_datetime = CURRENT_TIMESTAMP " +
-                    "WHERE parent_id = uuid(?) AND friend_id = uuid(?);", parentId, targetId);
-        }catch (DataAccessException e){
+        try {
+            return jdbcTemplate.update(SqlConstants.USERS_ACCEPT_FRIEND_INIVITAION,
+                    parentId, targetId);
+        } catch (DataAccessException e) {
             System.err.println("Error occurred while accepting the friend invitation: " + e.getMessage());
             return 0;
         }
@@ -278,15 +243,14 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void rejectInvitation(String parentId, String targetId) {
-        jdbcTemplate.update("DELETE FROM friends " +
-                "WHERE parent_id = uuid(?) AND friend_id = uuid(?)", parentId, targetId);
+        jdbcTemplate.update(SqlConstants.USERS_REJECT_FRIEND_INVITATION,
+                parentId, targetId);
     }
 
     @Override
     public User getFriendsRelations(User targetUser, String thisUserId) {
         try {
-            return jdbcTemplate.queryForObject("select f.parent_id = uuid(?) as outgoing ," +
-                            " f.friend_id = uuid(?) as incoming , f.accepted_datetime IS NOT NULL as friend from friends f WHERE  (f.parent_id in ( UUID(?), UUID(?)) and f.friend_id in ( UUID(?), UUID(?)))",
+            return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_FRIENDS_RELATIONS,
                     new Object[]{thisUserId, thisUserId, thisUserId, targetUser.getId(), thisUserId, targetUser.getId()},
                     (ps, i) -> {
                         targetUser.setFriend(ps.getBoolean("friend"));
@@ -302,22 +266,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void removeFriend(String targetId, String thisId) {
-        jdbcTemplate.update("update friends set accepted_datetime = null, parent_id = UUID(?), friend_id=UUID(?)" +
-                "where parent_id in ( UUID(?), UUID(?)) and friend_id in ( UUID(?), UUID(?))", targetId, thisId, targetId, thisId, targetId, thisId);
+        jdbcTemplate.update(SqlConstants.USERS_REMOVE_FRIEND,
+                targetId, thisId, targetId, thisId, targetId, thisId);
     }
 
     @Override
     public List<User> getPopularCreators() {
-        return jdbcTemplate.query(SELECT_QUERY + "inner join " +
-                        "(select creator_id, count(quiz_id) as count from quizzes " +
-                        "where validated = true and published = true group by creator_id) as cic " +
-                        "on creator_id = user_id where roles.role_id = 1 and is_activated = true order by count desc limit 20;\n",
+        return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_POPULAR_CREATORS,
                 new UserMapper());
     }
 
     @Override
     public List<User> getPrivilegedUsers() {
-        return jdbcTemplate.query(SELECT_QUERY + "where roles.role_id > 1 order by last_time_online desc;\n",
+        return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_PRIVILIGED,
                 new UserMapper());
     }
 
