@@ -270,4 +270,353 @@ public class SqlConstants {
                     "WHERE f1.friend_id = uuid(?) " +
                     "AND f1.accepted_datetime IS NOT NULL) " +
                     "LIMIT ? OFFSET ?;";
+
+    //Quiz constants
+
+    public static final String QUIZ_SAVE =
+            "INSERT INTO quizzes (title, description, creator_id, activated, validated, quiz_lang, ver_creation_datetime, published, image) " +
+            "VALUES (?,?,?,?,?,?,current_timestamp,?,?)";
+
+    public static final String QUIZ_SAVE_QUIZ_TAGS =
+            "INSERT INTO quizzes_tags (quiz_id, tag_id) VALUES (UUID(?),UUID(?))";
+
+    public static final String QUIZ_SAVE_QUIZ_CATEGS =
+            "INSERT INTO categs_quizzes (quiz_id, category_id) VALUES (UUID(?),UUID(?))";
+
+    public static final String QUIZ_SAVE_GET_AUTHOR =
+            "SELECT username " +
+            "FROM users " +
+            "WHERE user_id = UUID(?)";
+
+    public static final String QUIZ_UPDATE_IS_PUBLISHED =
+            "SELECT published " +
+            "FROM quizzes " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_UPDATE_QUZZES_EDIT =
+            "INSERT INTO quizzes_edit (prev_ver_id, new_ver_id, edit_datetime) " +
+            "VALUES (UUID(?), UUID(?), current_timestamp)";
+
+    public static final String QUIZ_UPDATE =
+            "UPDATE quizzes " +
+            "SET title = ?, description = ?, quiz_lang = ?, image = ? " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_UPDATE_TAGS =
+            "INSERT INTO quizzes_tags (quiz_id, tag_id) " +
+            "VALUES (UUID(?),UUID(?)) ON CONFLICT DO NOTHING";
+
+    public static final String QUIZ_UPDATE_CATEGS =
+            "INSERT INTO categs_quizzes (quiz_id, category_id) " +
+            "VALUES (UUID(?),UUID(?)) ON CONFLICT DO NOTHING";
+
+    public static final String QUIZ_GET =
+            "SELECT quizzes.quiz_id, quizzes.title, quizzes.description, quizzes.image, quizzes.ver_creation_datetime, quizzes.creator_id, " +
+            "quizzes.activated, quizzes.validated, quizzes.published, quizzes.quiz_lang, quizzes.admin_commentary, quizzes.rating, quiz_rating(quiz_id) as rating " +
+            "FROM quizzes WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_IS_FAVOURITE =
+            "SELECT count(*) " +
+            "FROM favourite_quizzes " +
+            "WHERE user_id = UUID(?) AND quiz_id = UUID(?)";
+
+    public static final String QUIZ_FAVOURITES_DELETE =
+            "DELETE FROM favourite_quizzes " +
+            "WHERE user_id = UUID(?) AND quiz_id = UUID(?)";
+
+    public static final String QUIZ_FAVOURITES_INSERT =
+            "INSERT INTO favourite_quizzes (user_id, quiz_id) " +
+            "VALUES (UUID(?),UUID(?))";
+
+    public static final String QUIZ_MARK_AS_PUBLISHED =
+            "UPDATE quizzes SET published = true " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_DELETE_BY_ID =
+            "DELETE FROM quizzes " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_DEACTIVATE =
+            "UPDATE quizzes SET activated = false " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_USER_QUIZ_BY_TITLE =
+            "SELECT quiz_rating(quizzes.quiz_id), * FROM quizzes " +
+            "WHERE title = ? AND creator_id = UUID(?)";
+
+    public static final String QUIZ_VALIDATE =
+            "UPDATE quizzes SET validated = true, published = ?, activated = ?, admin_commentary = ?, validator_id = uuid(?), " +
+            "validation_date = current_timestamp " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_VALIDATE_GET_OLD_QUIZ_ID =
+            "SELECT prev_ver_id " +
+            "FROM quizzes_edit " +
+            "WHERE new_ver_id = UUID(?)";
+
+    public static final String QUIZ_FILTER_INITIAL =
+            "SELECT q.quiz_id, q.title, q.image, quiz_rating(q.quiz_id) as rating  " +
+            "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+            "WHERE activated = true AND validated = true AND ";
+
+    public static final String QUIZ_FIND_QUIZZES_BY_FILTER_SIZE =
+            "SELECT COUNT(*) FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+            "WHERE activated = true AND validated = true AND ";
+
+    public static final String QUIZ_GET_VALID_QUIZZES =
+            "SELECT quiz_id, title, description, q.image AS image_content, ver_creation_datetime, creator_id, username, " +
+            "quiz_lang, admin_commentary, published, activated " +
+            "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+            "WHERE validated = true AND validator_id = UUID(?)" +
+            "ORDER BY validation_date DESC " +
+            "LIMIT ? OFFSET ?;";
+
+    public static final String QUIZ_INVALID_QUIZZES_TOTAL_SIZE =
+            "SELECT COUNT(*) AS total_size " +
+            "FROM quizzes WHERE validated = false AND published = true";
+
+    public static final String QUIZ_VALID_QUIZZES_TOTAL_SIZE =
+            "SELECT COUNT(*) AS total_size " +
+            "FROM quizzes WHERE validated = true AND validator_id = UUID(?)";
+
+    public static final String QUIZ_SET_VALIDATOR =
+            "UPDATE quizzes SET validator_id = uuid(?) " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_REMOVE_QUESTION_IMAGE =
+            "UPDATE questions SET img = NULL " +
+            "WHERE question_id = UUID(?)";
+
+    public static final String QUIZ_SAVE_QUESTION =
+            "INSERT INTO questions (quiz_id, title, content, points, type_id, img) VALUES (?,?,?,?,?,?)";
+
+    public static final String QUIZ_FIRST_TYPE_ANS =
+            "INSERT INTO options (content, is_correct, question_id) VALUES (?,?,UUID(?))";
+
+    public static final String QUIZ_SECOND_THIRD_TYPE_ANS =
+            "INSERT INTO one_val_options (value, question_id) VALUES (?,UUID(?))";
+
+    public static final String QUIZ_FOURTH_TYPE_ANS =
+            "INSERT INTO seq_options (seq_pos, content, question_id) VALUES (?,?,UUID(?))";
+
+    public static final String QUIZ_DELETE_QUESTION =
+            "DELETE FROM questions " +
+            "WHERE question_id = UUID(?)";
+
+    public static final String QUIZ_GET_QUESTION_LIST =
+            "SELECT q.question_id, q.quiz_id, q.title, q.content, q.points, q.type_id, q.img " +
+            "FROM questions q WHERE q.quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_TAG_LIST =
+            "SELECT tag_id, description FROM tags";
+
+    public static final String QUIZ_GET_CATEGORY_LIST =
+            "SELECT category_id, " +
+                    "CASE WHEN " +
+                    "? = 'uk' " +
+                    "THEN title_uk ELSE title END AS title " +
+            "FROM categories";
+
+    public static final String QUIZ_GET_USER_QUIZ_LIST =
+            "SELECT q.quiz_id, title, description, image, ver_creation_datetime, activated, validated, published, " +
+                    "quiz_lang , quiz_rating(q.quiz_id) as rating, admin_commentary,  f.liked  " +
+            "FROM quizzes as q left join " +
+                    "(SELECT count(*) as liked, quiz_id  " +
+                    "FROM favourite_quizzes " +
+                    "WHERE user_id=uuid(?) " +
+                    "GROUP BY quiz_id)" +
+            " as f on f.quiz_id=q.quiz_id where creator_id=uuid(?) " +
+            "ORDER BY validated, activated desc, published desc ";
+
+    public static final String QUIZ_USER_FAVOURITES_LIST =
+            "SELECT quiz_id, title, description, image,ver_creation_datetime, activated, validated, published,quiz_lang, quiz_rating(quiz_id) as rating  " +
+            "FROM quizzes " +
+            "WHERE quiz_id in (SELECT quiz_id from favourite_quizzes where user_id=uuid(?)) " +
+            "ORDER BY rating DESC, published DESC, activated DESC ";
+
+    public static final String QUIZ_GET_QUIZZES =
+            "SELECT quiz_id, title, q.image AS image_content,  quiz_rating(quiz_id) as rating " +
+            "FROM quizzes q " +
+            "WHERE validated = true AND activated = true AND published = true " +
+            "ORDER BY rating DESC LIMIT ? OFFSET ? ;";
+
+    public static final String QUIZ_GET_SUGGESTION_QUIZ_LIST_BY_CATEGS_AND_TAGS =
+            "SELECT DISTINCT q1.quiz_id, q1.title, q1.image,  quiz_rating(q1.quiz_id) as q1rating " +
+            "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
+            "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
+            "WHERE (category_id IN (SELECT cq.category_id " +
+            // 3 categories with most of games played by the user
+            "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
+            "                                                           ON g.game_id = ug.game_id) " +
+            "                                                           ON g.quiz_id = cq.quiz_id " +
+            "                        WHERE ug.user_id = uuid(?) " + //UserId here
+            "                        GROUP BY cq.category_id " +
+            "                        ORDER BY COUNT(g.game_id) DESC " +
+            "                        LIMIT 3) " + "      OR qt1.tag_id IN (SELECT qt3.tag_id " +
+            //3 tags with most of games played by the user
+            "                        FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
+            "                                                          ON g3.game_id = ug3.game_id) " +
+            "                                                          ON g3.quiz_id = qt3.quiz_id " +
+            "                        WHERE ug3.user_id = uuid(?) " + //Same userId here
+            "                        GROUP BY qt3.tag_id " +
+            "                        ORDER BY COUNT(g3.game_id) DESC" +
+            "                        LIMIT 3) " + "      ) " +
+            //excluding quizzes which the user has already played before
+            "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
+            "                            FROM games g2 INNER JOIN users_games ug2 " +
+            "ON g2.game_id = ug2.game_id " + "                            WHERE ug2.user_id = uuid(?)) " +
+            "      AND q1.activated = true " + //only available to play
+            "ORDER BY q1rating DESC " + //order by overall rating
+            "LIMIT ?;"; //first X rows;
+
+    public static final String QUIZ_GET_INVALID_QUIZZES =
+            "SELECT quiz_id, title, description, q.image AS image_content, ver_creation_datetime, creator_id, username, quiz_lang, admin_commentary " +
+            "FROM quizzes q INNER JOIN users u ON q.creator_id = u.user_id " +
+            "WHERE validated = false AND (validator_id IS NULL OR validator_id = uuid(?)) " +
+            "AND published = true " +
+            "ORDER BY ver_creation_datetime DESC " +
+            "LIMIT ? OFFSET ?;";
+
+    public static final String QUIZ_QUIZZES_TOTAL_SIZE =
+            "SELECT COUNT(*) AS total_size " +
+            "FROM quizzes WHERE validated = true AND activated = true AND published = true";
+
+    public static final String QUIZ_QUESTIONS_AMOUNT_IN_QUIZ =
+            "SELECT COUNT(*) AS total_size " +
+            "FROM questions WHERE quiz_id = uuid(?)";
+
+    public static final String QUIZ_GET_QUESTIONS_IN_PAGE =
+            "SELECT q.question_id, q.quiz_id, q.title, q.content, q.points, q.type_id, q.img as imgcontent " +
+            "FROM questions q " +
+            "WHERE q.quiz_id = UUID(?) LIMIT ? OFFSET ?";
+
+    public static final String QUIZ_AMOUNT_SUCCESS_CREATED =
+            "SELECT COUNT(*) " +
+            "FROM quizzes " +
+            "WHERE creator_id = uuid(?) AND validated = true AND published = true;";
+
+    public static final String QUIZ_LAST_PLAYED_QUIZZES =
+            "SELECT q.quiz_id, duration_time, is_winner, score, datetime_start, q.title, g.game_id " +
+            "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+                    "INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
+            "WHERE user_id = UUID(?)" + "AND datetime_start > (NOW() - INTERVAL '7 DAY') " +
+                    "AND finished = TRUE;";
+
+    public static final String QUIZ_MOST_POPULAR_QUIZZES_LAST_WEEK =
+            "SELECT g.quiz_id, q.title, COUNT(*) games_amount " +
+            "FROM quizzes q INNER JOIN games g ON g.quiz_id = q.quiz_id " +
+            "WHERE g.datetime_start > (NOW() - INTERVAL '7 DAY') " +
+            "GROUP BY g.quiz_id, q.title " +
+            "ORDER BY games_amount DESC " +
+            "LIMIT (?) ";
+
+    public static final String QUIZ_USER_QUIZ_RATING =
+            "SELECT quiz_id, user_id, rating_points " +
+            "FROM user_quiz_rating " +
+            "WHERE quiz_id=uuid(?) AND user_id=uuid(?) ";
+
+    public static final String QUIZ_RATE_QUIZ =
+            "INSERT INTO user_quiz_rating (quiz_id, user_id, rating_points) " +
+                    "VALUES (" +
+                        "(SELECT quiz_id " +
+                        "FROM games " +
+                        "WHERE game_id=uuid(?)" +
+                    "), uuid(?), ?) " +
+            "ON CONFLICT (quiz_id, user_id) DO UPDATE SET rating_points = ?;";
+
+    public static final String QUIZ_COUNT_VALIDATED_BY_ADMIN =
+            "SELECT count(*) FROM quizzes " +
+            "JOIN users u ON quizzes.validator_id = u.user_id " +
+            "WHERE role_id = 3 and CURRENT_TIMESTAMP - validation_date <= '7 DAY' ";
+
+    public static final String QUIZ_COUNT_VALIDATED_BY_MODERATOR =
+            "SELECT count(*) FROM quizzes " +
+            "JOIN users u ON quizzes.validator_id = u.user_id " +
+            "WHERE role_id = 2 and CURRENT_TIMESTAMP - validation_date <= '7 DAY' ";
+
+    public static final String QUIZ_GET_NUMBER =
+            "SELECT COUNT(*) " +
+            "FROM quizzes";
+
+    public static final String QUIZ_ACTIVATED_NUMBER =
+            "SELECT COUNT(*) " +
+            "FROM quizzes WHERE activated = true";
+
+    public static final String QUIZ_PUBLISHED_NUMBER =
+            "SELECT COUNT(*) " +
+            "FROM quizzes WHERE published = true";
+
+    public static final String QUIZ_REJECTED_NUMBER =
+            "SELECT COUNT(*) " +
+            "FROM quizzes WHERE validated = true AND activated = false";
+
+    public static final String QUIZ_UNVALIDATED_NUMBER =
+            "SELECT COUNT(*) " +
+            "FROM quizzes WHERE validated = false";
+
+    public static final String QUIZ_GET_RIGHT_ANSWERS =
+            "SELECT content " +
+            "FROM options " +
+            "WHERE question_id = UUID(?) AND is_correct = true";
+
+    public static final String QUIZ_GET_OTHER_ANSWERS =
+            "SELECT content " +
+            "FROM options " +
+            "WHERE question_id = UUID(?) AND is_correct = false";
+
+    public static final String QUIZ_GET_ONE_VAL_ANSWER =
+            "SELECT value " +
+            "FROM one_val_options " +
+            "WHERE question_id = UUID(?)";
+
+    public static final String QUIZ_GET_SEQUENCE_ANSWER =
+            "SELECT content " +
+            "FROM seq_options " +
+            "WHERE question_id = UUID(?) " +
+            "ORDER BY seq_pos;";
+
+    public static final String QUIZ_GET_USER_QUIZZES_RATING =
+            "SELECT quiz_id, title, image, quiz_rating(quiz_id) as rating " +
+            "FROM quizzes " +
+            "WHERE creator_id = UUID(?) " +
+            "ORDER BY rating DESC";
+
+    public static final String QUIZ_GET_TAG_NAME_LIST =
+            "SELECT t.description " +
+            "FROM tags t " +
+                "INNER JOIN quizzes_tags qt " +
+                "ON t.tag_id = qt.tag_id " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_CATEGORY_NAME_LIST =
+            "SELECT CASE WHEN " +
+                    "? = 'uk' " +
+                    "THEN c.title_uk " +
+                    "ELSE c.title END AS title "+
+            "FROM categories c INNER JOIN categs_quizzes cq ON c.category_id = cq.category_id " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_TAG_ID_LIST =
+            "SELECT tag_id " +
+            "FROM quizzes_tags " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_GET_CATEGORY_ID_LIST =
+            "SELECT category_id " +
+            "FROM categs_quizzes " +
+            "WHERE quiz_id = UUID(?)";
+
+    public static final String QUIZ_USER_QUIZ_LIST_AMOUNT =
+            "SELECT count(*) as amount " +
+            "FROM quizzes " +
+            "WHERE creator_id=uuid(?) ";
+
+    public static final String QUIZ_USER_FAV_QUIZ_LIST_AMOUNT =
+            "SELECT count(*) " +
+            "FROM quizzes " +
+            "WHERE quiz_id in (" +
+                    "SELECT quiz_id " +
+                    "FROM favourite_quizzes " +
+                    "WHERE user_id=uuid(?)" +
+                    ")";
 }
