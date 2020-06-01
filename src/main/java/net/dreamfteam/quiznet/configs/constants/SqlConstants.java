@@ -312,7 +312,7 @@ public class SqlConstants {
 
     public static final String QUIZ_GET =
             "SELECT quizzes.quiz_id, quizzes.title, quizzes.description, quizzes.image, quizzes.ver_creation_datetime, quizzes.creator_id, " +
-            "quizzes.activated, quizzes.validated, quizzes.published, quizzes.quiz_lang, quizzes.admin_commentary, quizzes.rating, quiz_rating(quiz_id) as rating " +
+            "quizzes.activated, quizzes.validated, quizzes.published, quizzes.quiz_lang, quizzes.admin_commentary, quiz_rating(quiz_id) as rating " +
             "FROM quizzes WHERE quiz_id = UUID(?)";
 
     public static final String QUIZ_GET_IS_FAVOURITE =
