@@ -721,4 +721,60 @@ public class SqlConstants {
             "SELECT count(*) " +
             "FROM users_achievements " +
             "WHERE user_id = uuid(?);";
+
+
+    //=================================================================================================================
+    // Activities Queries
+    //=================================================================================================================
+
+
+    /* Selects the friends' activities of the given user filtering by his settings, of needed language
+    *  Params:
+    *   1) The id of the given user;
+    *   2) The id of the language setting;
+    *   3) The same user id;
+    *   4) The same user id;
+    *   5) The same user id.
+    */
+    public static final String ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST =
+            "SELECT CASE (SELECT value " +//selecting language of user
+                         "FROM user_settings " +
+                         "WHERE user_id = uuid(?) " +
+                         "AND setting_id = uuid(?)) " +
+                    "WHEN 'uk' THEN content_uk " +
+                    "WHEN 'en' THEN content END AS content, " +
+            "activity_id, datetime, ua.user_id, u.username, ua.type_id, ua.link_info, " +
+            "u.image AS image_content " +
+            "FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
+            "INNER JOIN activity_types at1 ON ua.type_id = at1.type_id " +
+            "WHERE ua.user_id IN " + //selecting friends
+                    "(SELECT f.friend_id AS id " +
+                     "FROM friends f " +
+                     "WHERE f.parent_id = uuid(?) " +
+                     "AND f.accepted_datetime IS NOT NULL " +
+                     "UNION " +
+                     "SELECT f1.parent_id AS id " +
+                     "FROM friends f1 " +
+                     "WHERE f1.friend_id = uuid(?) " +
+                     "AND f1.accepted_datetime IS NOT NULL) " +
+            "AND ua.type_id IN (SELECT activity_type_id " +  //filtering by settings
+                                "FROM settings s INNER JOIN user_settings us " +
+                                "ON s.setting_id = us.setting_id " +
+                                "WHERE us.user_id = uuid(?) " +
+                                "AND value = 'true' " +
+                                "AND activity_type_id IS NOT NULL) " +
+            "ORDER BY datetime DESC;";
+
+
+    /*  Inserts new activity
+    *   Params:
+    *       1) English content;
+    *       2) Ukrainian content;
+    *       3) Activity type id;
+    *       4) User id;
+    *       5) Link info.
+     */
+    public static final String ACTIVITY_ADD =
+            "INSERT INTO user_activities (content, content_uk, type_id, user_id, link_info) " +
+            "VALUES (?, ?, ?, uuid(?), ?)";
 }
