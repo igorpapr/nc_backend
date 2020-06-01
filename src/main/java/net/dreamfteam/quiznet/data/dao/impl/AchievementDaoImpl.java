@@ -1,6 +1,8 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.Constants;
+import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.AchievementDao;
 import net.dreamfteam.quiznet.data.entities.UserAchievement;
 import net.dreamfteam.quiznet.data.rowmappers.UserAchievementMapper;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@Slf4j
 public class AchievementDaoImpl implements AchievementDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -25,12 +28,11 @@ public class AchievementDaoImpl implements AchievementDao {
     @Override
     public int assignAchievementRepeating(String userId, int achievementId) {
         try {
-            return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
-                    "(user_id, achievement_id, datetime_gained) " +
-                    "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
-                    "ON CONFLICT (user_id, achievement_id) DO UPDATE " +
-                    "SET times_gained = t.times_gained + 1;", userId, achievementId);
-        } catch (EmptyResultDataAccessException e) {
+            return jdbcTemplate.update(SqlConstants.ACHIEVEMENT_ASSIGN_REPEATING,
+                    userId, achievementId);
+        } catch (NullPointerException | EmptyResultDataAccessException e) {
+            log.error("Couldn't assign the repeatable achievement. AchievementId: "
+                    + achievementId + "\n Exception: " + e.getMessage());
             return 0;
         }
     }
@@ -38,11 +40,10 @@ public class AchievementDaoImpl implements AchievementDao {
     @Override
     public int assignAchievement(String userId, int achievementId) {
         try {
-            return jdbcTemplate.update("INSERT INTO users_achievements AS t" +
-                    "(user_id, achievement_id, datetime_gained) " +
-                    "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
-                    "ON CONFLICT (user_id, achievement_id) DO NOTHING;", userId, achievementId);
-        } catch (EmptyResultDataAccessException e) {
+            return jdbcTemplate.update(SqlConstants.ACHIEVEMENT_ASSIGN_NONREPEATING, userId, achievementId);
+        } catch (NullPointerException | EmptyResultDataAccessException e) {
+            log.error("Couldn't assign the non-repeatable achievement. AchievementId: "
+                    + achievementId + "\n Exception: " + e.getMessage());
             return 0;
         }
     }
@@ -51,54 +52,33 @@ public class AchievementDaoImpl implements AchievementDao {
     public List<UserAchievement> getUserAchievements(String userId) {
         try {
             return jdbcTemplate
-                    .query("SELECT a.achievement_id, " +
-                                "CASE tmp.value WHEN 'uk' THEN a.title_uk ELSE a.title END AS title, " +
-                                "CASE tmp.value WHEN 'uk' THEN a.description_uk ELSE a.description END AS description, " +
-                                "a.image_content, a.category_id, " +
-                                "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
-                                "FROM achievements a INNER JOIN users_achievements ua " +
-                                "ON a.achievement_id = ua.achievement_id " +
-                                "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
-                                            "FROM user_settings us " +
-                                            "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
-                                    "AS tmp ON ua.user_id = tmp.user_id " +
-                                "LEFT JOIN categories c ON a.category_id = c.category_id " +
-                                "WHERE ua.user_id = uuid(?);",
+                    .query(SqlConstants.ACHIEVEMENT_GET_USER_ACHIEVEMENTS,
                             new Object[]{userId, Constants.SETTING_LANG_ID, userId}, new UserAchievementMapper());
-        } catch (EmptyResultDataAccessException e) {
+        } catch (NullPointerException | EmptyResultDataAccessException e) {
+            log.error("Couldn't get user achievements. Exception: " + e.getMessage());
             return null;
         }
     }
 
     @Override
     public List<UserAchievement> getUserAchievementsLastWeek(String userId) {
-        return jdbcTemplate.query(
-                "SELECT a.achievement_id, " +
-                        "CASE tmp.value WHEN 'uk' THEN a.title_uk ELSE a.title END AS title, " +
-                        "CASE tmp.value WHEN 'uk' THEN a.description_uk ELSE a.description END AS description, " +
-                        "a.image_content, a.category_id, " +
-                "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
-                "FROM achievements a INNER JOIN users_achievements ua " +
-                "ON a.achievement_id = ua.achievement_id " +
-                "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
-                            "FROM user_settings us " +
-                            "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
-                    "AS tmp ON ua.user_id = tmp.user_id " +
-                "LEFT JOIN categories c ON a.category_id = c.category_id " +
-                "WHERE ua.user_id = UUID(?) " +
-                "ORDER BY datetime_gained", new Object[]{userId, Constants.SETTING_LANG_ID, userId},
-                new UserAchievementMapper());
+        try{
+            return jdbcTemplate.query(
+                    SqlConstants.ACHIEVEMENT_GET_USER_ACHIEVEMENTS_LAST_WEEK,
+                    new Object[]{userId, Constants.SETTING_LANG_ID, userId},
+                    new UserAchievementMapper());
+
+        }catch (EmptyResultDataAccessException | NullPointerException e){
+            log.error("Couldn't get a list of user achievements during past week.\n Exception: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
     public DtoUserAchievement getUserAchievementByIds(String userId, int achievementId) {
         try {
             return jdbcTemplate
-                    .queryForObject("SELECT a.title, a.title_uk, ua.times_gained, u.username " +
-                                    "FROM achievements a INNER JOIN users_achievements ua " +
-                                    "ON a.achievement_id = ua.achievement_id " +
-                                    "INNER JOIN users u ON ua.user_id = u.user_id " +
-                                    "WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;",
+                    .queryForObject(SqlConstants.ACHIEVEMENT_GET_USER_ACHIEVEMENTS_BY_IDS,
                             new Object[]{userId, achievementId}, (rs, i) -> DtoUserAchievement.builder()
                                     .title(rs.getString("title"))
                                     .titleUk(rs.getString("title_uk"))
@@ -106,18 +86,23 @@ public class AchievementDaoImpl implements AchievementDao {
                                     .username(rs.getString("username"))
                                     .build());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
-            System.err.println("Couldn't find user achievement info by userId: " + userId
-                    + ", and achievementId: " + achievementId);
+            log.error("Couldn't find a user achievement info by given userId: " + userId
+                    + ", and achievementId: " + achievementId + ".\n Exception: " + e.getMessage());
             return null;
         }
     }
 
     @Override
     public Integer getUserAchievementsAmount(String userId){
-        return jdbcTemplate
-                .queryForObject("SELECT count(*) FROM users_achievements " +
-                                "WHERE user_id = uuid(?);",
-                        new Object[]{userId}, Integer.class);
-    };
+        try{
+            return jdbcTemplate
+                    .queryForObject(SqlConstants.ACHIEVEMENT_GET_USER_ACHIEVEMENTS_AMOUNT,
+                            new Object[]{userId}, Integer.class);
+
+        }catch (Exception e){
+            log.error("An exception occurred while counting the amount of user achievements: " + e.getMessage());
+            return 0;
+        }
+    }
 
 }
