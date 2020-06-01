@@ -33,7 +33,7 @@ import javax.websocket.server.PathParam;
 @RequestMapping(Constants.SIGN_UP_URLS)
 public class AuthorizationController {
 
-    @Value("${activation.redirect.url}")
+    @Value("activation.redirect.url")
     private String ACTIVATION_REDIRECT_URL;
 
     private final SettingsService settingsService;

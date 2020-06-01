@@ -1,9 +1,9 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import net.dreamfteam.quiznet.configs.constants.Constants;
+import net.dreamfteam.quiznet.configs.mail.Mail;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.RecoveringService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
@@ -17,20 +17,23 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import static javax.management.timer.Timer.ONE_DAY;
 
 @Service
 public class RecoveringServiceImpl implements RecoveringService {
 
-    @Value("${recover.mail.url}")
+    @Value("recover.mail.url")
     private String RECOVER_MAIL_URL;
 
     final private UserService userService;
-    final private MailService mailService;
+    final private EmailServiceImpl mailService;
     final private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public RecoveringServiceImpl(UserService userService, MailService mailService, BCryptPasswordEncoder passwordEncoder) {
+    public RecoveringServiceImpl(UserService userService, EmailServiceImpl mailService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
@@ -49,8 +52,17 @@ public class RecoveringServiceImpl implements RecoveringService {
         user.setRecoverySentTime(new Date());
         userService.update(user);
 
-        mailService.sendMail(userMail.getEmail(), Constants.RECOVER_MAIL_SUBJECT, Constants.RECOVER_MAIL_SUBJECT,
-                Constants.RECOVER_MAIL_MESSAGE + RECOVER_MAIL_URL + user.getRecoveryUrl());
+
+        Mail mail = new Mail();
+        mail.setTo("vasilakur@gmail.com");
+        mail.setSubject("User register");
+
+        Map<String, String> model = new HashMap<>();
+        model.put("name", "Jeka");
+        mail.setModel(model);
+
+//        mailService.sendSMail(userMail.getEmail(), Constants.RECOVER_MAIL_SUBJECT, Constants.RECOVER_MAIL_SUBJECT,
+//                Constants.RECOVER_MAIL_MESSAGE + RECOVER_MAIL_URL + user.getRecoveryUrl());
 
     }
 

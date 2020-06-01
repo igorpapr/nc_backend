@@ -24,7 +24,7 @@ import javax.websocket.server.PathParam;
 @RequestMapping(Constants.RECOVER_URLS)
 public class RecoveringController {
 
-    @Value("${recover.redirect.url}")
+    @Value("recover.redirect.url")
     private String RECOVER_REDIRECT_URL;
 
     final private RecoveringService recoveringService;

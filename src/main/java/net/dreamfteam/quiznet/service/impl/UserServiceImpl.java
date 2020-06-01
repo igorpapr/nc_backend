@@ -3,12 +3,16 @@ package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.Constants;
+import net.dreamfteam.quiznet.configs.mail.Mail;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
-import net.dreamfteam.quiznet.data.entities.*;
+import net.dreamfteam.quiznet.data.entities.ActivityType;
+import net.dreamfteam.quiznet.data.entities.Role;
+import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
@@ -18,8 +22,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.isNull;
 
@@ -27,18 +34,18 @@ import static java.util.Objects.isNull;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Value("${reg.url.activate}")
+    @Value("$reg.url.activate")
     private String REG_URL_ACTIVATE;
 
-    private final MailService mailService;
+    private final EmailServiceImpl mailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDao userDao;
     private final ActivitiesService activitiesService;
-    private final  IAuthenticationFacade authenticationFacade;
+    private final IAuthenticationFacade authenticationFacade;
     private final NotificationService notificationService;
 
     @Autowired
-    public UserServiceImpl(MailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
+    public UserServiceImpl(EmailServiceImpl mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
                            UserDao userDao, ActivitiesService activitiesService,
                            IAuthenticationFacade authenticationFacade, NotificationService notificationService) {
         this.mailService = mailService;
@@ -71,8 +78,20 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userDao.save(user);
 
-        mailService.sendMail(savedUser.getEmail(), Constants.REG_MAIL_SUBJECT, Constants.REG_MAIL_ARTICLE,
-                Constants.REG_MAIL_MESSAGE + "<a href=\"" + REG_URL_ACTIVATE + savedUser.getActivationUrl() + "\">Click to activate!</a>");
+        Mail userMail = new Mail();
+        userMail.setTo(savedUser.getEmail());
+        userMail.setSubject(Constants.REG_MAIL_SUBJECT);
+
+        Map<String, String> model = new HashMap<>();
+        model.put("username", user.getUsername());
+        model.put("link", REG_URL_ACTIVATE + savedUser.getActivationUrl());
+        userMail.setModel(model);
+
+        try {
+            mailService.sendSimpleMessage(userMail, "userRegistration");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
         return savedUser;
     }
@@ -91,8 +110,8 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userDao.save(newUser);
 
-        mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
-                Constants.REG_ADMIN_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
+//        mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
+//                Constants.REG_ADMIN_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
 
         return savedUser;
     }
@@ -170,14 +189,14 @@ public class UserServiceImpl implements UserService {
     }
 
     /* Returns friend invitations list by user id.
-    * Parameter "isIncoming":
-    * - true - when the request is aimed on the incoming invitations list;
-    * - false - when the request is aimed on the outgoing invitations list.
-    * */
+     * Parameter "isIncoming":
+     * - true - when the request is aimed on the incoming invitations list;
+     * - false - when the request is aimed on the outgoing invitations list.
+     * */
     @Override
     public List<UserFriendInvitation> getFriendInvitationsByUserId(int startIndex, int amount, String userId,
                                                                    boolean isIncoming) {
-        if(isIncoming){
+        if (isIncoming) {
             return userDao.getFriendInvitationsIncomingByUserId(startIndex, amount, userId);
         }
         return userDao.getFriendInvitationsOutgoingByUserId(startIndex, amount, userId);
@@ -190,15 +209,15 @@ public class UserServiceImpl implements UserService {
      * */
     @Override
     public int getFriendInvitationsTotalSize(String userId, boolean isIncoming) {
-        if(isIncoming){
+        if (isIncoming) {
             return userDao.getFriendInvitationsIncomingTotalSize(userId);
         }
         return userDao.getFriendInvitationsOutgoingTotalSize(userId);
     }
 
     @Override
-    public void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite) throws ValidationException{
-        if(parentId.equals(targetId)){
+    public void inviteToBecomeFriends(String parentId, String targetId, boolean toInvite) throws ValidationException {
+        if (parentId.equals(targetId)) {
             throw new ValidationException("Can't invite to friends yourself");
         }
         User target = getById(targetId);
@@ -210,14 +229,14 @@ public class UserServiceImpl implements UserService {
             System.out.println("Friend invitation target has bad role: " + target.getRole());
             throw new ValidationException("Can't perform this action with user of such role: " + target.getRole());
         }
-        if(userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite)){
+        if (userDao.processOutgoingFriendInvitation(parentId, targetId, toInvite)) {
             String parentUsername = getById(parentId).getUsername();
             //adding notification
             notificationService.insert(DtoNotification.builder()
                     .link("")
                     .typeId(1)
                     .content("You've got a friend request from " + parentUsername)
-                    .contentUk("Ви отримали запит на дружбу від "+ parentUsername)
+                    .contentUk("Ви отримали запит на дружбу від " + parentUsername)
                     .userId(targetId)
                     .build());
         }
@@ -228,11 +247,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void proceedInvitation(String parentId, String targetId, boolean toAccept) {
         User parent = getById(parentId);
-        if(isNull(parent)){
+        if (isNull(parent)) {
             throw new ValidationException("Parent user doesn't exist");
         }
-        if(toAccept){
-            if (userDao.acceptInvitation(parentId, targetId) > 0){
+        if (toAccept) {
+            if (userDao.acceptInvitation(parentId, targetId) > 0) {
                 DtoActivity activity = DtoActivity
                         .builder()
                         .content("Added new friend: " + parent.getUsername())
@@ -249,8 +268,7 @@ public class UserServiceImpl implements UserService {
                 activity.setLinkInfo(authenticationFacade.getUsername());
                 activitiesService.addActivityForUser(activity);
             }
-        }
-        else{
+        } else {
             userDao.rejectInvitation(parentId, targetId);
         }
     }
