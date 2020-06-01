@@ -22,8 +22,6 @@ public class DtoUserSignUp {
 
     private String password;
 
-    private String language;
-
     public User toUser() {
        return User.builder()
                 .email(email)
