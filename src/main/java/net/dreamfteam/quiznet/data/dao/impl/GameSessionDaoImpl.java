@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
@@ -39,14 +40,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
         try {
             if(!userId.startsWith("-")){
-                return jdbcTemplate.queryForObject("SELECT * " +
-                                "FROM users_games WHERE (user_id = UUID(?) OR username = ?) AND game_id IN (" +
-                                "SELECT game_id FROM games WHERE access_code = ?);",
-                        new Object[]{userId, username, accessId}, new GameSessionMapper());
+                return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER,
+                                                   new Object[]{userId, username, accessId}, new GameSessionMapper());
             }else{
-                return jdbcTemplate.queryForObject("SELECT * " +
-                                "FROM users_games WHERE username = ? AND game_id IN (" +
-                                "SELECT game_id FROM games WHERE access_code = ?);",
+                return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_ANONYM,
                         new Object[]{username, accessId}, new GameSessionMapper());
             }
 
@@ -59,8 +56,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public GameSession getById(String sessionId) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * " +
-                            "FROM users_games WHERE game_session_id = UUID(?);",
+            return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ID,
                     new Object[]{sessionId}, new GameSessionMapper());
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -71,12 +67,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public List<DtoPlayerSession> getSessions(String gameId) {
         try {
             return jdbcTemplate
-                    .query("SELECT users_games.game_session_id, users_games.user_id, " +
-                                    "users_games.username, image, score, " +
-                                    "is_winner, is_creator, duration_time " +
-                                    "FROM users_games LEFT JOIN users " +
-                                    "ON users_games.user_id = users.user_id " +
-                                    "WHERE game_id = UUID(?);", new Object[]{gameId},
+                    .query(SqlConstants.GAME_SESSIONS_GET_SESSIONS_BY_GAME_ID, new Object[]{gameId},
                             (rs, i) -> DtoPlayerSession.builder()
                                     .game_session_id(rs.getString("game_session_id"))
                                     .duration_time(rs.getInt("duration_time"))
@@ -99,10 +90,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO users_games" +
-                    "(user_id, game_id, score," +
-                    "is_winner, is_creator, saved_by_user, duration_time, username)" +
-                    " VALUES (?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement(SqlConstants.GAME_SESSIONS_CREATE_SESSION, Statement.RETURN_GENERATED_KEYS);
             ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
                     UUID.fromString(gameSession.getUserId()));
             ps.setObject(2, UUID.fromString(gameSession.getGameId()));
@@ -123,22 +111,17 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     @Transactional
     public void updateSession(GameSession gameSession) {
-        jdbcTemplate.update("UPDATE users_games SET " +
-                        "score = ?, duration_time = ?, finished = true " +
-                        "WHERE game_session_id = UUID(?)",
+        jdbcTemplate.update(SqlConstants.GAME_SESSIONS_UPDATE_SESSION,
                 gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
     }
 
     @Override
     public boolean gameHasAvailableSlots(String accessId) {
-        int playersJoined = Optional.ofNullable(jdbcTemplate.queryForObject("SELECT COUNT(*)" +
-                "FROM users_games WHERE game_id IN (" +
-                "SELECT game_id FROM games WHERE access_code = ?);", new Object[]{accessId}, Integer.class))
+        int playersJoined = Optional.ofNullable(jdbcTemplate.queryForObject(
+                SqlConstants.GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ACCESS_CODE, new Object[]{accessId}, Integer.class))
                 .orElse(0);
 
-        int allSlots = Optional.ofNullable(jdbcTemplate.queryForObject("SELECT max_num_of_users " +
-                "FROM games " +
-                "WHERE access_code = ?;", new Object[]{accessId}, Integer.class))
+        int allSlots = Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_MAX_USER_AMOUNT, new Object[]{accessId}, Integer.class))
                 .orElse(0);
 
         return playersJoined != allSlots;
@@ -146,24 +129,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
     @Override
     public String getGameId(String sessionId) {
-        return jdbcTemplate.queryForObject("SELECT game_id FROM users_games WHERE game_session_id = UUID(?);",
+        return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_GAME_BY_ID,
                 new Object[]{sessionId}, String.class);
     }
 
     @Override
     @Transactional
     public void removePlayer(String sessionId) {
-        jdbcTemplate.update("DELETE FROM users_games WHERE game_session_id = UUID(?);", sessionId);
+        jdbcTemplate.update(SqlConstants.GAME_SESSIONS_REMOVE_PLAYER, sessionId);
     }
 
     //For achievements: returns the number of all finished game sessions of user
     @Override
     public int getNumberOfSessionsOfUser(String userId) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT COUNT(*) " +
-                            "FROM users_games " +
-                            "WHERE user_id = uuid(?) " +
-                            "AND finished = TRUE;",
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_NUMBER_OF_SESSIONS_OF_USER,
                     new Object[]{userId},
                     Integer.class))
                     .orElse(0);
@@ -177,10 +157,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     public int getNumberOfQuizzesPlayedByUser(String userId) {
         try {
             return Optional.ofNullable(jdbcTemplate
-                    .queryForObject("SELECT COUNT (DISTINCT g.quiz_id) " +
-                                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
-                                    "WHERE user_id = uuid(?) " +
-                                    "AND finished = TRUE;",
+                    .queryForObject(SqlConstants.GAME_SESSIONS_GET_NUMBER_OF_QUIZZES_PLAYED_BY_USER,
                             new Object[]{userId},
                             Integer.class))
                     .orElse(0);
@@ -194,11 +171,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public boolean isGameFinished(String gameId) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject("SELECT CASE " +
-                            "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
-                            "THEN TRUE " +
-                            "ELSE FALSE END " +
-                            "FROM users_games WHERE game_id = UUID(?);",
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_IS_GAME_FINISHED,
                     new Object[]{gameId}, Boolean.class))
                     .orElse(false);
         } catch (DataAccessException e) {
@@ -210,13 +183,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public int setWinnersForTheGame(String gameId) {
         try {
-            return jdbcTemplate.update("UPDATE users_games SET " +
-                            "is_winner = true " +
-                            "WHERE game_session_id IN (" +
-                            "SELECT game_session_id FROM users_games " +
-                            "WHERE game_id = UUID(?)" +
-                            "AND score = (" +
-                            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))",
+            return jdbcTemplate.update(SqlConstants.GAME_SESSIONS_SET_WINNERS_FOR_THE_GAME,
                     gameId, gameId);
         } catch (DataAccessException e) {
             return 0;
@@ -227,7 +194,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public boolean isCreator(String gameId){
         return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM users_games WHERE game_id = UUID(?)",
+                SqlConstants.GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ID,
                 new Object[]{gameId},Integer.class)).orElse(0) == 0;
     }
 }
