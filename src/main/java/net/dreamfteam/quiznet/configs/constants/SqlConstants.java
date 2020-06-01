@@ -2,7 +2,9 @@ package net.dreamfteam.quiznet.configs.constants;
 
 public class SqlConstants {
 
-    //Notifications constants
+    //=================================================================================================================
+    //Notifications Queries
+    //=================================================================================================================
     public static final String NOTIFICATIONS_GET_UNSEEN_BY_USER_ID =
             "SELECT " +
                     "CASE value " +
@@ -45,7 +47,10 @@ public class SqlConstants {
                     "WHERE date_time < CURRENT_TIMESTAMP  - interval '181' day";
 
 
-    //Settings constants
+    //=================================================================================================================
+    //Settings Queries
+    //=================================================================================================================
+
     public static final String SETTINGS_INIT_SETTINGS_DEFAULTS =
             "INSERT INTO user_settings (user_id, setting_id, value) " +
                     "SELECT UUID(?) , setting_id, default_value " +
@@ -100,7 +105,9 @@ public class SqlConstants {
                     "FROM user_settings " +
                     "WHERE userId = UUID(?) AND setting_id = '34c00e41-9eab-49f9-8a9a-4862f6379dd0'";
 
-    //Announcements constants
+    //=================================================================================================================
+    //Announcements Queries
+    //=================================================================================================================
 
     public static final String ANNOUNCEMENTS_CREATE_ANNOUNCEMENT =
             "INSERT INTO announcements " +
@@ -139,7 +146,9 @@ public class SqlConstants {
     public static final String ANNOUNCEMENTS_GET_ANNOUNCEMENTS_AMOUNT =
             "SELECT count(*) from announcements";
 
-    // Users Constants Queries
+    //=================================================================================================================
+    // Users Queries
+    //=================================================================================================================
 
     public static final String SELECT_USER_QUERY =
             "SELECT user_id, email, password, username, is_activated, is_verified, last_time_online," +
@@ -271,7 +280,9 @@ public class SqlConstants {
                     "AND f1.accepted_datetime IS NOT NULL) " +
                     "LIMIT ? OFFSET ?;";
 
-    //Quiz constants
+    //=================================================================================================================
+    //Quiz Queries
+    //=================================================================================================================
 
     public static final String QUIZ_SAVE =
             "INSERT INTO quizzes (title, description, creator_id, activated, validated, quiz_lang, ver_creation_datetime, published, image) " +
@@ -620,7 +631,158 @@ public class SqlConstants {
                     "WHERE user_id=uuid(?)" +
                     ")";
 
-    //Games constants
+    //=================================================================================================================
+    // Achievements Queries
+    //=================================================================================================================
+
+    /* Gives a repeating achievement to the given user
+    *  Params:
+    *   1) Id of the user;
+    *   2) Id of the achievement
+    */
+    public static final String ACHIEVEMENT_ASSIGN_REPEATING =
+            "INSERT INTO users_achievements AS t (user_id, achievement_id, datetime_gained) " +
+            "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
+            "ON CONFLICT (user_id, achievement_id) DO UPDATE " +
+            "SET times_gained = t.times_gained + 1;";
+
+    /* Gives a non-repeating achievement to the given user
+     *  Params:
+     *   1) Id of the user;
+     *   2) Id of the achievement
+     */
+    public static final String ACHIEVEMENT_ASSIGN_NONREPEATING =
+            "INSERT INTO users_achievements AS t (user_id, achievement_id, datetime_gained) " +
+            "VALUES (uuid(?),?,CURRENT_TIMESTAMP) " +
+            "ON CONFLICT (user_id, achievement_id) DO NOTHING;";
+
+    /*  Selects a list of user achievements of requested language
+    *   Params:
+    *       1) User id;
+    *       2) The id of the language setting;
+    *       3) The same user id.
+    */
+    public static final String ACHIEVEMENT_GET_USER_ACHIEVEMENTS =
+            "SELECT a.achievement_id, " +
+            "CASE tmp.value WHEN 'uk' THEN a.title_uk ELSE a.title END AS title, " +
+            "CASE tmp.value WHEN 'uk' THEN a.description_uk ELSE a.description END AS description, " +
+            "a.image_content, a.category_id, " +
+            "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
+            "FROM achievements a INNER JOIN users_achievements ua " +
+            "ON a.achievement_id = ua.achievement_id " +
+            "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
+                        "FROM user_settings us " +
+                        "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
+            "AS tmp ON ua.user_id = tmp.user_id " +
+            "LEFT JOIN categories c ON a.category_id = c.category_id " +
+            "WHERE ua.user_id = uuid(?);";
+
+    /*  Selects a list of user achievements, got during the past week, of requested language
+     *   Params:
+     *       1) User id;
+     *       2) The id of the language setting;
+     *       3) The same user id.
+     */
+    public static final String ACHIEVEMENT_GET_USER_ACHIEVEMENTS_LAST_WEEK =
+            "SELECT a.achievement_id, " +
+            "CASE tmp.value WHEN 'uk' THEN a.title_uk ELSE a.title END AS title, " +
+            "CASE tmp.value WHEN 'uk' THEN a.description_uk ELSE a.description END AS description, " +
+            "a.image_content, a.category_id, " +
+            "c.title AS category_title, ua.datetime_gained, ua.times_gained " +
+            "FROM achievements a INNER JOIN users_achievements ua " +
+            "ON a.achievement_id = ua.achievement_id " +
+            "INNER JOIN (SELECT value, us.user_id " + //selecting language settings
+                        "FROM user_settings us " +
+                        "WHERE us.user_id = uuid(?) AND setting_id = uuid(?)) " +
+            "AS tmp ON ua.user_id = tmp.user_id " +
+            "LEFT JOIN categories c ON a.category_id = c.category_id " +
+            "WHERE ua.user_id = UUID(?) " +
+            "ORDER BY datetime_gained DESC;";
+
+
+    /* Selects the user_achievement info by given ids of the user and achievement
+    *   Params:
+    *       1) user id;
+    *       2) achievement id.
+     */
+    public static final String ACHIEVEMENT_GET_USER_ACHIEVEMENTS_BY_IDS =
+            "SELECT a.title, a.title_uk, ua.times_gained, u.username " +
+            "FROM achievements a INNER JOIN users_achievements ua " +
+            "ON a.achievement_id = ua.achievement_id " +
+            "INNER JOIN users u ON ua.user_id = u.user_id " +
+            "WHERE ua.user_id = uuid(?) AND ua.achievement_id = ?;";
+
+
+    /*  Counts the number of achievements of the given user
+    *   Params:
+    *       1) User Id.
+     */
+    public static final String ACHIEVEMENT_GET_USER_ACHIEVEMENTS_AMOUNT =
+            "SELECT count(*) " +
+            "FROM users_achievements " +
+            "WHERE user_id = uuid(?);";
+
+
+    //=================================================================================================================
+    // Activities Queries
+    //=================================================================================================================
+
+
+    /* Selects the friends' activities of the given user filtering by his settings, of needed language
+    *  Params:
+    *   1) The id of the given user;
+    *   2) The id of the language setting;
+    *   3) The same user id;
+    *   4) The same user id;
+    *   5) The same user id.
+    */
+    public static final String ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST =
+            "SELECT CASE (SELECT value " +//selecting language of user
+                         "FROM user_settings " +
+                         "WHERE user_id = uuid(?) " +
+                         "AND setting_id = uuid(?)) " +
+                    "WHEN 'uk' THEN content_uk " +
+                    "WHEN 'en' THEN content END AS content, " +
+            "activity_id, datetime, ua.user_id, u.username, ua.type_id, ua.link_info, " +
+            "u.image AS image_content " +
+            "FROM user_activities ua INNER JOIN users u ON ua.user_id = u.user_id " +
+            "INNER JOIN activity_types at1 ON ua.type_id = at1.type_id " +
+            "WHERE ua.user_id IN " + //selecting friends
+                    "(SELECT f.friend_id AS id " +
+                     "FROM friends f " +
+                     "WHERE f.parent_id = uuid(?) " +
+                     "AND f.accepted_datetime IS NOT NULL " +
+                     "UNION " +
+                     "SELECT f1.parent_id AS id " +
+                     "FROM friends f1 " +
+                     "WHERE f1.friend_id = uuid(?) " +
+                     "AND f1.accepted_datetime IS NOT NULL) " +
+            "AND ua.type_id IN (SELECT activity_type_id " +  //filtering by settings
+                                "FROM settings s INNER JOIN user_settings us " +
+                                "ON s.setting_id = us.setting_id " +
+                                "WHERE us.user_id = uuid(?) " +
+                                "AND value = 'true' " +
+                                "AND activity_type_id IS NOT NULL) " +
+            "ORDER BY datetime DESC;";
+
+
+    /*  Inserts a new activity
+    *   Params:
+    *       1) English content;
+    *       2) Ukrainian content;
+    *       3) Activity type id;
+    *       4) User id;
+    *       5) Link info.
+     */
+    public static final String ACTIVITY_ADD =
+            "INSERT INTO user_activities (content, content_uk, type_id, user_id, link_info) " +
+            "VALUES (?, ?, ?, uuid(?), ?)";
+
+
+    //=================================================================================================================
+    //Games Queries
+    //=================================================================================================================
+
     public static final String GAMES_CREATE =
             "INSERT INTO games " +
             "(datetime_start, max_num_of_users, number_of_questions," +
@@ -696,7 +858,11 @@ public class SqlConstants {
             "GROUP BY dt_start " +
             "ORDER BY dt_start ";
 
-    //GameSessions constants
+
+    //=================================================================================================================
+    //GameSessions Queries
+    //=================================================================================================================
+
     public static final String GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER =
             "SELECT * " +
             "FROM users_games WHERE (user_id = UUID(?) OR username = ?) AND game_id IN (" +
