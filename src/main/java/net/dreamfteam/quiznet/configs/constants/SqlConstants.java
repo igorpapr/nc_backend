@@ -619,4 +619,164 @@ public class SqlConstants {
                     "FROM favourite_quizzes " +
                     "WHERE user_id=uuid(?)" +
                     ")";
+
+    //Games constants
+    public static final String GAMES_CREATE =
+            "INSERT INTO games " +
+            "(datetime_start, max_num_of_users, number_of_questions," +
+            "round_duration, time_additional_points, break_time," +
+            " quiz_id)" +
+            " VALUES (?,?,?,?,?,?,?)";
+
+    public static final String GAMES_EDITING_ACCESS_CODE =
+            "UPDATE games SET access_code = ? WHERE game_id = ?";
+
+
+    public static final String GAMES_UPDATE_GAME =
+            "UPDATE games SET " +
+            "datetime_start = ?, max_num_of_users = ?, number_of_questions = ?," +
+            "round_duration = ?, time_additional_points = ?, break_time = ?," +
+            " quiz_id = UUID(?) " +
+            "WHERE game_id = UUID(?)";
+
+    public static final String GAMES_GET_GAME_BY_ID =
+            "SELECT * FROM games WHERE game_id = UUID(?)";
+
+    public static final String GAMES_GET_GAME_BY_ACCESS_ID =
+            "SELECT * FROM games WHERE access_code = ?";
+
+    public static final String GAMES_START_GAME =
+            "UPDATE games SET access_code = '' WHERE game_id = UUID(?)";
+
+    public static final String GAMES_GET_QUESTION =
+            "select q.question_id, q.quiz_id, q.title, q.content, " +
+            "q.image, q.points, q.type_id, i.image as imgcontent " +
+            "FROM questions q LEFT JOIN images i ON q.image = i.image_id " +
+            "where quiz_id = ( select games.quiz_id from  games where game_id = " +
+            "(select game_id from users_games where game_session_id =uuid(?))) " +
+            "offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;";
+
+    //Get info about the number of games played by user of some category by given game id
+    public static final String GAMES_GET_USER_GAMES_IN_CATEGORY_INFO =
+            "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
+            "FROM users_games ug INNER JOIN games g1 ON ug.game_id = g1.game_id " +
+            "    INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
+            "INNER JOIN categories c ON cq1.category_id = c.category_id " +
+            "WHERE cq1.category_id = " +
+            "                  (SELECT category_id " +
+            "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
+            "                  WHERE game_id = uuid(?)" +
+            "LIMIT 1) " +
+            "      AND ug.user_id = uuid(?) " +
+            "GROUP BY cq1.category_id, c.title; ";
+
+    //For achievements: returns the number of all games with quizzes that created the creator of given gameId
+    public static final String GAMES_GET_AMOUNT_OF_PLAYED_GAMES_CREATED_BY_CREATOR_OF_GAME =
+            "SELECT COUNT(*) AS amount, q.creator_id AS creator " +
+            "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
+            "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
+            "FROM quizzes q1 " +
+            "WHERE q1.creator_id = (SELECT creator_id " +
+            "FROM quizzes qq INNER JOIN games gg " +
+            "ON qq.quiz_id = gg.quiz_id " +
+            "WHERE gg.game_id = uuid(?))) " +
+            "GROUP BY q.creator_id;";
+
+    public static final String GAMES_GET_WINNERS_OF_THE_GAME =
+            "SELECT ug.user_id, q.title " +
+            "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+            "INNER JOIN quizzes q ON g.quiz_id = q.quiz_id " +
+            "WHERE ug.game_id = uuid(?) AND " +
+            "ug.is_winner = true";
+
+    public static final String GAMES_GET_GAMES_AMOUNT_FOR_DAY =
+            "SELECT dt_start, COUNT(*) amount " +
+            "FROM (SELECT DATE(datetime_start) as dt_start " +
+            "      FROM games) dts " +
+            "GROUP BY dt_start " +
+            "ORDER BY dt_start ";
+
+    //GameSessions constants
+    public static final String GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER =
+            "SELECT * " +
+            "FROM users_games WHERE (user_id = UUID(?) OR username = ?) AND game_id IN (" +
+            "SELECT game_id FROM games WHERE access_code = ?);";
+
+    public static final String GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_ANONYM =
+            "SELECT * " +
+            "FROM users_games WHERE username = ? AND game_id IN (" +
+            "SELECT game_id FROM games WHERE access_code = ?);";
+
+
+    public static final String GAME_SESSIONS_GET_SESSION_BY_ID =
+            "SELECT * " +
+            "FROM users_games WHERE game_session_id = UUID(?);";
+
+    public static final String GAME_SESSIONS_GET_SESSIONS_BY_GAME_ID =
+            "SELECT users_games.game_session_id, users_games.user_id, " +
+            "users_games.username, image, score, " +
+            "is_winner, is_creator, duration_time " +
+            "FROM users_games LEFT JOIN users " +
+            "ON users_games.user_id = users.user_id " +
+            "WHERE game_id = UUID(?);";
+
+    public static final String GAME_SESSIONS_CREATE_SESSION =
+            "INSERT INTO users_games" +
+            "(user_id, game_id, score," +
+            "is_winner, is_creator, saved_by_user, duration_time, username)" +
+            " VALUES (?,?,?,?,?,?,?,?)";
+
+    public static final String GAME_SESSIONS_UPDATE_SESSION =
+            "UPDATE users_games SET " +
+            "score = ?, duration_time = ?, finished = true " +
+            "WHERE game_session_id = UUID(?)";
+
+    public static final String GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ACCESS_CODE=
+            "SELECT COUNT(*)" +
+            "FROM users_games WHERE game_id IN (" +
+            "SELECT game_id FROM games WHERE access_code = ?);";
+
+    public static final String GAME_SESSIONS_MAX_USER_AMOUNT =
+            "SELECT max_num_of_users " +
+            "FROM games " +
+            "WHERE access_code = ?;";
+
+    public static final String GAME_SESSIONS_GET_GAME_BY_ID =
+            "SELECT game_id FROM users_games WHERE game_session_id = UUID(?);";
+
+    public static final String GAME_SESSIONS_REMOVE_PLAYER =
+            "DELETE FROM users_games WHERE game_session_id = UUID(?);";
+
+    //For achievements: returns the number of all finished game sessions of user
+    public static final String GAME_SESSIONS_GET_NUMBER_OF_SESSIONS_OF_USER =
+            "SELECT COUNT(*) " +
+            "FROM users_games " +
+            "WHERE user_id = uuid(?) " +
+            "AND finished = TRUE;";
+
+    //For achievements: returns the number of unique quizzes played by the user
+    public static final String GAME_SESSIONS_GET_NUMBER_OF_QUIZZES_PLAYED_BY_USER =
+            "SELECT COUNT (DISTINCT g.quiz_id) " +
+            "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
+            "WHERE user_id = uuid(?) " +
+            "AND finished = TRUE;";
+
+    public static final String GAME_SESSIONS_IS_GAME_FINISHED =
+            "SELECT CASE " +
+            "WHEN COUNT(*) = COUNT(CASE WHEN finished THEN 1 END) " +
+            "THEN TRUE " +
+            "ELSE FALSE END " +
+            "FROM users_games WHERE game_id = UUID(?);";
+
+    public static final String GAME_SESSIONS_SET_WINNERS_FOR_THE_GAME =
+            "UPDATE users_games SET " +
+            "is_winner = true " +
+            "WHERE game_session_id IN (" +
+            "SELECT game_session_id FROM users_games " +
+            "WHERE game_id = UUID(?)" +
+            "AND score = (" +
+            "SELECT MAX(score) FROM users_games WHERE game_id = UUID(?)))";
+
+    public static final String GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ID =
+            "SELECT COUNT(*) FROM users_games WHERE game_id = UUID(?)";
 }

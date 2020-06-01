@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
@@ -42,11 +43,7 @@ public class GameDaoImpl implements GameDao {
     public Game createGame(Game game) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement("INSERT INTO games " +
-                    "(datetime_start, max_num_of_users, number_of_questions," +
-                    "round_duration, time_additional_points, break_time," +
-                    " quiz_id)" +
-                    " VALUES (?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement(SqlConstants.GAMES_CREATE, Statement.RETURN_GENERATED_KEYS);
             ps.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(2, game.getMaxUsersCount());
             ps.setInt(3, game.getNumberOfQuestions());
@@ -61,7 +58,7 @@ public class GameDaoImpl implements GameDao {
         String accessId = generateAccessId(id);
 
 
-        jdbcTemplate.update("UPDATE games SET access_code = ? WHERE game_id = ?",
+        jdbcTemplate.update(SqlConstants.GAMES_EDITING_ACCESS_CODE,
                 accessId, UUID.fromString(id));
 
         game.setAccessId(accessId);
@@ -73,11 +70,7 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public void updateGame(Game game) {
-        jdbcTemplate.update("UPDATE games SET " +
-                        "datetime_start = ?, max_num_of_users = ?, number_of_questions = ?," +
-                        "round_duration = ?, time_additional_points = ?, break_time = ?," +
-                        " quiz_id = UUID(?) " +
-                        "WHERE game_id = UUID(?)", game.getStartDatetime(), game.getMaxUsersCount(),
+        jdbcTemplate.update(SqlConstants.GAMES_UPDATE_GAME, game.getStartDatetime(), game.getMaxUsersCount(),
                 game.getNumberOfQuestions(), game.getRoundDuration(), game.isAdditionalPoints(),
                 game.getBreakTime(), game.getQuizId(), game.getId());
     }
@@ -85,19 +78,19 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public Game getGame(String id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM games WHERE game_id = UUID(?)",
+        return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ID,
                 new Object[]{id}, new GameMapper());
     }
 
     @Override
     public Game getGameByAccessId(String accessId) {
-        return jdbcTemplate.queryForObject("SELECT * FROM games WHERE access_code = ?",
+        return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ACCESS_ID,
                 new Object[]{accessId}, new GameMapper());
     }
 
     @Override
     public void startGame(String gameId) {
-        jdbcTemplate.update("UPDATE games SET access_code = '' WHERE game_id = UUID(?)", gameId);
+        jdbcTemplate.update(SqlConstants.GAMES_START_GAME, gameId);
     }
 
 
@@ -105,12 +98,7 @@ public class GameDaoImpl implements GameDao {
 
     public Question getQuestion(String gameId) {
         try {
-            return jdbcTemplate.queryForObject("select q.question_id, q.quiz_id, q.title, q.content, " +
-                            "q.image, q.points, q.type_id, i.image as imgcontent " +
-                            "FROM questions q LEFT JOIN images i ON q.image = i.image_id " +
-                            "where quiz_id = ( select games.quiz_id from  games where game_id = " +
-                            "(select game_id from users_games where game_session_id =uuid(?))) " +
-                            "offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;",
+            return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_QUESTION,
 
                     new Object[]{gameId, gameId}, (rs, i) -> Question.builder()
                             .id(rs.getString("question_id"))
@@ -132,17 +120,7 @@ public class GameDaoImpl implements GameDao {
     public UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId) {
         try {
             UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
-                        "FROM users_games ug INNER JOIN games g1 ON ug.game_id = g1.game_id " +
-                        "    INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
-                            "INNER JOIN categories c ON cq1.category_id = c.category_id " +
-                        "WHERE cq1.category_id = " +
-                        "                  (SELECT category_id " +
-                        "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
-                        "                  WHERE game_id = uuid(?)" +
-                                            "LIMIT 1) " +
-                        "      AND ug.user_id = uuid(?) " +
-                        "GROUP BY cq1.category_id, c.title; ", new Object[]{gameId, userId},
+                    SqlConstants.GAMES_GET_USER_GAMES_IN_CATEGORY_INFO, new Object[]{gameId, userId},
                     (rs, i) -> UserCategoryAchievementInfo.builder()
                             .amountPlayed(rs.getInt("amount"))
                             .categoryId(rs.getString("category_id"))
@@ -159,15 +137,7 @@ public class GameDaoImpl implements GameDao {
     public QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId) {
         try {
             QuizCreatorFullStatistics quizCreatorFullStatistics = jdbcTemplate
-                    .queryForObject("SELECT COUNT(*) AS amount, q.creator_id AS creator " +
-                                    "FROM games g INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
-                                    "WHERE g.quiz_id IN (SELECT q1.quiz_id " +
-                                    "FROM quizzes q1 " +
-                                    "WHERE q1.creator_id = (SELECT creator_id " +
-                                    "FROM quizzes qq INNER JOIN games gg " +
-                                    "ON qq.quiz_id = gg.quiz_id " +
-                                    "WHERE gg.game_id = uuid(?))) " +
-                                    "GROUP BY q.creator_id;",
+                    .queryForObject(SqlConstants.GAMES_GET_AMOUNT_OF_PLAYED_GAMES_CREATED_BY_CREATOR_OF_GAME,
                             new Object[]{gameId},
                             (rs, i) -> QuizCreatorFullStatistics.builder()
                                     .creatorId(rs.getString("creator"))
@@ -182,11 +152,7 @@ public class GameDaoImpl implements GameDao {
     @Override
     public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
         try{
-            return jdbcTemplate.query("SELECT ug.user_id, q.title " +
-                    "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
-                            "INNER JOIN quizzes q ON g.quiz_id = q.quiz_id " +
-                    "WHERE ug.game_id = uuid(?) AND " +
-                    "ug.is_winner = true",
+            return jdbcTemplate.query(SqlConstants.GAMES_GET_WINNERS_OF_THE_GAME,
                     new Object[]{gameId},
                     (rs, i) -> DtoGameWinner.builder()
                                 .userId(rs.getString("user_id"))
@@ -199,11 +165,7 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public List<DtoGameCount> getGamesAmountForDay() {
-        return jdbcTemplate.query("SELECT dt_start, COUNT(*) amount " +
-                                        "FROM (SELECT DATE(datetime_start) as dt_start " +
-                                              "FROM games) dts " +
-                                        "GROUP BY dt_start " +
-                                        "ORDER BY dt_start ",
+        return jdbcTemplate.query(SqlConstants.GAMES_GET_GAMES_AMOUNT_FOR_DAY,
                 (rs, i) -> DtoGameCount.builder()
                         .date(rs.getDate("dt_start"))
                         .gamesAmount(rs.getInt("amount"))
