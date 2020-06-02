@@ -29,7 +29,6 @@ import javax.websocket.server.PathParam;
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.SIGN_UP_URLS)
-@PropertySource("classpath:application.properties")
 public class AuthorizationController {
 
     @Value("${activation.redirect.url}")

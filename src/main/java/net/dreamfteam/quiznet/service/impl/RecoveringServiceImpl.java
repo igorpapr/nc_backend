@@ -15,9 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.mail.MessagingException;
-import javax.xml.bind.DatatypeConverter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,11 +28,14 @@ public class RecoveringServiceImpl implements RecoveringService {
     @Value("${recover.mail.url}")
     private String recoverMailUrl;
 
-    @Value("${md5.secret.key}")
-    private String secretMd5;
+    @Value("${recover.secret.key}")
+    private String recoverSecret;
 
     @Value("${recover.template}")
     private String recoverNameTemplate;
+
+    @Value("${recover.mail.subject}")
+    private String recoverMailSubject;
 
     final private UserService userService;
     final private EmailServiceImpl mailService;
@@ -57,17 +57,17 @@ public class RecoveringServiceImpl implements RecoveringService {
             throw new ValidationException("Not found user with such email");
         }
 
-        user.setRecoveryUrl(md5(userMail.getEmail() + secretMd5));
+        user.setRecoveryUrl(passwordEncoder.encode(userMail.getEmail() + recoverSecret));
         user.setRecoverySentTime(new Date());
         userService.update(user);
 
         Mail mail = new Mail();
-        mail.setTo("vasilakur@gmail.com");
-        mail.setSubject("QuizNet Forgot password");
+        mail.setTo(user.getEmail());
+        mail.setSubject(recoverMailSubject);
 
         Map<String, String> model = new HashMap<>();
         model.put("link", recoverMailUrl + user.getRecoveryUrl());
-        model.put("name", user.getUsername());
+        model.put("username", user.getUsername());
         mail.setModel(model);
 
         try {
@@ -116,19 +116,6 @@ public class RecoveringServiceImpl implements RecoveringService {
         user.setRecoveryUrl(null);
         user.setRecoverySentTime(null);
         userService.update(user);
-    }
-
-    private String md5(String str) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            log.error("No Such Algorithm", e);
-        }
-        md.update(str.getBytes());
-        byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toLowerCase();
-
     }
 
 }
