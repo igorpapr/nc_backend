@@ -1,7 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.configs.mail.Mail;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.RecoveringService;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.mail.MessagingException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static javax.management.timer.Timer.ONE_DAY;
 
@@ -25,17 +22,11 @@ import static javax.management.timer.Timer.ONE_DAY;
 @Service
 public class RecoveringServiceImpl implements RecoveringService {
 
-    @Value("${recover.mail.url}")
-    private String recoverMailUrl;
-
     @Value("${recover.secret.key}")
     private String recoverSecret;
 
     @Value("${recover.template}")
     private String recoverNameTemplate;
-
-    @Value("${recover.mail.subject}")
-    private String recoverMailSubject;
 
     final private UserService userService;
     final private EmailServiceImpl mailService;
@@ -61,17 +52,8 @@ public class RecoveringServiceImpl implements RecoveringService {
         user.setRecoverySentTime(new Date());
         userService.update(user);
 
-        Mail mail = new Mail();
-        mail.setTo(user.getEmail());
-        mail.setSubject(recoverMailSubject);
-
-        Map<String, String> model = new HashMap<>();
-        model.put("link", recoverMailUrl + user.getRecoveryUrl());
-        model.put("username", user.getUsername());
-        mail.setModel(model);
-
         try {
-            mailService.sendSimpleMessage(mail, recoverNameTemplate);
+            mailService.sendMailMessage(mailService.createRecoverMail(user), recoverNameTemplate);
         } catch (MessagingException e) {
             e.printStackTrace();
         }

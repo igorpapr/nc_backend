@@ -2,7 +2,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.configs.mail.Mail;
+import net.dreamfteam.quiznet.web.dto.Mail;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
 import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.ActivitiesService;
+import net.dreamfteam.quiznet.service.EmailService;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,22 +35,13 @@ import static java.util.Objects.isNull;
 @PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
-    @Value("${reg.url.activate}")
-    private String regUrlActivate;
-
-    @Value("${reg.mail.subject}")
-    private String regMailSubject;
-
-    @Value("${reg.admin.mail.subject}")
-    private String regAdminMailSubject;
-
     @Value("${admin.reg.template}")
     private String adminRegTemplate;
 
     @Value("${user.reg.template}")
     private String userRegTemplate;
 
-    private final EmailServiceImpl mailService;
+    private final EmailService mailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDao userDao;
     private final ActivitiesService activitiesService;
@@ -58,7 +49,7 @@ public class UserServiceImpl implements UserService {
     private final NotificationService notificationService;
 
     @Autowired
-    public UserServiceImpl(EmailServiceImpl mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
+    public UserServiceImpl(EmailService mailService, BCryptPasswordEncoder bCryptPasswordEncoder,
                            UserDao userDao, ActivitiesService activitiesService,
                            IAuthenticationFacade authenticationFacade, NotificationService notificationService) {
         this.mailService = mailService;
@@ -91,18 +82,8 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userDao.save(user);
 
-        Mail userMail = new Mail();
-        userMail.setTo(savedUser.getEmail());
-        userMail.setSubject(regMailSubject);
-
-        Map<String, String> model = new HashMap<>();
-        model.put("username", user.getUsername());
-        model.put("link", regUrlActivate + savedUser.getActivationUrl());
-        userMail.setModel(model);
-
         try {
-            mailService.sendSimpleMessage(userMail, userRegTemplate);
-            log.info("MESSAGE IS SEND");
+            mailService.sendMailMessage(mailService.createBasicRegMail(savedUser), userRegTemplate);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -110,8 +91,9 @@ public class UserServiceImpl implements UserService {
         return savedUser;
     }
 
+
     @Override
-    public User saveAdmin(User user) {
+    public User saveAdmin(String currentUser, User user) {
 
         User newUser = User.builder()
                 .password(bCryptPasswordEncoder.encode(user.getPassword()))
@@ -124,18 +106,13 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userDao.save(newUser);
 
-        Mail userMail = new Mail();
-        userMail.setTo(savedUser.getEmail());
-        userMail.setSubject(regAdminMailSubject);
-
-        Map<String, String> model = new HashMap<>();
-        model.put("username", user.getUsername());
-        model.put("link", regUrlActivate + savedUser.getActivationUrl());
-        model.put("role", savedUser.getRole().toString());
-        userMail.setModel(model);
+        Mail mail = mailService.createBasicRegMail(savedUser);
+        Map<String, String> model = mail.getModel();
+        model.put("creator", currentUser);
+        model.put("role", savedUser.getRole().toString().substring(5).toLowerCase());
 
         try {
-            mailService.sendSimpleMessage(userMail, adminRegTemplate);
+            mailService.sendMailMessage(mail, adminRegTemplate);
         } catch (MessagingException e) {
             e.printStackTrace();
         }

@@ -1,4 +1,4 @@
-package net.dreamfteam.quiznet.configs.mail;
+package net.dreamfteam.quiznet.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

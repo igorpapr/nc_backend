@@ -10,7 +10,7 @@ public interface UserService {
 
     User save(User user) throws ValidationException;
 
-    User saveAdmin(User user);
+    User saveAdmin(String currentUser, User user);
 
     User getById(String id);
 
