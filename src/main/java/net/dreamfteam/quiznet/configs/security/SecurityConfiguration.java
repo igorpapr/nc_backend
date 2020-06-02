@@ -114,8 +114,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
 
-        //http.authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
-
 
     }
 

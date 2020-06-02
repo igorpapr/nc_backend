@@ -24,8 +24,8 @@ import javax.websocket.server.PathParam;
 @RequestMapping(Constants.RECOVER_URLS)
 public class RecoveringController {
 
-    @Value("recover.redirect.url")
-    private String RECOVER_REDIRECT_URL;
+    @Value("${recover.redirect.url}")
+    private String recoverRedirectUrl;
 
     final private RecoveringService recoveringService;
 
@@ -47,7 +47,7 @@ public class RecoveringController {
     @GetMapping("/confirm")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView(RECOVER_REDIRECT_URL + recoveringService.confirmRecovery(key));
+        return new RedirectView(recoverRedirectUrl + recoveringService.confirmRecovery(key));
     }
 
     @PostMapping("/changePassword")

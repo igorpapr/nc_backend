@@ -22,7 +22,7 @@ public class DBExceptionHandler extends ResponseEntityExceptionHandler {
                                                         HttpServletRequest request) {
 
         log.error(String.format("Exception received, path: '%s'",
-                request.getRequestURI(), exception));
+                request.getRequestURI()), exception);
 
         HttpStatus httpStatus = exception.getHttpStatus();
 

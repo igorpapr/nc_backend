@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.configs.mail;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -8,7 +9,13 @@ import org.thymeleaf.templatemode.StandardTemplateModeHandlers;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
-public class ThymeleafConfig {
+public class ThymeleafConfiguration {
+
+    @Value("${thymeleaf.html.suffix}")
+    private String htmlSuffix;
+
+    @Value("${thymeleaf.templates.path}")
+    private String pathToTemplates;
 
     @Bean
     public SpringTemplateEngine springTemplateEngine() {
@@ -20,8 +27,8 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver htmlTemplateResolver(){
         SpringResourceTemplateResolver emailTemplateResolver = new SpringResourceTemplateResolver();
-        emailTemplateResolver.setPrefix("classpath:/templates/");
-        emailTemplateResolver.setSuffix(".html");
+        emailTemplateResolver.setPrefix(pathToTemplates);
+        emailTemplateResolver.setSuffix(htmlSuffix);
         emailTemplateResolver.setTemplateMode(StandardTemplateModeHandlers.HTML5.getTemplateModeName());
         emailTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         return emailTemplateResolver;

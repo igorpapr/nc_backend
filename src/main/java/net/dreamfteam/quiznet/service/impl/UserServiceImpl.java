@@ -2,7 +2,6 @@ package net.dreamfteam.quiznet.service.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.mail.Mail;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
@@ -19,6 +18,7 @@ import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +32,23 @@ import static java.util.Objects.isNull;
 
 @Slf4j
 @Service
+@PropertySource("classpath:application.properties")
 public class UserServiceImpl implements UserService {
 
-    @Value("$reg.url.activate")
-    private String REG_URL_ACTIVATE;
+    @Value("${reg.url.activate}")
+    private String regUrlActivate;
+
+    @Value("${reg.mail.subject}")
+    private String regMailSubject;
+
+    @Value("${reg.admin.mail.subject}")
+    private String regAdminMailSubject;
+
+    @Value("${admin.reg.template}")
+    private String adminRegTemplate;
+
+    @Value("${user.reg.template}")
+    private String userRegTemplate;
 
     private final EmailServiceImpl mailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -80,15 +93,16 @@ public class UserServiceImpl implements UserService {
 
         Mail userMail = new Mail();
         userMail.setTo(savedUser.getEmail());
-        userMail.setSubject(Constants.REG_MAIL_SUBJECT);
+        userMail.setSubject(regMailSubject);
 
         Map<String, String> model = new HashMap<>();
         model.put("username", user.getUsername());
-        model.put("link", REG_URL_ACTIVATE + savedUser.getActivationUrl());
+        model.put("link", regUrlActivate + savedUser.getActivationUrl());
         userMail.setModel(model);
 
         try {
-            mailService.sendSimpleMessage(userMail, "userRegistration");
+            mailService.sendSimpleMessage(userMail, userRegTemplate);
+            log.info("MESSAGE IS SEND");
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -110,8 +124,21 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userDao.save(newUser);
 
-//        mailService.sendMail(savedUser.getEmail(), Constants.REG_ADMIN_MAIL_SUBJECT, Constants.REG_ADMIN_MAIL_ARTICLE,
-//                Constants.REG_ADMIN_MAIL_MESSAGE + REG_URL_ACTIVATE + savedUser.getActivationUrl());
+        Mail userMail = new Mail();
+        userMail.setTo(savedUser.getEmail());
+        userMail.setSubject(regAdminMailSubject);
+
+        Map<String, String> model = new HashMap<>();
+        model.put("username", user.getUsername());
+        model.put("link", regUrlActivate + savedUser.getActivationUrl());
+        model.put("role", savedUser.getRole().toString());
+        userMail.setModel(model);
+
+        try {
+            mailService.sendSimpleMessage(userMail, adminRegTemplate);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
         return savedUser;
     }

@@ -1,6 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import net.dreamfteam.quiznet.configs.constants.Constants;
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.mail.Mail;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.mail.MessagingException;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,11 +24,18 @@ import java.util.Map;
 
 import static javax.management.timer.Timer.ONE_DAY;
 
+@Slf4j
 @Service
 public class RecoveringServiceImpl implements RecoveringService {
 
-    @Value("recover.mail.url")
-    private String RECOVER_MAIL_URL;
+    @Value("${recover.mail.url}")
+    private String recoverMailUrl;
+
+    @Value("${md5.secret.key}")
+    private String secretMd5;
+
+    @Value("${recover.template}")
+    private String recoverNameTemplate;
 
     final private UserService userService;
     final private EmailServiceImpl mailService;
@@ -48,21 +57,24 @@ public class RecoveringServiceImpl implements RecoveringService {
             throw new ValidationException("Not found user with such email");
         }
 
-        user.setRecoveryUrl(md5(userMail.getEmail() + Constants.SECRET_MD5));
+        user.setRecoveryUrl(md5(userMail.getEmail() + secretMd5));
         user.setRecoverySentTime(new Date());
         userService.update(user);
 
-
         Mail mail = new Mail();
         mail.setTo("vasilakur@gmail.com");
-        mail.setSubject("User register");
+        mail.setSubject("QuizNet Forgot password");
 
         Map<String, String> model = new HashMap<>();
-        model.put("name", "Jeka");
+        model.put("link", recoverMailUrl + user.getRecoveryUrl());
+        model.put("name", user.getUsername());
         mail.setModel(model);
 
-//        mailService.sendSMail(userMail.getEmail(), Constants.RECOVER_MAIL_SUBJECT, Constants.RECOVER_MAIL_SUBJECT,
-//                Constants.RECOVER_MAIL_MESSAGE + RECOVER_MAIL_URL + user.getRecoveryUrl());
+        try {
+            mailService.sendSimpleMessage(mail, recoverNameTemplate);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -106,12 +118,12 @@ public class RecoveringServiceImpl implements RecoveringService {
         userService.update(user);
     }
 
-    private static String md5(String str) {
+    private String md5(String str) {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error("No Such Algorithm", e);
         }
         md.update(str.getBytes());
         byte[] digest = md.digest();

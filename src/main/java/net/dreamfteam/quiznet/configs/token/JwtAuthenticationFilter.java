@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     final private JwtTokenProvider tokenProvider;
 
-
     public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
     }
@@ -53,7 +52,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
             }
         } catch (Exception ex) {
-            log.info("Could not set user authentication in security context", ex);
+            log.error("Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
