@@ -860,8 +860,8 @@ public class SqlConstants {
             "ORDER BY dt_start ";
 
     public static final String GAMES_MAX_GAME_TIME =
-            "SELECT (round_duration + break_time) * number_of_questions" +
-            "FROM games WHERE gameId = UUID(?)";
+            "SELECT ((round_duration + break_time) * number_of_questions) as result " +
+            "FROM games WHERE game_id = UUID(?)";
 
 
     //=================================================================================================================

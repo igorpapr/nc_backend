@@ -125,7 +125,7 @@ public class GameSessionServiceImpl implements GameSessionService {
     public void timerForEnd(String gameId) {
 
         try {
-            Thread.sleep(gameDao.gameTime(gameId));
+            Thread.sleep(gameDao.gameTime(gameId)*1000);
             finshGame(gameId);
         } catch (InterruptedException e) {
             log.error("InterruptedException: "+e.getMessage());
