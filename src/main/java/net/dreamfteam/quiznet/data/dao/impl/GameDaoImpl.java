@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.entities.Game;
@@ -23,6 +24,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class GameDaoImpl implements GameDao {
 
@@ -171,9 +173,11 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public int gameTime(String gameId){
-        return Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
-                    new Object[]{gameId}, Integer.class)).orElse(0)+5;
 
+        int result = Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
+                    new Object[]{gameId}, Integer.class)).orElse(0);
+        log.info("Game will be played for: "+result+" secs");
+        return result;
     }
 
     private String generateAccessId(String gameId) {
