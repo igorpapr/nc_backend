@@ -37,7 +37,7 @@ public class UserController {
 
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit/aboutMe")
+    @PatchMapping("/edit/aboutMe")
     public ResponseEntity<?> activate(@RequestParam("key") String aboutMe) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/edit/image")
+    @PatchMapping("/edit/image")
     public ResponseEntity<?> editImage(@RequestParam("key") MultipartFile image){
         User currentUser = userService.getById(authenticationFacade.getUserId());
 

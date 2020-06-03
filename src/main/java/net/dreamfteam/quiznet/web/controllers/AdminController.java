@@ -41,7 +41,7 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/edit/{field}")
+    @PatchMapping("/edit/{field}")
     public ResponseEntity<?> editAdmin(@PathVariable("field") String field, @RequestBody DtoEditAdminProfile editAdminProfile) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());
@@ -75,7 +75,7 @@ public class AdminController {
 
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/edit/image")
+    @PatchMapping("/edit/image")
     public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
 
         User currentUser = userService.getById(authenticationFacade.getUserId());

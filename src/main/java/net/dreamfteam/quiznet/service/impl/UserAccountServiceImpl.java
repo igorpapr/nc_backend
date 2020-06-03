@@ -26,7 +26,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
             currentUser.setPassword(passwordEncoder.encode(newPassword));
             userService.update(currentUser);
-        } else throw new ValidationException("Current password don't matches.");
+        } else throw new ValidationException("Not correct password");
 
     }
 }
