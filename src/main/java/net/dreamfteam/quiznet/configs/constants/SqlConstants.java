@@ -511,7 +511,8 @@ public class SqlConstants {
             "FROM users_games ug INNER JOIN games g ON ug.game_id = g.game_id " +
                     "INNER JOIN quizzes q ON q.quiz_id = g.quiz_id " +
             "WHERE user_id = UUID(?)" + "AND datetime_start > (NOW() - INTERVAL '7 DAY') " +
-                    "AND finished = TRUE;";
+                    "AND finished = TRUE;" +
+            "ORDER BY datetime_start DESC";
 
     public static final String QUIZ_MOST_POPULAR_QUIZZES_LAST_WEEK =
             "SELECT g.quiz_id, q.title, COUNT(*) games_amount " +

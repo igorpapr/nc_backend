@@ -141,6 +141,7 @@ public class GameSessionServiceImpl implements GameSessionService {
 
             //sending message event to subscribers
             sseService.send(gameId, "finished", gameId);
+            sseService.remove(gameId);
         }
     }
 }
