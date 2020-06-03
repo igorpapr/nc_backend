@@ -45,7 +45,7 @@ public class GameSessionServiceImpl implements GameSessionService {
     public GameSession joinGame(String accessId, String userId, String username) {
         Game game = gameService.getGameByAccessId(accessId);
         if(game == null){
-            throw new ValidationException("Game with access id: " + accessId + " doesn not exist");
+            throw new ValidationException("Game with access id: " + accessId + " does not exist");
         }
 
         GameSession gameSession = gameSessionDao.getSessionByAccessId(accessId, userId, username);
