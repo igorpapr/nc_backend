@@ -1,7 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
 import net.dreamfteam.quiznet.data.entities.Game;
@@ -15,7 +14,6 @@ import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -126,7 +124,7 @@ public class GameSessionServiceImpl implements GameSessionService {
 
         try {
             Thread.sleep((gameService.gameTime(gameId)+10)*1000);
-            finshGame(gameId);
+            finishGame(gameId);
         } catch (InterruptedException e) {
             log.error("InterruptedException: "+e.getMessage());
         }
@@ -134,11 +132,11 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     private void checkForGameOver(String gameId) {
         if (gameSessionDao.isGameFinished(gameId)) {
-            finshGame(gameId);
+            finishGame(gameId);
         }
     }
 
-    private void finshGame(String gameId){
+    private void finishGame(String gameId){
         if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {   //setting activities
             List<DtoGameWinner> winners = gameService.getWinnersOfTheGame(gameId);
             for (DtoGameWinner winner : winners) {
