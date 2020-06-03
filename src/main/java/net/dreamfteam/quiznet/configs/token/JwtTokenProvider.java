@@ -19,14 +19,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 import static javax.management.timer.Timer.ONE_DAY;
-
-
 
 
 /**
@@ -113,15 +113,15 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
-            log.error("Invalid JWT Signature");
+            log.error("Invalid JWT Signature", ex);
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT Token");
+            log.error("Invalid JWT Token", ex);
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.error("Expired JWT token", ex);
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.error("Unsupported JWT token", ex);
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty");
+            log.error("JWT claims string is empty", ex);
         }
         return false;
     }

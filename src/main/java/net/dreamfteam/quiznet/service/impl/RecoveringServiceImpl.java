@@ -45,7 +45,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByEmail(userMail.getEmail());
 
         if (user == null) {
-            throw new ValidationException("Not found user with such email");
+            throw new ValidationException("Not found user with such email" + userMail.getEmail());
         }
 
         user.setRecoveryUrl(passwordEncoder.encode(userMail.getEmail() + recoverSecret));
@@ -55,7 +55,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         try {
             mailService.sendMailMessage(mailService.createRecoverMail(user), recoverNameTemplate);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error(String.format("Recovery mail was not sent to user %s", user.getUsername()), e);
         }
 
     }
@@ -68,7 +68,6 @@ public class RecoveringServiceImpl implements RecoveringService {
             throw new ValidationException("User with such recover URL not found");
         }
 
-        //return to form with message that recovery link have been expired
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {
             user.setRecoveryUrl(null);
             user.setRecoverySentTime(null);

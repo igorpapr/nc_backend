@@ -2,7 +2,6 @@ package net.dreamfteam.quiznet.service.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.dreamfteam.quiznet.web.dto.Mail;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
@@ -17,6 +16,7 @@ import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
+import net.dreamfteam.quiznet.web.dto.Mail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
         try {
             mailService.sendMailMessage(mailService.createBasicRegMail(savedUser), userRegTemplate);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error(String.format("Mail not sent with user %s", user.getUsername()), e);
         }
 
         return savedUser;
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
         try {
             mailService.sendMailMessage(mail, adminRegTemplate);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error(String.format("Admin registration mail was not sent to user %s", user.getUsername()), e);
         }
 
         return savedUser;

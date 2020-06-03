@@ -81,7 +81,7 @@ public class AuthorizationController {
         UserValidator.validate(user);
         User saved = userService.save(user.toUser());
         settingsService.initSettings(saved.getId(), Role.ROLE_USER, language);
-        System.out.println(saved.getId());
+
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.CREATED);
     }
 
