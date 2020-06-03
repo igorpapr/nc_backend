@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,8 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static net.dreamfteam.quiznet.configs.constants.Constants.EXPIRATION_TIME;
-import static net.dreamfteam.quiznet.configs.constants.Constants.SECRET;
+import static javax.management.timer.Timer.ONE_DAY;
 
 
 /**
@@ -40,17 +40,22 @@ import static net.dreamfteam.quiznet.configs.constants.Constants.SECRET;
 @Slf4j
 public class JwtTokenProvider {
 
+    final private UserDetailsService userDetailsService;
+
     @Autowired
-    @Qualifier("jwtUserDetailsService")
-    private UserDetailsService userDetailsService;
+    public JwtTokenProvider(@Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Value("${jwt.secret.key}")
+    private String secret;
 
     public String provideToken(String username) {
 
         JwtUser jwtUser = (JwtUser) userDetailsService.loadUserByUsername(username);
 
         Date now = new Date(System.currentTimeMillis());
-
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiryDate = new Date(now.getTime() + ONE_DAY);
 
         String userId = jwtUser.getId();
 
@@ -65,15 +70,14 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
     public String provideTokenForAnonym(String username) {
 
         Date now = new Date(System.currentTimeMillis());
-
-        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiryDate = new Date(now.getTime() + ONE_DAY);
 
         Map<String, Object> claims = new HashMap<>();
 
@@ -88,7 +92,7 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
@@ -106,18 +110,18 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
-            log.error("Invalid JWT Signature");
+            log.error("Invalid JWT Signature", ex);
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT Token");
+            log.error("Invalid JWT Token", ex);
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.error("Expired JWT token", ex);
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.error("Unsupported JWT token", ex);
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty");
+            log.error("JWT claims string is empty", ex);
         }
         return false;
     }
@@ -131,18 +135,17 @@ public class JwtTokenProvider {
     }
 
     public String getUserIdFromJwt(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         return (String) claims.get("id");
     }
 
     public String getUsernameFromJwt(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
-
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         return (String) claims.get("username");
     }
 
-    private boolean isAnonym(String token) {
-        Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+    public boolean isAnonym(String token) {
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         return claims.get("role").equals(Role.ROLE_ANONYM.name());
 
     }

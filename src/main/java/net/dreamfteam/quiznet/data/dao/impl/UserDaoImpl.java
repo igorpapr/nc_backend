@@ -31,9 +31,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAll() {
         return jdbcTemplate.query(SqlConstants.SELECT_USER_QUERY,
-                new UserMapper()
-
-        );
+                new UserMapper());
     }
 
     @Override
@@ -61,8 +59,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> getAllByRoleUser() {
         return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_BY_ROLE_USER,
-                new UserMapper()
-        );
+                new UserMapper());
     }
 
     @Override
@@ -105,7 +102,6 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getById(String id) {
-
         try {
             return jdbcTemplate.queryForObject(SqlConstants.USERS_GET_BY_ID,
                     new Object[]{id},
@@ -124,7 +120,6 @@ public class UserDaoImpl implements UserDao {
         );
 
         return getByEmail(user.getEmail());
-
     }
 
     @Override
@@ -134,8 +129,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public int deleteIfLinkExpired() {
-        return jdbcTemplate
-                .update(SqlConstants.USERS_DELETE_IF_LINK_EXPIRED);
+        return jdbcTemplate.update(SqlConstants.USERS_DELETE_IF_LINK_EXPIRED);
     }
 
 

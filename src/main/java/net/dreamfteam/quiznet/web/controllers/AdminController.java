@@ -118,7 +118,7 @@ public class AdminController {
             throw new ValidationException("You dont have such capabilities");
         }
 
-        User saved = userService.saveAdmin(newAdmin.toUser());
+        User saved = userService.saveAdmin(authenticationFacade.getUsername(),newAdmin.toUser());
 
         settingsService.initSettings(saved.getId(), saved.getRole(), "en");
 

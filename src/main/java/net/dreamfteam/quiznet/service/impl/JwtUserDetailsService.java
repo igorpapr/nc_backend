@@ -1,9 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
-
-import net.dreamfteam.quiznet.configs.token.JwtUser;
 import net.dreamfteam.quiznet.configs.token.JwtUserFactory;
-import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {

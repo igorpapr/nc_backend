@@ -37,12 +37,10 @@ public class ActivationServiceImpl implements ActivationService {
             throw new ValidationException("Not Found");
         }
 
-        //return to log in with message that already activated
         if (user.isVerified()) {
             return MESSAGE_ALREADY_ACTIVATED;
         }
 
-        //return to log in with message that activation link have been expired
         if (new Date().getTime() - user.getCreationDate().getTime() >= ONE_DAY) {
             userService.deleteById(user.getId());
             return MESSAGE_LINK_EXPIRED;

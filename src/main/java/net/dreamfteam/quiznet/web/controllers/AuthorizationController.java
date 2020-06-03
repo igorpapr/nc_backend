@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.web.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
@@ -15,6 +16,7 @@ import net.dreamfteam.quiznet.web.validators.LoginRequestValidator;
 import net.dreamfteam.quiznet.web.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +24,15 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.websocket.server.PathParam;
 
+
+@Slf4j
 @RestController
 @CrossOrigin
 @RequestMapping(Constants.SIGN_UP_URLS)
 public class AuthorizationController {
 
     @Value("${activation.redirect.url}")
-    private String ACTIVATION_REDIRECT_URL;
+    private String activationRedirectUrl;
 
     private final SettingsService settingsService;
 
@@ -77,14 +81,14 @@ public class AuthorizationController {
         UserValidator.validate(user);
         User saved = userService.save(user.toUser());
         settingsService.initSettings(saved.getId(), Role.ROLE_USER, language);
-        System.out.println(saved.getId());
+
         return new ResponseEntity<>(DtoUser.fromUser(saved), HttpStatus.CREATED);
     }
 
     @GetMapping("/activation")
     public RedirectView activate(@PathParam("key") String key) {
 
-        return new RedirectView(ACTIVATION_REDIRECT_URL + activationService.verifyUser(key));
+        return new RedirectView(activationRedirectUrl + activationService.verifyUser(key));
     }
 
     @PostMapping("/anonym")

@@ -1,9 +1,8 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import net.dreamfteam.quiznet.configs.constants.Constants;
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.MailService;
 import net.dreamfteam.quiznet.service.RecoveringService;
 import net.dreamfteam.quiznet.service.UserService;
 import net.dreamfteam.quiznet.web.dto.DtoForgotPassword;
@@ -13,24 +12,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import javax.xml.bind.DatatypeConverter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import javax.mail.MessagingException;
 import java.util.Date;
+
 import static javax.management.timer.Timer.ONE_DAY;
 
+@Slf4j
 @Service
 public class RecoveringServiceImpl implements RecoveringService {
 
-    @Value("${recover.mail.url}")
-    private String RECOVER_MAIL_URL;
+    @Value("${recover.secret.key}")
+    private String recoverSecret;
+
+    @Value("${recover.template}")
+    private String recoverNameTemplate;
 
     final private UserService userService;
-    final private MailService mailService;
+    final private EmailServiceImpl mailService;
     final private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public RecoveringServiceImpl(UserService userService, MailService mailService, BCryptPasswordEncoder passwordEncoder) {
+    public RecoveringServiceImpl(UserService userService, EmailServiceImpl mailService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
@@ -42,15 +45,18 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByEmail(userMail.getEmail());
 
         if (user == null) {
-            throw new ValidationException("Not found user with such email");
+            throw new ValidationException("Not found user with such email" + userMail.getEmail());
         }
 
-        user.setRecoveryUrl(md5(userMail.getEmail() + Constants.SECRET_MD5));
+        user.setRecoveryUrl(passwordEncoder.encode(userMail.getEmail() + recoverSecret));
         user.setRecoverySentTime(new Date());
         userService.update(user);
 
-        mailService.sendMail(userMail.getEmail(), Constants.RECOVER_MAIL_SUBJECT, Constants.RECOVER_MAIL_SUBJECT,
-                Constants.RECOVER_MAIL_MESSAGE + RECOVER_MAIL_URL + user.getRecoveryUrl());
+        try {
+            mailService.sendMailMessage(mailService.createRecoverMail(user), recoverNameTemplate);
+        } catch (MessagingException e) {
+            log.error(String.format("Recovery mail was not sent to user %s", user.getUsername()), e);
+        }
 
     }
 
@@ -62,7 +68,6 @@ public class RecoveringServiceImpl implements RecoveringService {
             throw new ValidationException("User with such recover URL not found");
         }
 
-        //return to form with message that recovery link have been expired
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {
             user.setRecoveryUrl(null);
             user.setRecoverySentTime(null);
@@ -92,19 +97,6 @@ public class RecoveringServiceImpl implements RecoveringService {
         user.setRecoveryUrl(null);
         user.setRecoverySentTime(null);
         userService.update(user);
-    }
-
-    private static String md5(String str) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        md.update(str.getBytes());
-        byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toLowerCase();
-
     }
 
 }
