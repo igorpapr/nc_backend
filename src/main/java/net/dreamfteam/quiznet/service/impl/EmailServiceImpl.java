@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
+
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -70,7 +72,7 @@ public class EmailServiceImpl implements EmailService {
         mail.setTo(user.getEmail());
         mail.setSubject(recoverMailSubject);
 
-        Map<String, String> model = new HashMap<>();
+        Map<String, Object> model = new HashMap<>();
         model.put("link", recoverMailUrl + user.getRecoveryUrl());
         model.put("username", user.getUsername());
         mail.setModel(model);
@@ -83,7 +85,7 @@ public class EmailServiceImpl implements EmailService {
         mail.setTo(user.getEmail());
         mail.setSubject(regMailSubject);
 
-        Map<String, String> model = new HashMap<>();
+        Map<String, Object> model = new HashMap<>();
         model.put("username", user.getUsername());
         model.put("link", regUrlActivate + user.getActivationUrl());
 
