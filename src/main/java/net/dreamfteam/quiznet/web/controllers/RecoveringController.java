@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +51,7 @@ public class RecoveringController {
         return new RedirectView(recoverRedirectUrl + recoveringService.confirmRecovery(key));
     }
 
-    @PostMapping("/changePassword")
+    @PatchMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody DtoForgotPassword passwordDto) {
 
         RecoverDtoValidator.validate(passwordDto);
