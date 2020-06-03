@@ -135,14 +135,13 @@ public class GameDaoImpl implements GameDao {
     @Override
     public QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId) {
         try {
-            QuizCreatorFullStatistics quizCreatorFullStatistics = jdbcTemplate
+            return jdbcTemplate
                     .queryForObject(SqlConstants.GAMES_GET_AMOUNT_OF_PLAYED_GAMES_CREATED_BY_CREATOR_OF_GAME,
                             new Object[]{gameId},
                             (rs, i) -> QuizCreatorFullStatistics.builder()
                                     .creatorId(rs.getString("creator"))
                                     .amountGamesPlayedAllQuizzes(rs.getInt("amount"))
                                     .build());
-            return quizCreatorFullStatistics;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }

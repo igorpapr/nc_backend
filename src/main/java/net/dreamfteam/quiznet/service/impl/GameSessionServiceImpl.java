@@ -3,26 +3,24 @@ package net.dreamfteam.quiznet.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
-import net.dreamfteam.quiznet.data.entities.ActivityType;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AchievementService;
 import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.GameSessionService;
 import net.dreamfteam.quiznet.service.SseService;
-import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
-import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 
 @Slf4j
+@EnableAsync
 @Service
 public class GameSessionServiceImpl implements GameSessionService {
 
@@ -126,7 +124,7 @@ public class GameSessionServiceImpl implements GameSessionService {
 
         try {
             Thread.sleep((gameDao.gameTime(gameId)+10)*1000);
-            finshGame(gameId);
+            finishGame(gameId);
         } catch (InterruptedException e) {
             log.error("InterruptedException: "+e.getMessage());
         }
@@ -134,36 +132,22 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     private void checkForGameOver(String gameId) {
         if (gameSessionDao.isGameFinished(gameId)) {
-            finshGame(gameId);
+            finishGame(gameId);
         }
     }
 
-    private void finshGame(String gameId){
-        if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {   //setting activities
-            List<DtoGameWinner> winners = gameDao.getWinnersOfTheGame(gameId);
-            for (DtoGameWinner winner : winners) {
-                DtoActivity activity = DtoActivity.builder()
-                        .userId(winner.getUserId())
-                        .activityType(ActivityType.GAMEPLAY_RELATED)
-                        .content("Won the game while playing the quiz: \"" + winner.getQuizTitle() + "\"")
-                        .contentUk("Виграв/ла гру граючи квіз: \"" + winner.getQuizTitle() + "\"")
-                        .linkInfo(gameId)
-                        .build();
-                activitiesService.addActivityForUser(activity);
-            }
+    private void finishGame(String gameId){
+        //sending message event to subscribers
+        sseService.send(gameId, "finished", gameId);
+        sseService.remove(gameId);
+
+        if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {
+            //setting activities
+            activitiesService.addWinnersActivities(gameId);
         }
 
         //checking achievements
-        List<DtoPlayerSession> sessionsMaps = getSessions(gameId);
-        for (DtoPlayerSession session : sessionsMaps) {
-            achievementService.checkAftergameAchievements(session.getGame_session_id());
+        achievementService.checkAftergameAchievements(gameId);
 
-
-            //sending message event to subscribers
-            sseService.send(gameId, "finished", gameId);
-            sseService.remove(gameId);
-        }
     }
-
-
 }

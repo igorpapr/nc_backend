@@ -10,4 +10,6 @@ public interface ActivitiesService {
 	List<FriendsActivity> getFriendsActivities(String userId);
 
 	void addActivityForUser(DtoActivity dto);
+
+	void addWinnersActivities(String gameId);
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@EnableAsync
 public class GameServiceImpl implements GameService {
 
     private final GameDao gameDao;
