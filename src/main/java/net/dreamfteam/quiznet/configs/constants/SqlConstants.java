@@ -205,8 +205,8 @@ public class SqlConstants {
             "WHERE validated = true and published = true GROUP BY creator_id) AS cic " +
             "ON creator_id = user_id WHERE roles.role_id = 1 AND is_activated = true ORDER BY count DESC LIMIT 20 ;";
 
-    public static final String USERS_GET_ALL_PRIVILIGED = SELECT_USER_QUERY +
-            "WHERE roles.role_id > 1 ODDER BY last_time_online DESC ;";
+    public static final String USERS_GET_ALL_PRIVILEGED = SELECT_USER_QUERY +
+            "WHERE roles.role_id > 1 ORDER BY last_time_online DESC ;";
 
     public static final String USERS_REMOVE_FRIEND =
             "UPDATE friends SET accepted_datetime = null, parent_id = UUID(?), friend_id=UUID(?)" +
