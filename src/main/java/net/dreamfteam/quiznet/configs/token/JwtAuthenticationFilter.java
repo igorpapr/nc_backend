@@ -2,9 +2,10 @@ package net.dreamfteam.quiznet.configs.token;
 
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.constants.Constants;
+import net.dreamfteam.quiznet.exception.ValidationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -41,7 +42,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 String usernameFromJwt = tokenProvider.getUsernameFromJwt(jwtToken);
 
                 if (StringUtils.isEmpty(usernameFromJwt)) {
-                    throw new UsernameNotFoundException("Username from JWT not found");
+                    throw new ValidationException(Constants.USER_NOT_FOUND_WITH_USERNAME + usernameFromJwt);
                 }
 
                 Authentication authentication = tokenProvider.getAuthentication(jwtToken);
@@ -52,7 +53,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
             }
         } catch (Exception ex) {
-            log.error("Could not set user authentication in security context", ex);
+            log.error(Constants.AUTHENTICATION_NOT_SET, ex);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

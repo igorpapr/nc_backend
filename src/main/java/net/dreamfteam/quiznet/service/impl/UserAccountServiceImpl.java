@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.UserAccountService;
@@ -26,7 +27,7 @@ public class UserAccountServiceImpl implements UserAccountService {
         if (passwordEncoder.matches(currentPassword, currentUser.getPassword())) {
             currentUser.setPassword(passwordEncoder.encode(newPassword));
             userService.update(currentUser);
-        } else throw new ValidationException("Not correct password");
+        } else throw new ValidationException(Constants.PASSWORD_NOT_CORRECT);
 
     }
 }

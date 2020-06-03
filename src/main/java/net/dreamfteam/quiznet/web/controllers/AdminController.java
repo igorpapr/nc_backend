@@ -17,7 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -48,12 +55,12 @@ public class AdminController {
         User otherUser = userService.getById(editAdminProfile.getId());
 
         if (otherUser == null) {
-            throw new ValidationException("Not found such user");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_ID + editAdminProfile.getId());
         }
 
         if (field.equals("role") && !StringUtils.isEmpty(editAdminProfile.getRole())) {
             if (currentUser.getRole() != Role.ROLE_SUPERADMIN) {
-                throw new ValidationException("You dont have such capabilities");
+                throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
             }
 
             otherUser.setRole(Role.valueOf(editAdminProfile.getRole()));
@@ -61,7 +68,7 @@ public class AdminController {
         }
 
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
-            throw new ValidationException("You dont have such capabilities");
+            throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
         }
 
         if (field.equals("aboutMe")) {
@@ -73,7 +80,6 @@ public class AdminController {
     }
 
 
-
     @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
     @PatchMapping("/edit/image")
     public ResponseEntity<?> activate(@RequestParam("key") MultipartFile image, @RequestParam("userId") String userId) {
@@ -82,13 +88,13 @@ public class AdminController {
         User otherUser = userService.getById(userId);
 
         if (currentUser.getRole().ordinal() <= otherUser.getRole().ordinal()) {
-            throw new ValidationException("You dont have such capabilities");
+            throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
         }
 
         try {
             otherUser.setImage(image.getBytes());
         } catch (IOException e) {
-            throw new ValidationException("Broken image");
+            throw new ValidationException(Constants.IMAGE_BROKEN);
         }
 
         userService.update(otherUser);
@@ -105,20 +111,19 @@ public class AdminController {
         UserValidator.validate(newAdmin);
         User user = userService.getByEmail(newAdmin.getEmail());
 
-
         if (user != null) {
-            throw new ValidationException("Such email has been taken");
+            throw new ValidationException(Constants.EMAIl_TAKEN + newAdmin.getEmail());
         }
 
         if (userService.getByUsername(newAdmin.getUsername()) != null) {
-            throw new ValidationException("Such username has been taken");
+            throw new ValidationException(Constants.USERNAME_TAKEN + newAdmin.getUsername());
         }
 
         if (currentUser.getRole().ordinal() <= Role.valueOf(newAdmin.getRole()).ordinal()) {
-            throw new ValidationException("You dont have such capabilities");
+            throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
         }
 
-        User saved = userService.saveAdmin(authenticationFacade.getUsername(),newAdmin.toUser());
+        User saved = userService.saveAdmin(authenticationFacade.getUsername(), newAdmin.toUser());
 
         settingsService.initSettings(saved.getId(), saved.getRole(), "en");
 
@@ -137,7 +142,7 @@ public class AdminController {
         if (currentUser.getRole().ordinal() > userToChange.getRole().ordinal()) {
             userToChange.setActivated(admin.isActivated());
             userService.update(userToChange);
-        } else throw new ValidationException("You dont have such capabilities");
+        } else throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

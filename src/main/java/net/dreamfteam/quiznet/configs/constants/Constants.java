@@ -1,10 +1,5 @@
 package net.dreamfteam.quiznet.configs.constants;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 public class Constants {
 
     //URLS
@@ -17,7 +12,7 @@ public class Constants {
     public static final String ADMIN_URLS = "/api/admins";
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
-    public static final String NOTIFICATION_URLS="/api/notifications";
+    public static final String NOTIFICATION_URLS = "/api/notifications";
     public static final String ACTIVITIES_URLS = "/api/activities";
     public static final String SSE_URLS = "/api/sse";
 
@@ -68,4 +63,26 @@ public class Constants {
 
     //Language setting id
     public static final String SETTING_LANG_ID = "e8449301-6d6f-4376-8247-b7d1f8df6416";
+
+    //Exceptions messages
+    public static final String USER_NOT_FOUND_WITH_USERNAME = "User not found with such username : ";
+    public static final String USER_NOT_FOUND_WITH_ID = "User not found with id : ";
+    public static final String USER_NOT_FOUND_WITH_EMAIL = "User not found with email : ";
+    public static final String USER_NOT_FOUND_WITH_RECOVER_URL = "User not found with recover URL : ";
+    public static final String USER_NOT_FOUND_WITH_EMAIL_OR_USERNAME = "User not found with such username or email : ";
+    public static final String USER_NOT_FOUND_WITH_ACTIVATION_URL = "User not found with activation URL : ";
+    public static final String IMAGE_BROKEN = "Broken image";
+    public static final String NOT_HAVE_CAPABILITIES = "You dont have such capabilities";
+    public static final String USERNAME_TAKEN = "Such username has been taken : ";
+    public static final String EMAIl_TAKEN = "Such username has been taken : ";
+    public static final String PASSWORD_NOT_CORRECT = "Not correct password";
+    public static final String RECOVER_LINK_EXPIRED = "Your recover link is expired. Try again";
+    public static final String NOT_ACTIVATED = "Your profile is not activated";
+
+    //Logging messages
+    public static final String AUTHENTICATION_NOT_SET = "Could not set user authentication in security context";
+    public static final String REG_MAIL_NOT_SENT = "Registration Mail not sent to user %s";
+    public static final String RECOVERY_MAIL_NOT_SENT = "Recovery Mail not sent to user %s";
+
+
 }

@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.service.impl;
 
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
@@ -64,11 +65,11 @@ public class UserServiceImpl implements UserService {
     public User save(User newUser) throws ValidationException {
 
         if (userDao.getByUsername(newUser.getUsername()) != null) {
-            throw new ValidationException("User with such username already exist");
+            throw new ValidationException(Constants.USERNAME_TAKEN);
         }
 
         if (userDao.getByEmail(newUser.getEmail()) != null) {
-            throw new ValidationException("User with such email already exist");
+            throw new ValidationException(Constants.EMAIl_TAKEN);
         }
 
         User user = User.builder()
@@ -85,7 +86,7 @@ public class UserServiceImpl implements UserService {
         try {
             mailService.sendMailMessage(mailService.createBasicRegMail(savedUser), userRegTemplate);
         } catch (MessagingException e) {
-            log.error(String.format("Mail not sent with user %s", user.getUsername()), e);
+            log.error(String.format(Constants.REG_MAIL_NOT_SENT, user.getUsername()), e);
         }
 
         return savedUser;
@@ -114,7 +115,7 @@ public class UserServiceImpl implements UserService {
         try {
             mailService.sendMailMessage(mail, adminRegTemplate);
         } catch (MessagingException e) {
-            log.error(String.format("Admin registration mail was not sent to user %s", user.getUsername()), e);
+            log.error(String.format(Constants.REG_MAIL_NOT_SENT, user.getUsername()), e);
         }
 
         return savedUser;

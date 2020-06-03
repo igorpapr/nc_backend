@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.token.JwtTokenProvider;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
@@ -34,7 +35,7 @@ public class ActivationServiceImpl implements ActivationService {
         User user = userService.getByActivationUrl(activationUrl);
 
         if (user == null) {
-            throw new ValidationException("Not Found");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_ACTIVATION_URL);
         }
 
         if (user.isVerified()) {
@@ -59,11 +60,11 @@ public class ActivationServiceImpl implements ActivationService {
     public String isUserVerified(User user) {
 
         if (user == null) {
-            throw new ValidationException("User with such username not found");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_USERNAME);
         }
 
         if (!user.isVerified()) {
-            throw new ValidationException("Your profile is not activated");
+            throw new ValidationException(Constants.NOT_ACTIVATED);
         }
 
         user.setLastTimeOnline(new Date());
