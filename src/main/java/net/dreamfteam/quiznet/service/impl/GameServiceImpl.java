@@ -1,11 +1,8 @@
 package net.dreamfteam.quiznet.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.GameDao;
-import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
 import net.dreamfteam.quiznet.data.entities.Game;
-import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.AchievementService;
@@ -13,8 +10,8 @@ import net.dreamfteam.quiznet.service.GameService;
 import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameCount;
+import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +37,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game createGame(DtoGame dtoGame, String userId, String username) {
-        checkQuizExistance(dtoGame.getQuizId());
+        if(quizDao.getQuiz(dtoGame.getQuizId(), "en") == null){
+            throw new ValidationException("Quiz with id: " + dtoGame.getQuizId() + " does not exist");
+        }
 
         Game game = Game.builder()
                 .roundDuration(dtoGame.getRoundDuration())
@@ -95,7 +94,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public void rateGame(String gameSessionId, int rating, String userId) {
         if(getGameById(gameSessionId) == null){
-            throw new ValidationException("No game with such id found, cannot rate the quiz");
+            throw new ValidationException("No game with such id was found, cannot rate the quiz");
         }
         quizDao.rateQuiz(gameSessionId, rating, userId);
 
@@ -106,11 +105,16 @@ public class GameServiceImpl implements GameService {
         return gameDao.getGamesAmountForDay();
     }
 
-    private void checkQuizExistance(String quizId) {
-        if (quizDao.getQuiz(quizId,"en") == null) {
-            throw new ValidationException("Quiz with id: " + quizId + " not exists");
-        }
+    @Override
+    public int gameTime(String gameId) {
+        return gameDao.gameTime(gameId);
     }
+
+    @Override
+    public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
+        return gameDao.getWinnersOfTheGame(gameId);
+    }
+
 
     public Question getQuestion(String gameId) {
         Question question = gameDao.getQuestion(gameId);

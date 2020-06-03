@@ -272,7 +272,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getPrivilegedUsers() {
-        return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_PRIVILIGED,
+        return jdbcTemplate.query(SqlConstants.USERS_GET_ALL_PRIVILEGED,
                 new UserMapper());
     }
 

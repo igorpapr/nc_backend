@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         User savedUser = userDao.save(newUser);
 
         Mail mail = mailService.createBasicRegMail(savedUser);
-        Map<String, String> model = mail.getModel();
+        Map<String, Object> model = mail.getModel();
         model.put("creator", currentUser);
         model.put("role", savedUser.getRole().toString().substring(5).toLowerCase());
 
