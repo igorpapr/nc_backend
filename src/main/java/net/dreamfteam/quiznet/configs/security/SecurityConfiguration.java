@@ -84,12 +84,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         Constants.SECUR_SSE_URLS,
                         Constants.SECUR_FILTER_QUIZ_LIST_URLS,
                         //for Swagger
-                        "/v2/api-docs",
-                        "/configuration/ui",
-                        "/swagger-resources/**",
-                        "/configuration/security",
-                        "/swagger-ui.html",
-                        "/webjars/**"
+                        Constants.SECUR_DOCS_URLS,
+                        Constants.SECUR_CONFIG_UI_URLS,
+                        Constants.SECUR_SWAGGER_RESOURCES_URLS,
+                        Constants.SECUR_CONFIG_SECURITY_URLS,
+                        Constants.SECUR_SWAGGER_UI_URLS,
+                        Constants.SECUR_WEBJARS_URLS
 
                 )
                 .antMatchers(HttpMethod.GET, Constants.SECUR_QUIZ_URLS, Constants.SECUR_QUIZ_QUESTION_LIST_URLS);

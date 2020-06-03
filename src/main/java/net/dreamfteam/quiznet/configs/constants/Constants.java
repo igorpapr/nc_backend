@@ -35,6 +35,15 @@ public class Constants {
     public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
     public static final String SECUR_ANONYM = "/api/anonym**";
 
+    //Security Swagger Urls
+    public static final String SECUR_DOCS_URLS = "/v2/api-docs";
+    public static final String SECUR_CONFIG_UI_URLS = "/configuration/ui";
+    public static final String SECUR_SWAGGER_RESOURCES_URLS = "/swagger-resources/**";
+    public static final String SECUR_CONFIG_SECURITY_URLS = "/configuration/security";
+    public static final String SECUR_SWAGGER_UI_URLS = "/swagger-ui.html";
+    public static final String SECUR_WEBJARS_URLS = "/webjars/**";
+
+
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
 
@@ -83,6 +92,11 @@ public class Constants {
     public static final String AUTHENTICATION_NOT_SET = "Could not set user authentication in security context";
     public static final String REG_MAIL_NOT_SENT = "Registration Mail not sent to user %s";
     public static final String RECOVERY_MAIL_NOT_SENT = "Recovery Mail not sent to user %s";
+    public static final String DELETED_UNACCEPTED_USERS = "%d unaccepted Users was deleted ";
+
+    //Swagger
+    public static final String SWAGGER_TITLE = "QuizNet Documentation";
+    public static final String SWAGGER_DESCRIPTION = "QuizNet Documentation";
 
 
 }

@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.configs.swagger;
 
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -25,8 +26,8 @@ public class SwaggerConfiguration {
 
     private ApiInfo apiEndPointsInfo() {
         return new ApiInfoBuilder()
-                .title("QuizNet Documentation")
-                .description("QuizNet REST API")
+                .title(Constants.SWAGGER_TITLE)
+                .description(Constants.SWAGGER_DESCRIPTION)
                 .build();
     }
 }
