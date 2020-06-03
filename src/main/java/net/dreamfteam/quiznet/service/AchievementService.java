@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface AchievementService {
 
-	void checkAftergameAchievements(String sessionId);
+	void checkAftergameAchievements(String gameId);
 
 	void checkQuizCreationAchievements(String userId);
 

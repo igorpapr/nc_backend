@@ -2,23 +2,22 @@ package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
-import net.dreamfteam.quiznet.data.entities.ActivityType;
 import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.*;
-import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
-import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
 @Slf4j
+@EnableAsync
 @Service
 public class GameSessionServiceImpl implements GameSessionService {
 
@@ -137,31 +136,17 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     private void finishGame(String gameId){
-        if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {   //setting activities
-            List<DtoGameWinner> winners = gameService.getWinnersOfTheGame(gameId);
-            for (DtoGameWinner winner : winners) {
-                DtoActivity activity = DtoActivity.builder()
-                        .userId(winner.getUserId())
-                        .activityType(ActivityType.GAMEPLAY_RELATED)
-                        .content("Won the game while playing the quiz: \"" + winner.getQuizTitle() + "\"")
-                        .contentUk("Виграв/ла гру граючи квіз: \"" + winner.getQuizTitle() + "\"")
-                        .linkInfo(gameId)
-                        .build();
-                activitiesService.addActivityForUser(activity);
-            }
+        //sending message event to subscribers
+        sseService.send(gameId, "finished", gameId);
+        sseService.remove(gameId);
+
+        if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {
+            //setting activities
+            activitiesService.addWinnersActivities(gameId);
         }
 
         //checking achievements
-        List<DtoPlayerSession> sessionsMaps = getSessions(gameId);
-        for (DtoPlayerSession session : sessionsMaps) {
-            achievementService.checkAftergameAchievements(session.getGame_session_id());
+        achievementService.checkAftergameAchievements(gameId);
 
-
-            //sending message event to subscribers
-            sseService.send(gameId, "finished", gameId);
-            sseService.remove(gameId);
-        }
     }
-
-
 }

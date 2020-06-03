@@ -12,11 +12,13 @@ import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@EnableAsync
 public class GameServiceImpl implements GameService {
 
     private final GameDao gameDao;

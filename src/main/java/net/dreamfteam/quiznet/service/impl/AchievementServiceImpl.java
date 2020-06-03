@@ -12,8 +12,10 @@ import net.dreamfteam.quiznet.service.ActivitiesService;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoNotification;
+import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import net.dreamfteam.quiznet.web.dto.DtoUserAchievement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,21 +47,25 @@ public class AchievementServiceImpl implements AchievementService {
 	}
 
 	@Override
-	public void checkAftergameAchievements(String sessionId) {
-		GameSession gameSession = gameSessionDao.getById(sessionId);
-		String userId = gameSession.getUserId();
-		if (userId != null) {
-			//Non-repeatable achievements
-			checkFirstGameOfUserAchievement(userId);
-			checkPlayedAmountOfDifferentQuizzes(userId);
+	@Async
+	public void checkAftergameAchievements(String gameId) {
+		List<DtoPlayerSession> sessionsMaps = gameSessionDao.getSessions(gameId);
+		for (DtoPlayerSession session : sessionsMaps) {
+			String userId = session.getUser_id();
+			if (userId != null) {
+				//Non-repeatable achievements
+				checkFirstGameOfUserAchievement(userId);
+				checkPlayedAmountOfDifferentQuizzes(userId);
 
-			//Repeatable achievements
-			checkPlayedTenOfDifferentQuizzesOfCategory(userId, gameSession.getGameId());
-
+				//Repeatable achievements
+				checkPlayedTenOfDifferentQuizzesOfCategory(userId, gameId);
+			}
 		}
+
 	}
 
 	@Override
+	@Async
 	public void checkQuizCreationAchievements(String userId) {
 		int amountCreatedValidated = quizDao.getAmountSuccessCreated(userId);
 
@@ -89,6 +95,7 @@ public class AchievementServiceImpl implements AchievementService {
 	}
 
 	@Override
+	@Async
 	public void checkOnStartGameAchievements(String gameId) {
 		checkPlayedAmountOfGamesCreatedByUser(gameId);
 	}
