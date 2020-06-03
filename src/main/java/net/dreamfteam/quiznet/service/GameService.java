@@ -24,4 +24,5 @@ public interface GameService {
 
     List<DtoGameCount> getGamesAmountForDay();
 
+    void timerForEnd(String gameId);
 }

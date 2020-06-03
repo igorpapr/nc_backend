@@ -858,6 +858,10 @@ public class SqlConstants {
             "GROUP BY dt_start " +
             "ORDER BY dt_start ";
 
+    public static final String GAMES_MAX_GAME_TIME =
+            "SELECT (round_duration + break_time) * number_of_questions" +
+            "FROM games WHERE gameId = UUID(?)";
+
 
     //=================================================================================================================
     //GameSessions Queries
@@ -906,6 +910,7 @@ public class SqlConstants {
             "SELECT max_num_of_users " +
             "FROM games " +
             "WHERE access_code = ?;";
+
 
     public static final String GAME_SESSIONS_GET_GAME_BY_ID =
             "SELECT game_id FROM users_games WHERE game_session_id = UUID(?);";

@@ -21,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class GameDaoImpl implements GameDao {
@@ -170,6 +167,13 @@ public class GameDaoImpl implements GameDao {
                         .date(rs.getDate("dt_start"))
                         .gamesAmount(rs.getInt("amount"))
                         .build());
+    }
+
+    @Override
+    public int gameTime(String gameId){
+        return Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
+                    new Object[]{gameId}, Integer.class)).orElse(0)+5;
+
     }
 
     private String generateAccessId(String gameId) {
