@@ -30,4 +30,7 @@ public interface GameDao {
     List<DtoGameWinner> getWinnersOfTheGame(String gameId);
 
     List<DtoGameCount> getGamesAmountForDay();
+
+    int gameTime(String gameId);
+
 }

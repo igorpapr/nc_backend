@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.dao.QuizDao;
@@ -13,6 +14,8 @@ import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -88,6 +91,20 @@ public class GameServiceImpl implements GameService {
         achievementService.checkOnStartGameAchievements(gameId);
     }
 
+    @Override
+    public void rateGame(String gameSessionId, int rating, String userId) {
+        if(getGameById(gameSessionId) == null){
+            throw new ValidationException("No game with such id found, cannot rate the quiz");
+        }
+        quizDao.rateQuiz(gameSessionId, rating, userId);
+
+    }
+
+    @Override
+    public List<DtoGameCount> getGamesAmountForDay() {
+        return gameDao.getGamesAmountForDay();
+    }
+
     private void checkQuizExistance(String quizId) {
         if (quizDao.getQuiz(quizId,"en") == null) {
             throw new ValidationException("Quiz with id: " + quizId + " not exists");
@@ -102,19 +119,7 @@ public class GameServiceImpl implements GameService {
         return quizDao.loadAnswersForQuestion(gameDao.getQuestion(gameId), 0);
     }
 
-    @Override
-    public void rateGame(String gameSessionId, int rating, String userId) {
-        if(getGameById(gameSessionId) == null){
-            throw new ValidationException("No game with such id found, cannot rate the quiz");
-        }
-        quizDao.rateQuiz(gameSessionId, rating, userId);
 
-    }
-
-    @Override
-    public List<DtoGameCount> getGamesAmountForDay() {
-        return gameDao.getGamesAmountForDay();
-    }
 
 
 }

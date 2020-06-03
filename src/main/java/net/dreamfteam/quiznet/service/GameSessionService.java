@@ -17,4 +17,6 @@ public interface GameSessionService {
     void removePlayer(String sessionId);
 
     String getGameIdBySessionId(String sessionId);
+
+    void timerForEnd(String gameId);
 }
