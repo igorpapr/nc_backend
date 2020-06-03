@@ -77,22 +77,28 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public Game getGame(String id) {
+        try {
         return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ID,
                 new Object[]{id}, new GameMapper());
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
     }
 
     @Override
     public Game getGameByAccessId(String accessId) {
-        return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ACCESS_ID,
-                new Object[]{accessId}, new GameMapper());
+        try {
+            return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ACCESS_ID,
+                    new Object[]{accessId}, new GameMapper());
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            return null;
+        }
     }
 
     @Override
     public void startGame(String gameId) {
         jdbcTemplate.update(SqlConstants.GAMES_START_GAME, gameId);
     }
-
-
 
 
     public Question getQuestion(String gameId) {
@@ -150,14 +156,14 @@ public class GameDaoImpl implements GameDao {
 
     @Override
     public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
-        try{
+        try {
             return jdbcTemplate.query(SqlConstants.GAMES_GET_WINNERS_OF_THE_GAME,
                     new Object[]{gameId},
                     (rs, i) -> DtoGameWinner.builder()
-                                .userId(rs.getString("user_id"))
-                                .quizTitle(rs.getString("title"))
-                                .build());
-        }catch (EmptyResultDataAccessException | NullPointerException e){
+                            .userId(rs.getString("user_id"))
+                            .quizTitle(rs.getString("title"))
+                            .build());
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }
     }
@@ -172,12 +178,18 @@ public class GameDaoImpl implements GameDao {
     }
 
     @Override
-    public int gameTime(String gameId){
+    public int gameTime(String gameId) {
 
-        int result = Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
+        try {
+            int result = Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
                     new Object[]{gameId}, Integer.class)).orElse(0);
-        log.info("Game will be played for: "+result+" secs");
-        return result;
+            log.info("Game will be played for: " + result + " secs");
+            return result;
+        } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.info("Game not found or something wrong with data");
+            return 0;
+        }
+
     }
 
     private String generateAccessId(String gameId) {
