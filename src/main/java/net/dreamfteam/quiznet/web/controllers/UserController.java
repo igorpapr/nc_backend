@@ -84,7 +84,7 @@ public class UserController {
             throw new ValidationException(Constants.USER_NOT_FOUND_WITH_USERNAME + userName);
         }
 
-        if (currentUser.getRole() == Role.ROLE_USER) {
+        if (currentUser.getRole() == Role.ROLE_USER && user.getRole() != Role.ROLE_USER) {
             throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
         } else if (currentUser.getRole().ordinal() == 0) {
             userService.getFriendsRelations(user, currentUser.getId());
