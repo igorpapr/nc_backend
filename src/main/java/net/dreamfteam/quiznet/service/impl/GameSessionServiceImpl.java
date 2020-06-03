@@ -4,12 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.ActivityType;
+import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.AchievementService;
-import net.dreamfteam.quiznet.service.ActivitiesService;
-import net.dreamfteam.quiznet.service.GameSessionService;
-import net.dreamfteam.quiznet.service.SseService;
+import net.dreamfteam.quiznet.service.*;
 import net.dreamfteam.quiznet.web.dto.DtoActivity;
 import net.dreamfteam.quiznet.web.dto.DtoGameSession;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
@@ -27,7 +25,7 @@ import java.util.Objects;
 public class GameSessionServiceImpl implements GameSessionService {
 
     private final GameSessionDao gameSessionDao;
-    private final GameDao gameDao;
+    private final GameService gameService;
     private final SseService sseService;
     private final ActivitiesService activitiesService;
     private final AchievementService achievementService;
@@ -36,17 +34,22 @@ public class GameSessionServiceImpl implements GameSessionService {
     @Autowired
     public GameSessionServiceImpl(GameSessionDao gameSessionDao, SseService sseService,
                                   ActivitiesService activitiesService,
-                                  GameDao gameDao,
+                                  GameService gameService,
                                   AchievementService achievementService) {
         this.gameSessionDao = gameSessionDao;
         this.sseService = sseService;
         this.activitiesService = activitiesService;
-        this.gameDao = gameDao;
+        this.gameService = gameService;
         this.achievementService = achievementService;
     }
 
     @Override
     public GameSession joinGame(String accessId, String userId, String username) {
+        Game game = gameService.getGameByAccessId(accessId);
+        if(game == null){
+            throw new ValidationException("Game with access id: " + accessId + " doesn not exist");
+        }
+
         GameSession gameSession = gameSessionDao.getSessionByAccessId(accessId, userId, username);
 
         String name = username;
@@ -65,23 +68,20 @@ public class GameSessionServiceImpl implements GameSessionService {
         }
 
 
-        String gameId = gameDao.getGameByAccessId(accessId).getId();
-
-
         gameSession = GameSession.builder()
                 .userId(userId.startsWith("-") ? null : userId)
                 .username(name)
-                .gameId(gameId)
+                .gameId(game.getId())
                 .score(0)
                 .winner(false)
-                .creator(gameSessionDao.isCreator(gameId))
+                .creator(gameSessionDao.isCreator(game.getId()))
                 .savedByUser(!userId.startsWith("-"))
                 .durationTime(0)
                 .build();
 
         gameSession = gameSessionDao.createSession(gameSession);
 
-        sseService.send(gameId, "join", name);
+        sseService.send(game.getId(), "join", name);
 
         return gameSession;
 
@@ -125,7 +125,7 @@ public class GameSessionServiceImpl implements GameSessionService {
     public void timerForEnd(String gameId) {
 
         try {
-            Thread.sleep((gameDao.gameTime(gameId)+10)*1000);
+            Thread.sleep((gameService.gameTime(gameId)+10)*1000);
             finshGame(gameId);
         } catch (InterruptedException e) {
             log.error("InterruptedException: "+e.getMessage());
@@ -140,7 +140,7 @@ public class GameSessionServiceImpl implements GameSessionService {
 
     private void finshGame(String gameId){
         if (gameSessionDao.setWinnersForTheGame(gameId) > 0) {   //setting activities
-            List<DtoGameWinner> winners = gameDao.getWinnersOfTheGame(gameId);
+            List<DtoGameWinner> winners = gameService.getWinnersOfTheGame(gameId);
             for (DtoGameWinner winner : winners) {
                 DtoActivity activity = DtoActivity.builder()
                         .userId(winner.getUserId())

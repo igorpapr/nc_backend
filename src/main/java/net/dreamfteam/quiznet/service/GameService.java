@@ -4,6 +4,7 @@ import net.dreamfteam.quiznet.data.entities.Game;
 import net.dreamfteam.quiznet.data.entities.Question;
 import net.dreamfteam.quiznet.web.dto.DtoGame;
 import net.dreamfteam.quiznet.web.dto.DtoGameCount;
+import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 
 import java.util.List;
 
@@ -23,4 +24,8 @@ public interface GameService {
     void rateGame(String gameSessionId, int rating, String userId);
 
     List<DtoGameCount> getGamesAmountForDay();
+
+    int gameTime(String gameId);
+
+    List<DtoGameWinner> getWinnersOfTheGame(String gameId);
 }
