@@ -175,7 +175,7 @@ public class GameDaoImpl implements GameDao {
     public int gameTime(String gameId){
 
         int result = Optional.ofNullable(jdbcTemplate.queryForObject(SqlConstants.GAMES_MAX_GAME_TIME,
-                    new Object[]{gameId}, Integer.class)).orElse(0)+5;
+                    new Object[]{gameId}, Integer.class)).orElse(0);
         log.info("Game will be played for: "+result+" secs");
         return result;
     }
