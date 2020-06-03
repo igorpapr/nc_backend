@@ -23,6 +23,4 @@ public interface GameService {
     void rateGame(String gameSessionId, int rating, String userId);
 
     List<DtoGameCount> getGamesAmountForDay();
-
-    void timerForEnd(String gameId);
 }

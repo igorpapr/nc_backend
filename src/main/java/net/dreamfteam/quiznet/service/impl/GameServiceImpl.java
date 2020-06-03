@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
 public class GameServiceImpl implements GameService {
 
@@ -104,18 +103,6 @@ public class GameServiceImpl implements GameService {
     @Override
     public List<DtoGameCount> getGamesAmountForDay() {
         return gameDao.getGamesAmountForDay();
-    }
-
-    @Override
-    @Async
-    public void timerForEnd(String gameId) {
-
-        try {
-            Thread.sleep(gameDao.gameTime(gameId));
-
-        } catch (InterruptedException e) {
-            log.error("InterruptedException: "+e.getMessage());
-        }
     }
 
     private void checkQuizExistance(String quizId) {

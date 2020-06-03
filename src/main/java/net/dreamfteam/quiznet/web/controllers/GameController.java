@@ -14,11 +14,13 @@ import net.dreamfteam.quiznet.web.validators.UserQuizRatingValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
+@EnableAsync
 @RequestMapping(Constants.GAME_URLS)
 public class GameController {
 
@@ -58,7 +60,7 @@ public class GameController {
     @PostMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
         gameService.startGame(gameId);
-        sseService.send(gameId, "start");
+        gameSessionService.timerForEnd(gameId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
