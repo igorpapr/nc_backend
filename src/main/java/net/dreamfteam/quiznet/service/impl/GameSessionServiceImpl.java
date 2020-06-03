@@ -157,10 +157,12 @@ public class GameSessionServiceImpl implements GameSessionService {
         List<DtoPlayerSession> sessionsMaps = getSessions(gameId);
         for (DtoPlayerSession session : sessionsMaps) {
             achievementService.checkAftergameAchievements(session.getGame_session_id());
-        }
 
-        //sending message event to subscribers
-        sseService.send(gameId, "finished", gameId);
+
+            //sending message event to subscribers
+            sseService.send(gameId, "finished", gameId);
+            sseService.remove(gameId);
+        }
     }
 
 
