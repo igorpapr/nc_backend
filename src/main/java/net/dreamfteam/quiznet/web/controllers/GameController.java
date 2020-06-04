@@ -13,10 +13,13 @@ import net.dreamfteam.quiznet.web.validators.GameValidator;
 import net.dreamfteam.quiznet.web.validators.UserQuizRatingValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @CrossOrigin
@@ -57,7 +60,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/start")
+    @PatchMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
         gameService.startGame(gameId);
         gameSessionService.timerForEnd(gameId);
@@ -81,7 +84,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/result")
+    @PatchMapping("/result")
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
         gameSessionService.setResult(dtoGameSession);
@@ -95,7 +98,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/game/{gameId}/ready")
+    @PatchMapping("/game/{gameId}/ready")
     public ResponseEntity<?> setReady(@PathVariable String gameId, @RequestParam String sessionId) {
         sseService.send(gameId, "ready", sessionId);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -110,7 +113,7 @@ public class GameController {
 
 
     @PreAuthorize("hasAnyRole('USER')")
-    @PostMapping("/rate-quiz")
+    @PatchMapping("/rate-quiz")
     public ResponseEntity<?> rateQuiz(@RequestParam String sessionId, @RequestParam int ratingPoints) {
         UserQuizRatingValidator.validate(sessionId, ratingPoints);
         gameService.rateGame(sessionId, ratingPoints, authenticationFacade.getUserId());
@@ -123,5 +126,9 @@ public class GameController {
         return new ResponseEntity<>(gameService.getGamesAmountForDay(), HttpStatus.OK);
     }
 
+    @GetMapping(path = "/subscribe/{gameId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent> sseFlux(@PathVariable String gameId) {
+        return sseService.subscribe(gameId);
+    }
 
 }

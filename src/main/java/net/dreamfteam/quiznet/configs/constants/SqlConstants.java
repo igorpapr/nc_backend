@@ -863,6 +863,9 @@ public class SqlConstants {
             "SELECT ((round_duration + break_time) * number_of_questions) as result " +
             "FROM games WHERE game_id = UUID(?)";
 
+    public static final String GAMES_DELETE_GAME =
+            "DELETE FROM games WHERE game_id = UUID(?)";
+
 
     //=================================================================================================================
     //GameSessions Queries
@@ -951,4 +954,13 @@ public class SqlConstants {
 
     public static final String GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ID =
             "SELECT COUNT(*) FROM users_games WHERE game_id = UUID(?)";
+
+    public static final String GAME_SESSIONS_IS_CREATOR_LEFT =
+            "SELECT " +
+                    "CASE WHEN access_code <> '' AND is_creator = true " +
+                    "THEN true " +
+                    "ELSE false " +
+                    "END " +
+                    "FROM games INNER JOIN users_games ON games.game_id = users_games.game_id " +
+                    "WHERE game_session_id = UUID(?)";
 }

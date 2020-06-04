@@ -14,7 +14,6 @@ public class Constants {
     public static final String SETTING_URLS = "/api/settings";
     public static final String NOTIFICATION_URLS = "/api/notifications";
     public static final String ACTIVITIES_URLS = "/api/activities";
-    public static final String SSE_URLS = "/api/sse";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
@@ -32,7 +31,8 @@ public class Constants {
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
     public static final String SECUR_FILTER_QUIZ_LIST_URLS = "/api/quizzes/filter-quiz-list/**";
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
-    public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
+    public static final String SECUR_NOTIFICATION_SSE_URLS = "/api/notifications/subscribe/**";
+    public static final String SECUR_GAME_SSE_URLS = "/api/games/subscribe/**";
     public static final String SECUR_ANONYM = "/api/anonym**";
 
     //Security Swagger Urls
