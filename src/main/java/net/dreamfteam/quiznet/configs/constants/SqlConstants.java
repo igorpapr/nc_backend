@@ -799,8 +799,7 @@ public class SqlConstants {
                                   "ON s.setting_id = us.setting_id " +
                                   "WHERE us.user_id = uuid(?) " +
                                   "AND value = 'true' " +
-                                  "AND activity_type_id IS NOT NULL) " +
-             "ORDER BY datetime DESC;";
+                                  "AND activity_type_id IS NOT NULL);";
 
     /*  Inserts a new activity
     *   Params:

@@ -129,14 +129,13 @@ public class GameDaoImpl implements GameDao {
     @Override
     public UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId) {
         try {
-            UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
+            return jdbcTemplate.queryForObject(
                     SqlConstants.GAMES_GET_USER_GAMES_IN_CATEGORY_INFO, new Object[]{gameId, userId},
                     (rs, i) -> UserCategoryAchievementInfo.builder()
                             .amountPlayed(rs.getInt("amount"))
                             .categoryId(rs.getString("category_id"))
                             .categoryTitle(rs.getString("title"))
                             .build());
-            return info;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }

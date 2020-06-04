@@ -74,14 +74,12 @@ public class AchievementServiceImpl implements AchievementService {
 		} else if (amountCreatedValidated == 10){
 			addAchievementForUser(userId, Constants.ACHIEVEMENT_SPECIALIST_CREATOR_ID, false);
 		}
-
 	}
 
 	@Override
 	public Integer getUserAchievementsAmount(String userId){
 		return achievementDao.getUserAchievementsAmount(userId);
-
-	};
+	}
 
 
 	@Override
