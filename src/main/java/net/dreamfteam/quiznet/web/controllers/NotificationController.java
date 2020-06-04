@@ -34,7 +34,7 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("seen")
+    @PatchMapping("seen")
     public ResponseEntity<?> seen() throws ValidationException {
         notificationService.updateSeen(authenticationFacade.getUserId());
 

@@ -163,7 +163,7 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/validate")
+    @PatchMapping("/validate")
     public ResponseEntity<?> validateQuiz(@RequestBody DtoQuiz dtoQuiz) throws ValidationException {
         if (isNull(quizService.getQuiz(dtoQuiz.getQuizId(), authenticationFacade.getUserId(),"en"))) {
             return ResponseEntity.notFound()
@@ -256,7 +256,7 @@ public class QuizController {
     }
 
     @PreAuthorize("hasAnyRole('MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping("/setvalidator")
+    @PatchMapping("/setvalidator")
     public ResponseEntity<?> setQuizValidator(@RequestBody DtoQuiz quizDto,
                                               @RequestHeader("Lang") String language) throws ValidationException {
 
