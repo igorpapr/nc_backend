@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface ActivitiesService {
 
-	List<FriendsActivity> getFriendsActivities(String userId);
+	List<FriendsActivity> getFriendsActivitiesPage(String userId, int startIndex, int amount);
 
 	void addActivityForUser(DtoActivity dto);
 
 	void addWinnersActivities(String gameId);
+
+	int getFriendsActivitiesTotalSize(String userId);
 }

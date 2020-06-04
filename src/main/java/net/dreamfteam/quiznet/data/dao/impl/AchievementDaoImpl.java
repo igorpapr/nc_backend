@@ -98,7 +98,6 @@ public class AchievementDaoImpl implements AchievementDao {
             return jdbcTemplate
                     .queryForObject(SqlConstants.ACHIEVEMENT_GET_USER_ACHIEVEMENTS_AMOUNT,
                             new Object[]{userId}, Integer.class);
-
         }catch (Exception e){
             log.error("An exception occurred while counting the amount of user achievements: " + e.getMessage());
             return 0;
