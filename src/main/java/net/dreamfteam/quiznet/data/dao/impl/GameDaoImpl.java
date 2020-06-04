@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -40,52 +41,72 @@ public class GameDaoImpl implements GameDao {
     @Override
     @Transactional
     public Game createGame(Game game) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SqlConstants.GAMES_CREATE, Statement.RETURN_GENERATED_KEYS);
-            ps.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
-            ps.setInt(2, game.getMaxUsersCount());
-            ps.setInt(3, game.getNumberOfQuestions());
-            ps.setInt(4, game.getRoundDuration());
-            ps.setBoolean(5, game.isAdditionalPoints());
-            ps.setInt(6, game.getBreakTime());
-            ps.setObject(7, UUID.fromString(game.getQuizId()));
-            return ps;
-        }, keyHolder);
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(con -> {
+                PreparedStatement ps = con.prepareStatement(SqlConstants.GAMES_CREATE, Statement.RETURN_GENERATED_KEYS);
+                ps.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+                ps.setInt(2, game.getMaxUsersCount());
+                ps.setInt(3, game.getNumberOfQuestions());
+                ps.setInt(4, game.getRoundDuration());
+                ps.setBoolean(5, game.isAdditionalPoints());
+                ps.setInt(6, game.getBreakTime());
+                ps.setObject(7, UUID.fromString(game.getQuizId()));
+                return ps;
+            }, keyHolder);
 
-        String id = Objects.requireNonNull(keyHolder.getKeys()).get("game_id").toString();
-        String accessId = generateAccessId(id);
+            String id = Objects.requireNonNull(keyHolder.getKeys()).get("game_id").toString();
+            String accessId = generateAccessId(id);
 
 
-        jdbcTemplate.update(SqlConstants.GAMES_EDITING_ACCESS_CODE,
-                accessId, UUID.fromString(id));
+            jdbcTemplate.update(SqlConstants.GAMES_EDITING_ACCESS_CODE,
+                    accessId, UUID.fromString(id));
 
-        game.setAccessId(accessId);
-        game.setId(id);
-        game.setStartDatetime((Date) Objects.requireNonNull(keyHolder.getKeys()).get("datetime_start"));
+            game.setAccessId(accessId);
+            game.setId(id);
+            game.setStartDatetime((Date) Objects.requireNonNull(keyHolder.getKeys()).get("datetime_start"));
 
-        return game;
+            log.info("Created game with access code: " + accessId);
+            return game;
+
+        }catch (DataAccessException e){
+            log.error("Error while creating game\n" + e.getMessage());
+            return null;
+        }
     }
 
     @Override
     public void updateGame(Game game) {
-        jdbcTemplate.update(SqlConstants.GAMES_UPDATE_GAME, game.getStartDatetime(), game.getMaxUsersCount(),
-                game.getNumberOfQuestions(), game.getRoundDuration(), game.isAdditionalPoints(),
-                game.getBreakTime(), game.getQuizId(), game.getId());
+        try {
+            jdbcTemplate.update(SqlConstants.GAMES_UPDATE_GAME, game.getStartDatetime(), game.getMaxUsersCount(),
+                    game.getNumberOfQuestions(), game.getRoundDuration(), game.isAdditionalPoints(),
+                    game.getBreakTime(), game.getQuizId(), game.getId());
+            log.info("Update game with id: " + game.getId());
+        } catch (DataAccessException e) {
+            log.error("Error while updating game with id: " + game.getId() + "\n" + e.getMessage());
+        }
     }
 
     @Override
-    public void deleteGame(String gameId){
-        jdbcTemplate.update(SqlConstants.GAMES_DELETE_GAME,gameId);
+    public void deleteGame(String gameId) {
+        try {
+            jdbcTemplate.update(SqlConstants.GAMES_DELETE_GAME, gameId);
+            log.info("Delete game with id: " + gameId);
+        } catch (DataAccessException e) {
+            log.error("Error while deleting game with id: " + gameId + "\n" + e.getMessage());
+        }
     }
 
 
     @Override
     public Game getGame(String id) {
         try {
-        return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ID,
-                new Object[]{id}, new GameMapper());
+            Game result = jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ID,
+                    new Object[]{id}, new GameMapper());
+            log.info("Get game with id: " + id);
+            return result;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Error while getting game with id: " + id + "\n" + e.getMessage());
             return null;
         }
     }
@@ -93,16 +114,24 @@ public class GameDaoImpl implements GameDao {
     @Override
     public Game getGameByAccessId(String accessId) {
         try {
-            return jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ACCESS_ID,
+            Game result = jdbcTemplate.queryForObject(SqlConstants.GAMES_GET_GAME_BY_ACCESS_ID,
                     new Object[]{accessId}, new GameMapper());
+            log.info("Get game with access code: " + accessId);
+            return result;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Error while getting game with access code: " + accessId + "\n" + e.getMessage());
             return null;
         }
     }
 
     @Override
     public void startGame(String gameId) {
-        jdbcTemplate.update(SqlConstants.GAMES_START_GAME, gameId);
+        try {
+            jdbcTemplate.update(SqlConstants.GAMES_START_GAME, gameId);
+            log.info("Started game with id: " + gameId);
+        } catch (DataAccessException e) {
+            log.error("Error while starting the game with id: " + gameId + "\n" + e.getMessage());
+        }
     }
 
 
@@ -161,13 +190,17 @@ public class GameDaoImpl implements GameDao {
     @Override
     public List<DtoGameWinner> getWinnersOfTheGame(String gameId) {
         try {
-            return jdbcTemplate.query(SqlConstants.GAMES_GET_WINNERS_OF_THE_GAME,
+            List<DtoGameWinner> result = jdbcTemplate.query(SqlConstants.GAMES_GET_WINNERS_OF_THE_GAME,
                     new Object[]{gameId},
                     (rs, i) -> DtoGameWinner.builder()
                             .userId(rs.getString("user_id"))
                             .quizTitle(rs.getString("title"))
                             .build());
+
+            log.info("Get winners of game with id: " + gameId);
+            return result;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Error while getting game winners for game with id: "+gameId+"\n"+e.getMessage());
             return null;
         }
     }
@@ -190,7 +223,7 @@ public class GameDaoImpl implements GameDao {
             log.info("Game will be played for: " + result + " secs");
             return result;
         } catch (EmptyResultDataAccessException | NullPointerException e) {
-            log.info("Game not found or something wrong with data");
+            log.error("Error while getting game time for game with id: "+gameId+"\n"+e.getMessage());
             return 0;
         }
 
