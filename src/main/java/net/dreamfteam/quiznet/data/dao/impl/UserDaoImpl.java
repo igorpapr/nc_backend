@@ -152,6 +152,7 @@ public class UserDaoImpl implements UserDao {
                             new Object[]{userId, userId, amount, startIndex},
                             new UserViewMapper());
         } catch (EmptyResultDataAccessException e) {
+            log.error("Couldn't getFriendsByUserId.\nException: " + e.getMessage());
             return null;
         }
     }
@@ -219,16 +220,24 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean processOutgoingFriendInvitation(String parentId, String targetId, boolean toInvite) {
         if (toInvite) {
-            jdbcTemplate.update(SqlConstants.USERS_SAVE_OUTGOING_FRIEND_INVITATION,
-                    parentId, targetId
-            );
+            try{
+                jdbcTemplate.update(SqlConstants.USERS_SAVE_OUTGOING_FRIEND_INVITATION,
+                        parentId, targetId
+                );
+            }catch (Exception e){
+                log.error("Couldn't processOutgoingFriendInvitation: Inviting to friends\nException: " + e.getMessage());
+            }
             return true;
         } else {
-            jdbcTemplate.update(SqlConstants.USERS_DELETE_OUTGOING_FRIEND_INVITATION,
-                    parentId, targetId, parentId, targetId);
+            try{
+                jdbcTemplate.update(SqlConstants.USERS_DELETE_OUTGOING_FRIEND_INVITATION,
+                        parentId, targetId, parentId, targetId);
+            }
+            catch(Exception e){
+                log.error("Couldn't processOutgoingFriendInvitation: Inviting to friends\nException: " + e.getMessage());
+            }
             return false;
         }
-
     }
 
     @Override
@@ -237,15 +246,19 @@ public class UserDaoImpl implements UserDao {
             return jdbcTemplate.update(SqlConstants.USERS_ACCEPT_FRIEND_INIVITAION,
                     parentId, targetId);
         } catch (DataAccessException e) {
-            System.err.println("Error occurred while accepting the friend invitation: " + e.getMessage());
+            log.error("Error occurred while accepting the friend invitation:\n" + e.getMessage());
             return 0;
         }
     }
 
     @Override
     public void rejectInvitation(String parentId, String targetId) {
-        jdbcTemplate.update(SqlConstants.USERS_REJECT_FRIEND_INVITATION,
-                parentId, targetId);
+        try{
+            jdbcTemplate.update(SqlConstants.USERS_REJECT_FRIEND_INVITATION,
+                    parentId, targetId);
+        }catch (Exception e){
+            log.error("Couldn't rejectInvitation for friends.\nException: "+e.getMessage());
+        }
     }
 
     @Override
@@ -267,8 +280,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void removeFriend(String targetId, String thisId) {
-        jdbcTemplate.update(SqlConstants.USERS_REMOVE_FRIEND,
-                targetId, thisId, targetId, thisId, targetId, thisId);
+        try{
+            jdbcTemplate.update(SqlConstants.USERS_REMOVE_FRIEND,
+                    targetId, thisId, targetId, thisId, targetId, thisId);
+        }catch (Exception e){
+            log.error("Couldn't removeFriend.\nException: " + e.getMessage());
+        }
     }
 
     @Override
