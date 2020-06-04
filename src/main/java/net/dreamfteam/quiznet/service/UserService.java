@@ -1,7 +1,9 @@
 package net.dreamfteam.quiznet.service;
 
-
-import net.dreamfteam.quiznet.data.entities.*;
+import net.dreamfteam.quiznet.data.entities.Role;
+import net.dreamfteam.quiznet.data.entities.User;
+import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
+import net.dreamfteam.quiznet.data.entities.UserView;
 import net.dreamfteam.quiznet.exception.ValidationException;
 
 import java.util.List;
