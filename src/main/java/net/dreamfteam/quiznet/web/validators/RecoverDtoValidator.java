@@ -32,7 +32,6 @@ public class RecoverDtoValidator {
 
     public static void validate(String password) throws ValidationException {
         validateNotEmptyProperty(password, "password");
-        validateWithRegularExpression(password, REGEX_PASSWORD, "password");
     }
 
     private static void validateNotEmptyProperty(Object value, String propertyName) {
