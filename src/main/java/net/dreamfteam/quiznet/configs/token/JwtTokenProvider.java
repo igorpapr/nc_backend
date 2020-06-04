@@ -60,10 +60,10 @@ public class JwtTokenProvider {
         String userId = jwtUser.getId();
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", userId);
-        claims.put("username", jwtUser.getUsername());
-        claims.put("email", jwtUser.getEmail());
-        claims.put("role", jwtUser.getRole().name());
+        claims.put(Constants.JWT_CLAIMS_ID, userId);
+        claims.put(Constants.JWT_CLAIMS_USERNAME, jwtUser.getUsername());
+        claims.put(Constants.JWT_CLAIMS_EMAIL, jwtUser.getEmail());
+        claims.put(Constants.JWT_CLAIMS_ROLE, jwtUser.getRole().name());
 
         return Jwts.builder()
                 .setSubject(userId)
@@ -81,11 +81,11 @@ public class JwtTokenProvider {
 
         Map<String, Object> claims = new HashMap<>();
 
-        String id = "-" + UUID.randomUUID();
+        String id = Constants.ANONYM_POINTER + UUID.randomUUID();
 
-        claims.put("username", username);
-        claims.put("role", Role.ROLE_ANONYM.name());
-        claims.put("id", id);
+        claims.put(Constants.JWT_CLAIMS_USERNAME, username);
+        claims.put(Constants.JWT_CLAIMS_ROLE, Role.ROLE_ANONYM.name());
+        claims.put(Constants.JWT_CLAIMS_ID, id);
 
         return Jwts.builder()
                 .setSubject(id)
@@ -113,15 +113,15 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
         } catch (SignatureException ex) {
-            log.error("Invalid JWT Signature", ex);
+            log.error(Constants.NOT_CORRECT_JWT_SIGNATURE, ex);
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT Token", ex);
+            log.error(Constants.INVALID_JWT, ex);
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token", ex);
+            log.error(Constants.EXPIRED_JWT, ex);
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token", ex);
+            log.error(Constants.UNSUPPORTED_JWT, ex);
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty", ex);
+            log.error(Constants.EMPTY_CLAIMS_JWT, ex);
         }
         return false;
     }
@@ -129,24 +129,24 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(Constants.HEADER_STRING);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(Constants.TOKEN_PREFIX)) {
-            return bearerToken.substring(7);
+            return bearerToken.substring(Constants.TOKEN_PREFIX.length());
         }
         return null;
     }
 
     public String getUserIdFromJwt(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return (String) claims.get("id");
+        return (String) claims.get(Constants.JWT_CLAIMS_ID);
     }
 
     public String getUsernameFromJwt(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return (String) claims.get("username");
+        return (String) claims.get(Constants.JWT_CLAIMS_USERNAME);
     }
 
     public boolean isAnonym(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return claims.get("role").equals(Role.ROLE_ANONYM.name());
+        return claims.get(Constants.JWT_CLAIMS_ROLE).equals(Role.ROLE_ANONYM.name());
 
     }
 }

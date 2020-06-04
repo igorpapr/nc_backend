@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.configs.interceptors;
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.service.UserService;
@@ -29,7 +30,7 @@ public class OnlineServiceInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String userId = authenticationFacade.getUserId();
-        if (userId != null && !userId.startsWith("-")) {
+        if (userId != null && !userId.startsWith(Constants.ANONYM_POINTER)) {
             User currentUser = userService.getById(userId);
             currentUser.setLastTimeOnline(new Date());
             userService.update(currentUser);

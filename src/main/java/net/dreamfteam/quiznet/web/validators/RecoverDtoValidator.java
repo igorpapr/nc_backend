@@ -28,7 +28,6 @@ public class RecoverDtoValidator {
 
     public static void validate(DtoForgotPassword user) throws ValidationException {
         validateNotEmptyProperty(user.getPassword(), "password");
-        validateWithRegularExpression(user.getPassword(), REGEX_PASSWORD, "password");
     }
 
     public static void validate(String password) throws ValidationException {
