@@ -73,6 +73,9 @@ public class Constants {
     //Language setting id
     public static final String SETTING_LANG_ID = "e8449301-6d6f-4376-8247-b7d1f8df6416";
 
+    //Anonym pointer
+    public static final String ANONYM_POINTER = "-";
+
     //Exceptions messages
     public static final String USER_NOT_FOUND_WITH_USERNAME = "User not found with such username : ";
     public static final String USER_NOT_FOUND_WITH_ID = "User not found with id : ";
@@ -93,10 +96,19 @@ public class Constants {
     public static final String REG_MAIL_NOT_SENT = "Registration Mail not sent to user %s";
     public static final String RECOVERY_MAIL_NOT_SENT = "Recovery Mail not sent to user %s";
     public static final String DELETED_UNACCEPTED_USERS = "%d unaccepted Users was deleted ";
+    public static final String NOT_CORRECT_JWT_SIGNATURE = "Invalid JWT Signature";
+    public static final String INVALID_JWT = "Invalid JWT Token";
+    public static final String EXPIRED_JWT = "Expired JWT token";
+    public static final String UNSUPPORTED_JWT = "Unsupported JWT token";
+    public static final String EMPTY_CLAIMS_JWT = "JWT claims string is empty";
 
     //Swagger
     public static final String SWAGGER_TITLE = "QuizNet Documentation";
     public static final String SWAGGER_DESCRIPTION = "QuizNet Documentation";
 
-
+    //Jwt claims
+    public static final String JWT_CLAIMS_ID = "id";
+    public static final String JWT_CLAIMS_USERNAME = "username";
+    public static final String JWT_CLAIMS_ROLE = "role";
+    public static final String JWT_CLAIMS_EMAIL = "email";
 }
