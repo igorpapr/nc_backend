@@ -109,8 +109,9 @@ public class UserServiceImpl implements UserService {
 
         Mail mail = mailService.createBasicRegMail(savedUser);
         Map<String, Object> model = mail.getModel();
-        model.put("creator", currentUser);
-        model.put("role", savedUser.getRole().toString().substring(5).toLowerCase());
+        model.put(Constants.MAIL_MODEL_CREATOR, currentUser);
+        model.put(Constants.MAIL_MODEL_ROLE, savedUser.getRole().toString()
+                .substring(Constants.ROLE_PREFIX_LENGTH).toLowerCase());
 
         try {
             mailService.sendMailMessage(mail, adminRegTemplate);

@@ -46,6 +46,7 @@ public class Constants {
 
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
+    public static final int ROLE_PREFIX_LENGTH = 5;
 
     public static final int AMOUNT_QUIZ_ON_PAGE = 16;
     public static final int AMOUNT_VALID_QUIZ_ON_PAGE = 6;
@@ -111,4 +112,10 @@ public class Constants {
     public static final String JWT_CLAIMS_USERNAME = "username";
     public static final String JWT_CLAIMS_ROLE = "role";
     public static final String JWT_CLAIMS_EMAIL = "email";
+
+    //Mail model keys
+    public static final String MAIL_MODEL_LINK = "link";
+    public static final String MAIL_MODEL_USERNAME = "username";
+    public static final String MAIL_MODEL_CREATOR = "creator";
+    public static final String MAIL_MODEL_ROLE = "role";
 }

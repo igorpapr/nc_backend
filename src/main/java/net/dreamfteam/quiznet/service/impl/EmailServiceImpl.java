@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.service.impl;
 
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.web.dto.Mail;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.service.EmailService;
@@ -73,8 +74,8 @@ public class EmailServiceImpl implements EmailService {
         mail.setSubject(recoverMailSubject);
 
         Map<String, Object> model = new HashMap<>();
-        model.put("link", recoverMailUrl + user.getRecoveryUrl());
-        model.put("username", user.getUsername());
+        model.put(Constants.MAIL_MODEL_LINK, recoverMailUrl + user.getRecoveryUrl());
+        model.put(Constants.MAIL_MODEL_USERNAME, user.getUsername());
         mail.setModel(model);
         return mail;
     }
@@ -86,8 +87,8 @@ public class EmailServiceImpl implements EmailService {
         mail.setSubject(regMailSubject);
 
         Map<String, Object> model = new HashMap<>();
-        model.put("username", user.getUsername());
-        model.put("link", regUrlActivate + user.getActivationUrl());
+        model.put(Constants.MAIL_MODEL_USERNAME, user.getUsername());
+        model.put(Constants.MAIL_MODEL_LINK, regUrlActivate + user.getActivationUrl());
 
         mail.setModel(model);
         return mail;
