@@ -31,6 +31,8 @@ public interface GameSessionDao {
 
     int setWinnersForTheGame(String gameId);
 
-    boolean isCreator(String gameId);
+    boolean isFirst(String gameId);
+
+    boolean isCreatorLeft(String sessionId);
 
 }

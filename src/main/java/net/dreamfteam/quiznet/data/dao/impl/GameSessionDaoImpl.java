@@ -1,12 +1,9 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
 import net.dreamfteam.quiznet.configs.constants.SqlConstants;
-import net.dreamfteam.quiznet.data.dao.GameDao;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
 import net.dreamfteam.quiznet.data.rowmappers.GameSessionMapper;
-import net.dreamfteam.quiznet.exception.ValidationException;
-import net.dreamfteam.quiznet.service.SseService;
 import net.dreamfteam.quiznet.web.dto.DtoPlayerSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -39,10 +36,10 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
 
         try {
-            if(!userId.startsWith("-")){
+            if (!userId.startsWith("-")) {
                 return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER,
-                                                   new Object[]{userId, username, accessId}, new GameSessionMapper());
-            }else{
+                        new Object[]{userId, username, accessId}, new GameSessionMapper());
+            } else {
                 return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_ANONYM,
                         new Object[]{username, accessId}, new GameSessionMapper());
             }
@@ -192,9 +189,16 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
     //Returns true if player that joined to current game is first
     @Override
-    public boolean isCreator(String gameId){
+    public boolean isFirst(String gameId) {
         return Optional.ofNullable(jdbcTemplate.queryForObject(
                 SqlConstants.GAME_SESSIONS_GET_USER_AMOUNT_IN_GAME_BY_ID,
-                new Object[]{gameId},Integer.class)).orElse(0) == 0;
+                new Object[]{gameId}, Integer.class)).orElse(0) == 0;
+    }
+
+    @Override
+    public boolean isCreatorLeft(String sessionId){
+        return Optional.ofNullable(jdbcTemplate.queryForObject(
+                SqlConstants.GAME_SESSIONS_IS_CREATOR_LEFT,new Object[]{sessionId},Boolean.class))
+                .orElse(false);
     }
 }

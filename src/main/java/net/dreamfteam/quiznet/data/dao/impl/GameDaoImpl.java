@@ -74,6 +74,11 @@ public class GameDaoImpl implements GameDao {
                 game.getBreakTime(), game.getQuizId(), game.getId());
     }
 
+    @Override
+    public void deleteGame(String gameId){
+        jdbcTemplate.update(SqlConstants.GAMES_DELETE_GAME,gameId);
+    }
+
 
     @Override
     public Game getGame(String id) {
