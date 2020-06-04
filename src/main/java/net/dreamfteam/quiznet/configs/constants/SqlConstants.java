@@ -93,7 +93,8 @@ public class SqlConstants {
                     "settings.setting_id, value " +
                     "FROM settings INNER JOIN " +
                     "user_settings on settings.setting_id=user_settings.setting_id " +
-                    "WHERE user_id=UUID(?)";
+                    "WHERE user_id=UUID(?)" +
+                    "ORDER BY item_position";
 
     public static final String SETTINGS_GET_LANGUAGE =
             "SELECT value " +
