@@ -1,7 +1,6 @@
 package net.dreamfteam.quiznet.service;
 
 import net.dreamfteam.quiznet.data.entities.User;
-import net.dreamfteam.quiznet.web.dto.LoginRequest;
 
 public interface ActivationService {
 
