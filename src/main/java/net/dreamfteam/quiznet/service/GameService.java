@@ -13,6 +13,8 @@ public interface GameService {
 
     void updateGame(DtoGame game);
 
+    void deleteGame(String gameId);
+
     Game getGameByAccessId(String accessId);
 
     Game getGameById(String gameId);

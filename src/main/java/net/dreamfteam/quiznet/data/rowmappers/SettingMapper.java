@@ -14,8 +14,6 @@ public class SettingMapper implements RowMapper<Setting> {
     public Setting mapRow(ResultSet resultSet, int i) throws SQLException {
         return Setting.builder()
                 .id(resultSet.getString("setting_id"))
-                .title(resultSet.getString("title"))
-                .description(resultSet.getString("description"))
                 .value(resultSet.getString("value"))
                 .build();
     }

@@ -1,10 +1,5 @@
 package net.dreamfteam.quiznet.configs.constants;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 public class Constants {
 
     //URLS
@@ -17,9 +12,8 @@ public class Constants {
     public static final String ADMIN_URLS = "/api/admins";
     public static final String ANNOUNCEMENT_URLS = "/api/announcement";
     public static final String SETTING_URLS = "/api/settings";
-    public static final String NOTIFICATION_URLS="/api/notifications";
+    public static final String NOTIFICATION_URLS = "/api/notifications";
     public static final String ACTIVITIES_URLS = "/api/activities";
-    public static final String SSE_URLS = "/api/sse";
 
     //Security Urls
     public static final String SECUR_SIGN_UP_URLS = "/api/sign-up";
@@ -37,11 +31,22 @@ public class Constants {
     public static final String SECUR_QUIZ_LIST_URLS = "/api/quizzes/quiz-list/**";
     public static final String SECUR_FILTER_QUIZ_LIST_URLS = "/api/quizzes/filter-quiz-list/**";
     public static final String SECUR_SHORT_QUIZ_LIST_URLS = "/api/quizzes/short-list";
-    public static final String SECUR_SSE_URLS = "/api/sse/stream/**";
+    public static final String SECUR_NOTIFICATION_SSE_URLS = "/api/notifications/subscribe/**";
+    public static final String SECUR_GAME_SSE_URLS = "/api/games/subscribe/**";
     public static final String SECUR_ANONYM = "/api/anonym**";
+
+    //Security Swagger Urls
+    public static final String SECUR_DOCS_URLS = "/v2/api-docs";
+    public static final String SECUR_CONFIG_UI_URLS = "/configuration/ui";
+    public static final String SECUR_SWAGGER_RESOURCES_URLS = "/swagger-resources/**";
+    public static final String SECUR_CONFIG_SECURITY_URLS = "/configuration/security";
+    public static final String SECUR_SWAGGER_UI_URLS = "/swagger-ui.html";
+    public static final String SECUR_WEBJARS_URLS = "/webjars/**";
+
 
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
+    public static final int ROLE_PREFIX_LENGTH = 5;
 
     public static final int AMOUNT_QUIZ_ON_PAGE = 16;
     public static final int AMOUNT_VALID_QUIZ_ON_PAGE = 6;
@@ -68,4 +73,49 @@ public class Constants {
 
     //Language setting id
     public static final String SETTING_LANG_ID = "e8449301-6d6f-4376-8247-b7d1f8df6416";
+
+    //Anonym pointer
+    public static final String ANONYM_POINTER = "-";
+
+    //Exceptions messages
+    public static final String USER_NOT_FOUND_WITH_USERNAME = "User not found with such username : ";
+    public static final String USER_NOT_FOUND_WITH_ID = "User not found with id : ";
+    public static final String USER_NOT_FOUND_WITH_EMAIL = "User not found with email : ";
+    public static final String USER_NOT_FOUND_WITH_RECOVER_URL = "User not found with recover URL : ";
+    public static final String USER_NOT_FOUND_WITH_EMAIL_OR_USERNAME = "User not found with such username or email : ";
+    public static final String USER_NOT_FOUND_WITH_ACTIVATION_URL = "User not found with activation URL : ";
+    public static final String IMAGE_BROKEN = "Broken image";
+    public static final String NOT_HAVE_CAPABILITIES = "You dont have such capabilities";
+    public static final String USERNAME_TAKEN = "Such username has been taken : ";
+    public static final String EMAIl_TAKEN = "Such username has been taken : ";
+    public static final String PASSWORD_NOT_CORRECT = "Not correct password";
+    public static final String RECOVER_LINK_EXPIRED = "Your recover link is expired. Try again";
+    public static final String NOT_ACTIVATED = "Your profile is not activated";
+
+    //Logging messages
+    public static final String AUTHENTICATION_NOT_SET = "Could not set user authentication in security context";
+    public static final String REG_MAIL_NOT_SENT = "Registration Mail not sent to user %s";
+    public static final String RECOVERY_MAIL_NOT_SENT = "Recovery Mail not sent to user %s";
+    public static final String DELETED_UNACCEPTED_USERS = "%d unaccepted Users was deleted ";
+    public static final String NOT_CORRECT_JWT_SIGNATURE = "Invalid JWT Signature";
+    public static final String INVALID_JWT = "Invalid JWT Token";
+    public static final String EXPIRED_JWT = "Expired JWT token";
+    public static final String UNSUPPORTED_JWT = "Unsupported JWT token";
+    public static final String EMPTY_CLAIMS_JWT = "JWT claims string is empty";
+
+    //Swagger
+    public static final String SWAGGER_TITLE = "QuizNet Documentation";
+    public static final String SWAGGER_DESCRIPTION = "QuizNet Documentation";
+
+    //Jwt claims
+    public static final String JWT_CLAIMS_ID = "id";
+    public static final String JWT_CLAIMS_USERNAME = "username";
+    public static final String JWT_CLAIMS_ROLE = "role";
+    public static final String JWT_CLAIMS_EMAIL = "email";
+
+    //Mail model keys
+    public static final String MAIL_MODEL_LINK = "link";
+    public static final String MAIL_MODEL_USERNAME = "username";
+    public static final String MAIL_MODEL_CREATOR = "creator";
+    public static final String MAIL_MODEL_ROLE = "role";
 }

@@ -59,7 +59,7 @@ public class AuthorizationController {
         }
 
         if (currentUser == null) {
-            throw new ValidationException("User not found with such username or email " + loginRequest.getUsername());
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_EMAIL_OR_USERNAME + loginRequest.getUsername());
         }
 
         if (!currentUser.isActivated()) {

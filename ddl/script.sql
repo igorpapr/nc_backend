@@ -171,17 +171,6 @@ CREATE TABLE public.categs_quizzes (
 );
 
 
---
--- TOC entry 209 (class 1259 OID 11246552)
--- Name: chats; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.chats (
-    chat_id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    title character varying,
-    is_personal boolean NOT NULL
-);
-
 
 --
 -- TOC entry 210 (class 1259 OID 11246559)
@@ -222,20 +211,6 @@ CREATE TABLE public.games (
     break_time integer NOT NULL,
     access_code character varying(300),
     quiz_id uuid NOT NULL
-);
-
-
---
--- TOC entry 213 (class 1259 OID 11246569)
--- Name: messages; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.messages (
-    message_id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    chat_id uuid NOT NULL,
-    user_id uuid,
-    content character varying NOT NULL,
-    datetime_sent timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -565,19 +540,6 @@ CREATE TABLE public.users_achievements (
 
 
 --
--- TOC entry 232 (class 1259 OID 11246671)
--- Name: users_chats; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.users_chats (
-    user_id uuid NOT NULL,
-    chat_id uuid NOT NULL,
-    datetime_joined timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    is_creator boolean DEFAULT false NOT NULL
-);
-
-
---
 -- TOC entry 233 (class 1259 OID 11246676)
 -- Name: users_games; Type: TABLE; Schema: public; Owner: -
 --
@@ -690,16 +652,6 @@ ALTER TABLE ONLY public.categories
 ALTER TABLE ONLY public.categs_quizzes
     ADD CONSTRAINT categs_quizzes_pkey PRIMARY KEY (category_id, quiz_id);
 
-
---
--- TOC entry 3898 (class 2606 OID 11246713)
--- Name: chats chats_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.chats
-    ADD CONSTRAINT chats_pkey PRIMARY KEY (chat_id);
-
-
 --
 -- TOC entry 3900 (class 2606 OID 11246715)
 -- Name: friends friends_pkey; Type: CONSTRAINT; Schema: public; Owner: -
@@ -716,16 +668,6 @@ ALTER TABLE ONLY public.friends
 
 ALTER TABLE ONLY public.games
     ADD CONSTRAINT games_pk PRIMARY KEY (game_id);
-
-
---
--- TOC entry 3904 (class 2606 OID 11246719)
--- Name: messages messages_pk; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT messages_pk PRIMARY KEY (message_id);
-
 
 --
 -- TOC entry 3956 (class 2606 OID 11384395)
@@ -926,15 +868,6 @@ ALTER TABLE ONLY public.users_achievements
 
 
 --
--- TOC entry 3950 (class 2606 OID 11246761)
--- Name: users_chats users_chats_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users_chats
-    ADD CONSTRAINT users_chats_pkey PRIMARY KEY (user_id, chat_id);
-
-
---
 -- TOC entry 3942 (class 2606 OID 11246763)
 -- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
@@ -1013,24 +946,6 @@ ALTER TABLE ONLY public.achievements
 
 ALTER TABLE ONLY public.categs_quizzes
     ADD CONSTRAINT category_pk FOREIGN KEY (category_id) REFERENCES public.categories(category_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- TOC entry 3966 (class 2606 OID 11246805)
--- Name: messages chat_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT chat_id_fk FOREIGN KEY (chat_id) REFERENCES public.chats(chat_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- TOC entry 3989 (class 2606 OID 11246810)
--- Name: users_chats chat_pk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users_chats
-    ADD CONSTRAINT chat_pk FOREIGN KEY (chat_id) REFERENCES public.chats(chat_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -1241,15 +1156,6 @@ ALTER TABLE ONLY public.users_games
 
 
 --
--- TOC entry 3967 (class 2606 OID 11246925)
--- Name: messages user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.messages
-    ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
 -- TOC entry 3985 (class 2606 OID 11246930)
 -- Name: user_settings user_pk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
@@ -1264,15 +1170,6 @@ ALTER TABLE ONLY public.user_settings
 --
 
 ALTER TABLE ONLY public.users_achievements
-    ADD CONSTRAINT user_pk FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- TOC entry 3990 (class 2606 OID 11246940)
--- Name: users_chats user_pk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users_chats
     ADD CONSTRAINT user_pk FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 

@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.configs.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.SseService;
@@ -28,7 +29,7 @@ public class UserScheduler {
 
     @Scheduled(fixedDelay = ONE_DAY)
     public void deleteUnacceptedUsers() {
-        log.info(String.format("%d unaccepted Users was deleted ", userDao.deleteIfLinkExpired()));
+        log.info(String.format(Constants.DELETED_UNACCEPTED_USERS, userDao.deleteIfLinkExpired()));
     }
 
     @Scheduled(fixedDelay = ONE_DAY)

@@ -2,6 +2,7 @@ package net.dreamfteam.quiznet.web.controllers;
 
 import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.security.IAuthenticationFacade;
+import net.dreamfteam.quiznet.data.entities.Role;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.data.entities.UserFriendInvitation;
 import net.dreamfteam.quiznet.data.entities.UserView;
@@ -12,7 +13,14 @@ import net.dreamfteam.quiznet.web.dto.DtoUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
@@ -50,13 +58,13 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PatchMapping("/edit/image")
-    public ResponseEntity<?> editImage(@RequestParam("key") MultipartFile image){
+    public ResponseEntity<?> editImage(@RequestParam("key") MultipartFile image) {
         User currentUser = userService.getById(authenticationFacade.getUserId());
 
         try {
             currentUser.setImage(image.getBytes());
         } catch (IOException e) {
-            throw new ValidationException("Broken image");
+            throw new ValidationException(Constants.IMAGE_BROKEN, e);
         }
 
         userService.update(currentUser);
@@ -73,11 +81,11 @@ public class UserController {
         User user = userService.getByUsername(userName);
 
         if (user == null) {
-            throw new ValidationException("Not found");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_USERNAME + userName);
         }
 
-        if (currentUser.getRole().ordinal() < user.getRole().ordinal()) {
-            throw new ValidationException("You dont have such capabilities");
+        if (currentUser.getRole() == Role.ROLE_USER && user.getRole() != Role.ROLE_USER) {
+            throw new ValidationException(Constants.NOT_HAVE_CAPABILITIES);
         } else if (currentUser.getRole().ordinal() == 0) {
             userService.getFriendsRelations(user, currentUser.getId());
         }
@@ -102,7 +110,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/popular-creators")
-    public  ResponseEntity<List<?>> getPopularCreators() {
+    public ResponseEntity<List<?>> getPopularCreators() {
         return new ResponseEntity<>(userService.getPopularCreators(), HttpStatus.OK);
     }
 

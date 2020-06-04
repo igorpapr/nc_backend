@@ -1,6 +1,7 @@
 package net.dreamfteam.quiznet.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.data.entities.User;
 import net.dreamfteam.quiznet.exception.ValidationException;
 import net.dreamfteam.quiznet.service.RecoveringService;
@@ -45,7 +46,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByEmail(userMail.getEmail());
 
         if (user == null) {
-            throw new ValidationException("Not found user with such email" + userMail.getEmail());
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_EMAIL + userMail.getEmail());
         }
 
         user.setRecoveryUrl(passwordEncoder.encode(userMail.getEmail() + recoverSecret));
@@ -55,7 +56,7 @@ public class RecoveringServiceImpl implements RecoveringService {
         try {
             mailService.sendMailMessage(mailService.createRecoverMail(user), recoverNameTemplate);
         } catch (MessagingException e) {
-            log.error(String.format("Recovery mail was not sent to user %s", user.getUsername()), e);
+            log.error(String.format(Constants.RECOVERY_MAIL_NOT_SENT, user.getUsername()), e);
         }
 
     }
@@ -65,14 +66,14 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByRecoverUrl(recoverUrl);
 
         if (user == null) {
-            throw new ValidationException("User with such recover URL not found");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_RECOVER_URL + recoverUrl);
         }
 
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {
             user.setRecoveryUrl(null);
             user.setRecoverySentTime(null);
             userService.update(user);
-            throw new ValidationException("Your recover link is expired. Try again");
+            throw new ValidationException(Constants.RECOVER_LINK_EXPIRED);
         }
 
         return recoverUrl;
@@ -83,17 +84,17 @@ public class RecoveringServiceImpl implements RecoveringService {
         User user = userService.getByRecoverUrl(passwordDto.getRecoverUrl());
 
         if (user == null) {
-            throw new ValidationException("Not found user with such recover url");
+            throw new ValidationException(Constants.USER_NOT_FOUND_WITH_RECOVER_URL + passwordDto.getRecoverUrl());
         }
 
         if (new Date().getTime() - user.getRecoverySentTime().getTime() >= ONE_DAY) {
             user.setRecoveryUrl(null);
             user.setRecoverySentTime(null);
             userService.update(user);
-            throw new ValidationException("Your recover link is expired. Try again");
+            throw new ValidationException(Constants.RECOVER_LINK_EXPIRED);
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
         user.setRecoveryUrl(null);
         user.setRecoverySentTime(null);
         userService.update(user);
