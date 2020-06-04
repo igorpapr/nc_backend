@@ -30,7 +30,7 @@ public class SettingsController {
     }
 
     @PreAuthorize("hasAnyRole('USER','MODERATOR','ADMIN','SUPERADMIN')")
-    @PostMapping
+    @PutMapping
     public ResponseEntity<?> setSettings(@RequestBody List<DtoSettings> dtoSettings) throws ValidationException {
         SettingsValidator.validate(dtoSettings);
         settingsService.editSettings(dtoSettings, authenticationFacade.getUserId());
