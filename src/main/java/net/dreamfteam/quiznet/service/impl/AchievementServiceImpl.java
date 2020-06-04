@@ -52,7 +52,7 @@ public class AchievementServiceImpl implements AchievementService {
 		List<DtoPlayerSession> sessionsMaps = gameSessionDao.getSessions(gameId);
 		for (DtoPlayerSession session : sessionsMaps) {
 			String userId = session.getUser_id();
-			if (userId != null) {
+			if (userId != null) {//checking if the user is not anonymous
 				//Non-repeatable achievements
 				checkFirstGameOfUserAchievement(userId);
 				checkPlayedAmountOfDifferentQuizzes(userId);
@@ -80,7 +80,6 @@ public class AchievementServiceImpl implements AchievementService {
 	public Integer getUserAchievementsAmount(String userId){
 		return achievementDao.getUserAchievementsAmount(userId);
 	}
-
 
 	@Override
 	public List<UserAchievement> getUserAchievements(String userId) {
@@ -122,27 +121,13 @@ public class AchievementServiceImpl implements AchievementService {
 
 	//Repeatable achievement
 	private void checkPlayedTenOfDifferentQuizzesOfCategory(String userId, String gameId) {
-		UserCategoryAchievementInfo info = gameDao.getUserGamesInCategoryInfo(userId, gameId);
-		if (info != null){
-			int amount = info.getAmountPlayed();
-			if(amount > 0 && ((amount % 10) == 0)){ //works on every tenth game
-				String catTitle = info.getCategoryTitle();
-				switch (catTitle) {
-					case "Geography":
-						addAchievementForUser(userId, Constants.ACHIEVEMENT_GEOGRAPHY_CATEGORY_ID, true);
-						break;
-					case "Ukraine":
-						addAchievementForUser(userId, Constants.ACHIEVEMENT_UKRAINE_CATEGORY_ID, true);
-						break;
-					case "History":
-						addAchievementForUser(userId, Constants.ACHIEVEMENT_HISTORY_CATEGORY_ID, true);
-						break;
-					case "Science":
-						addAchievementForUser(userId, Constants.ACHIEVEMENT_SCIENCE_CATEGORY_ID, true);
-						break;
-					case "Other":
-						addAchievementForUser(userId, Constants.ACHIEVEMENT_OTHERS_CATEGORY_ID, true);
-						break;
+		List<UserCategoryAchievementInfo> infoList = gameDao.getUserGamesInCategoryInfo(userId, gameId);
+		if (infoList != null){
+			for(UserCategoryAchievementInfo info : infoList){
+				int amount = info.getAmountPlayed();
+				if(amount > 0 && ((amount % 10) == 0)){ //works on every tenth game
+					int achievementId = info.getAchievementId();
+					addAchievementForUser(userId, achievementId,true);
 				}
 			}
 		}
