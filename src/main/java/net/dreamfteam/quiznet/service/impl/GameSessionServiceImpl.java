@@ -111,12 +111,13 @@ public class GameSessionServiceImpl implements GameSessionService {
     public void removePlayer(String sessionId) {
         String gameId = gameSessionDao.getGameId(sessionId);
 
-        gameSessionDao.removePlayer(sessionId);
+
 
         if(gameSessionDao.isCreatorLeft(sessionId)){
             gameService.deleteGame(gameId);
             sseService.send(gameId,"left");
         }else {
+            gameSessionDao.removePlayer(sessionId);
             checkForGameOver(gameId);
             sseService.send(gameId, "remove", sessionId);
         }
