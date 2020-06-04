@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +72,7 @@ public class GameSessionServiceImpl implements GameSessionService {
                 .gameId(game.getId())
                 .score(0)
                 .winner(false)
-                .creator(gameSessionDao.isCreator(game.getId()))
+                .creator(gameSessionDao.isFirst(game.getId()))
                 .savedByUser(!userId.startsWith("-"))
                 .durationTime(0)
                 .build();
@@ -106,10 +107,20 @@ public class GameSessionServiceImpl implements GameSessionService {
     }
 
     @Override
+    @Transactional
     public void removePlayer(String sessionId) {
         String gameId = gameSessionDao.getGameId(sessionId);
+
         gameSessionDao.removePlayer(sessionId);
-        checkForGameOver(gameId);
+
+        if(gameSessionDao.isCreatorLeft(sessionId)){
+            gameService.deleteGame(gameId);
+            sseService.send(gameId,"left");
+        }else {
+            checkForGameOver(gameId);
+        }
+
+
     }
 
     @Override

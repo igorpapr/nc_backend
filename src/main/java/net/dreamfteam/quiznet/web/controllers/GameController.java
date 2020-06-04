@@ -57,7 +57,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/start")
+    @PatchMapping("/start")
     public ResponseEntity<?> startGame(@RequestParam String gameId) {
         gameService.startGame(gameId);
         gameSessionService.timerForEnd(gameId);
@@ -81,7 +81,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/result")
+    @PatchMapping("/result")
     public ResponseEntity<?> setResult(@RequestBody DtoGameSession dtoGameSession) {
         GameSessionValidator.validate(dtoGameSession);
         gameSessionService.setResult(dtoGameSession);
@@ -95,7 +95,7 @@ public class GameController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ANONYM')")
-    @PostMapping("/game/{gameId}/ready")
+    @PatchMapping("/game/{gameId}/ready")
     public ResponseEntity<?> setReady(@PathVariable String gameId, @RequestParam String sessionId) {
         sseService.send(gameId, "ready", sessionId);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -110,7 +110,7 @@ public class GameController {
 
 
     @PreAuthorize("hasAnyRole('USER')")
-    @PostMapping("/rate-quiz")
+    @PatchMapping("/rate-quiz")
     public ResponseEntity<?> rateQuiz(@RequestParam String sessionId, @RequestParam int ratingPoints) {
         UserQuizRatingValidator.validate(sessionId, ratingPoints);
         gameService.rateGame(sessionId, ratingPoints, authenticationFacade.getUserId());
@@ -122,6 +122,4 @@ public class GameController {
     public ResponseEntity<?> getGamesAmountForDay() {
         return new ResponseEntity<>(gameService.getGamesAmountForDay(), HttpStatus.OK);
     }
-
-
 }

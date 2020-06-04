@@ -21,6 +21,8 @@ public interface GameDao {
 
     void updateGame(Game game);
 
+    void deleteGame(String gameId);
+
     Question getQuestion(String gameId);
 
     UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId);
