@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.GameSessionDao;
 import net.dreamfteam.quiznet.data.entities.GameSession;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Repository
 public class GameSessionDaoImpl implements GameSessionDao {
 
@@ -36,15 +38,21 @@ public class GameSessionDaoImpl implements GameSessionDao {
 
 
         try {
+            GameSession result;
             if (!userId.startsWith("-")) {
-                return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER,
+                result =  jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_USER,
                         new Object[]{userId, username, accessId}, new GameSessionMapper());
             } else {
-                return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_ANONYM,
+                result = jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ACCESS_ID_FOR_ANONYM,
                         new Object[]{username, accessId}, new GameSessionMapper());
             }
 
+            log.info("Get session by access code: " + accessId);
+
+            return result;
+
         } catch (EmptyResultDataAccessException e) {
+            log.error("Error while getting session by access code:"+ accessId+"\n" + e.getMessage());
             return null;
         }
 
@@ -53,9 +61,12 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public GameSession getById(String sessionId) {
         try {
-            return jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ID,
+            GameSession result = jdbcTemplate.queryForObject(SqlConstants.GAME_SESSIONS_GET_SESSION_BY_ID,
                     new Object[]{sessionId}, new GameSessionMapper());
+            log.info("Get session by id: " + sessionId);
+            return result;
         } catch (EmptyResultDataAccessException e) {
+            log.error("Error while getting session by id:"+ sessionId+"\n" + e.getMessage());
             return null;
         }
     }
@@ -63,7 +74,7 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public List<DtoPlayerSession> getSessions(String gameId) {
         try {
-            return jdbcTemplate
+            List<DtoPlayerSession> result = jdbcTemplate
                     .query(SqlConstants.GAME_SESSIONS_GET_SESSIONS_BY_GAME_ID, new Object[]{gameId},
                             (rs, i) -> DtoPlayerSession.builder()
                                     .game_session_id(rs.getString("game_session_id"))
@@ -75,7 +86,11 @@ public class GameSessionDaoImpl implements GameSessionDao {
                                     .user_id(rs.getString("user_id"))
                                     .username(rs.getString("username"))
                                     .build());
+
+            log.info("Get sessions by game id: " + gameId);
+            return result;
         } catch (EmptyResultDataAccessException e) {
+            log.error("Error while getting sessions by game id:"+ gameId+"\n" + e.getMessage());
             return null;
         }
     }
@@ -84,32 +99,45 @@ public class GameSessionDaoImpl implements GameSessionDao {
     @Override
     public GameSession createSession(GameSession gameSession) {
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SqlConstants.GAME_SESSIONS_CREATE_SESSION, Statement.RETURN_GENERATED_KEYS);
-            ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
-                    UUID.fromString(gameSession.getUserId()));
-            ps.setObject(2, UUID.fromString(gameSession.getGameId()));
-            ps.setInt(3, gameSession.getScore());
-            ps.setBoolean(4, gameSession.isWinner());
-            ps.setBoolean(5, gameSession.isCreator());
-            ps.setBoolean(6, gameSession.isSavedByUser());
-            ps.setObject(7, gameSession.getDurationTime());
-            ps.setString(8, gameSession.getUsername());
-            return ps;
-        }, keyHolder);
+            jdbcTemplate.update(con -> {
+                PreparedStatement ps = con.prepareStatement(SqlConstants.GAME_SESSIONS_CREATE_SESSION,
+                        Statement.RETURN_GENERATED_KEYS);
+                ps.setObject(1, gameSession.getUserId() == null ? gameSession.getUserId() :
+                        UUID.fromString(gameSession.getUserId()));
+                ps.setObject(2, UUID.fromString(gameSession.getGameId()));
+                ps.setInt(3, gameSession.getScore());
+                ps.setBoolean(4, gameSession.isWinner());
+                ps.setBoolean(5, gameSession.isCreator());
+                ps.setBoolean(6, gameSession.isSavedByUser());
+                ps.setObject(7, gameSession.getDurationTime());
+                ps.setString(8, gameSession.getUsername());
+                return ps;
+            }, keyHolder);
 
-        gameSession.setId(Objects.requireNonNull(keyHolder.getKeys()).get("game_session_id").toString());
+            String id = Objects.requireNonNull(keyHolder.getKeys()).get("game_session_id").toString();
+            gameSession.setId(id);
 
-        return gameSession;
+            log.info("Create session with id: " + id);
+            return gameSession;
+        }catch (DataAccessException e){
+            log.error("Error while creating session\n" + e.getMessage());
+            return null;
+        }
     }
 
     @Override
     @Transactional
     public void updateSession(GameSession gameSession) {
-        jdbcTemplate.update(SqlConstants.GAME_SESSIONS_UPDATE_SESSION,
-                gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
+        try {
+            jdbcTemplate.update(SqlConstants.GAME_SESSIONS_UPDATE_SESSION,
+                    gameSession.getScore(), gameSession.getDurationTime(), gameSession.getId());
+            log.info("Update session with id: " + gameSession.getId());
+        }catch (DataAccessException e){
+            log.error("Error while updating sessions with id:"+ gameSession.getId()+"\n" + e.getMessage());
+        }
     }
 
     @Override

@@ -16,7 +16,8 @@ public class SqlConstants {
 
                     "notif_id, n.user_id, date_time, seen, link, type_id " +
                     "FROM user_notifications n INNER JOIN user_settings s ON n.user_id = s.user_id " +
-                    "WHERE seen = false AND n.user_id = UUID(?) AND setting_id = UUID(?)";
+                    "WHERE seen = false AND n.user_id = UUID(?) AND setting_id = UUID(?) " +
+                    "ORDER BY date_time DESC";
 
     public static final String NOTIFICATIONS_GET_BY_ID =
             "SELECT " +
@@ -53,21 +54,21 @@ public class SqlConstants {
 
     public static final String SETTINGS_INIT_SETTINGS_DEFAULTS =
             "INSERT INTO user_settings (user_id, setting_id, value) " +
-                    "SELECT UUID(?) , setting_id, default_value " +
+                    "SELECT UUID(?), setting_id, default_value " +
                     "FROM settings " +
-                    "WHERE title=?";
+                    "WHERE setting_id = UUID(?)";
 
     public static final String SETTINGS_INIT_SETTINGS_LANGUAGE =
             "INSERT INTO user_settings (user_id, setting_id, value) " +
                     "VALUES (UUID(?),UUID('e8449301-6d6f-4376-8247-b7d1f8df6416'),?)";
 
     public static final String SETTINGS_GET_TITLES_DEFAULT =
-            "SELECT title " +
+            "SELECT setting_id " +
                     "FROM settings " +
                     "WHERE default_value IS NOT NULL";
 
     public static final String SETTINGS_GET_TITLES_PRIVILEGED =
-            "SELECT title " +
+            "SELECT setting_id " +
                     "FROM settings " +
                     "WHERE privileged = TRUE AND default_value IS NOT NULL";
 
