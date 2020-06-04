@@ -453,31 +453,34 @@ public class SqlConstants {
             "ORDER BY rating DESC LIMIT ? OFFSET ? ;";
 
     public static final String QUIZ_GET_SUGGESTION_QUIZ_LIST_BY_CATEGS_AND_TAGS =
-            "SELECT DISTINCT q1.quiz_id, q1.title, q1.image,  quiz_rating(q1.quiz_id) as q1rating " +
+            "SELECT DISTINCT q1.quiz_id, q1.title, q1.image, quiz_rating(q1.quiz_id) as q1rating " +
             "FROM quizzes q1 INNER JOIN categs_quizzes cq1 ON q1.quiz_id = cq1.quiz_id " +
             "                INNER JOIN quizzes_tags qt1 ON q1.quiz_id = qt1.quiz_id " +
             "WHERE (category_id IN (SELECT cq.category_id " +
             // 3 categories with most of games played by the user
-            "                        FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
-            "                                                           ON g.game_id = ug.game_id) " +
-            "                                                           ON g.quiz_id = cq.quiz_id " +
-            "                        WHERE ug.user_id = uuid(?) " + //UserId here
-            "                        GROUP BY cq.category_id " +
-            "                        ORDER BY COUNT(g.game_id) DESC " +
-            "                        LIMIT 3) " + "      OR qt1.tag_id IN (SELECT qt3.tag_id " +
+                                    "FROM categs_quizzes cq INNER JOIN (games g INNER JOIN users_games ug " +
+                                                                        "ON g.game_id = ug.game_id) " +
+                                                                        "ON g.quiz_id = cq.quiz_id " +
+                                    "WHERE ug.user_id = uuid(?) " + //UserId here
+                                    "GROUP BY cq.category_id " +
+                                    "ORDER BY COUNT(g.game_id) DESC " +
+                                    "LIMIT 3) " +
+                    "OR qt1.tag_id IN (SELECT qt3.tag_id " +
             //3 tags with most of games played by the user
-            "                        FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
-            "                                                          ON g3.game_id = ug3.game_id) " +
-            "                                                          ON g3.quiz_id = qt3.quiz_id " +
-            "                        WHERE ug3.user_id = uuid(?) " + //Same userId here
-            "                        GROUP BY qt3.tag_id " +
-            "                        ORDER BY COUNT(g3.game_id) DESC" +
-            "                        LIMIT 3) " + "      ) " +
+                                      "FROM quizzes_tags qt3 INNER JOIN (games g3 INNER JOIN users_games ug3 " +
+                                                                        "ON g3.game_id = ug3.game_id) " +
+                                                                        "ON g3.quiz_id = qt3.quiz_id " +
+                                     "WHERE ug3.user_id = uuid(?) " + //Same userId here
+                                     "GROUP BY qt3.tag_id " +
+                                     "ORDER BY COUNT(g3.game_id) DESC " +
+                                     "LIMIT 3) " +
+             ") " +
             //excluding quizzes which the user has already played before
-            "      AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
-            "                            FROM games g2 INNER JOIN users_games ug2 " +
-            "ON g2.game_id = ug2.game_id " + "                            WHERE ug2.user_id = uuid(?)) " +
-            "      AND q1.activated = true " + //only available to play
+            "AND q1.quiz_id NOT IN (SELECT g2.quiz_id " +
+                                    "FROM games g2 INNER JOIN users_games ug2 " +
+                                    "ON g2.game_id = ug2.game_id " +
+                                    "WHERE ug2.user_id = uuid(?)) " +
+            "AND q1.activated = true " + //only available to play
             "ORDER BY q1rating DESC " + //order by overall rating
             "LIMIT ?;"; //first X rows;
 
@@ -730,15 +733,18 @@ public class SqlConstants {
     //=================================================================================================================
 
 
-    /* Selects the friends' activities of the given user filtering by his settings, of needed language
+    /* Selects the friends' activities of the given user filtering by his settings, of needed language.
+    *  Returns only one "page".
     *  Params:
     *   1) The id of the given user;
     *   2) The id of the language setting;
     *   3) The same user id;
     *   4) The same user id;
     *   5) The same user id.
+    *   6) Start index
+    *   7) Amount
     */
-    public static final String ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST =
+    public static final String ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST_PAGE =
             "SELECT CASE (SELECT value " +//selecting language of user
                          "FROM user_settings " +
                          "WHERE user_id = uuid(?) " +
@@ -765,8 +771,36 @@ public class SqlConstants {
                                 "WHERE us.user_id = uuid(?) " +
                                 "AND value = 'true' " +
                                 "AND activity_type_id IS NOT NULL) " +
-            "ORDER BY datetime DESC;";
+            "ORDER BY datetime DESC " +
+            "OFFSET ? LIMIT ?;";
 
+    /* Selects the total size of friends' activities list of
+     * the given user
+     *  Params:
+     *   1) User id;
+     *   2) The same user id;
+     *   3) The same user id.
+     */
+    public static final String ACTIVITY_GET_FRIENDS_ACTIVITIES_TOTAL_SIZE =
+            "SELECT COUNT(*) " +
+             "FROM user_activities ua INNER JOIN activity_types at1 ON ua.type_id = at1.type_id " +
+             "WHERE ua.user_id IN " + //selecting friends
+                    "(SELECT f.friend_id AS id " +
+                    "FROM friends f " +
+                    "WHERE f.parent_id = uuid(?) " +
+                    "AND f.accepted_datetime IS NOT NULL " +
+                    "UNION " +
+                    "SELECT f1.parent_id AS id " +
+                    "FROM friends f1 " +
+                    "WHERE f1.friend_id = uuid(?) " +
+                    "AND f1.accepted_datetime IS NOT NULL) " +
+             "AND ua.type_id IN (SELECT activity_type_id " +  //filtering by settings
+                                  "FROM settings s INNER JOIN user_settings us " +
+                                  "ON s.setting_id = us.setting_id " +
+                                  "WHERE us.user_id = uuid(?) " +
+                                  "AND value = 'true' " +
+                                  "AND activity_type_id IS NOT NULL) " +
+             "ORDER BY datetime DESC;";
 
     /*  Inserts a new activity
     *   Params:
