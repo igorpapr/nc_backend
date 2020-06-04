@@ -26,8 +26,8 @@ public class ActivitiesServiceImpl implements ActivitiesService {
 	}
 
 	@Override
-	public List<FriendsActivity> getFriendsActivities(String userId) {
-		return activityDao.getFriendsActivitiesList(userId);
+	public List<FriendsActivity> getFriendsActivitiesPage(String userId, int startIndex, int amount) {
+		return activityDao.getFriendsActivitiesListByPage(userId,startIndex, amount);
 	}
 
 	@Override
@@ -53,5 +53,10 @@ public class ActivitiesServiceImpl implements ActivitiesService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public int getFriendsActivitiesTotalSize(String userId) {
+		return activityDao.getFriendsActivitiesTotalSize(userId);
 	}
 }

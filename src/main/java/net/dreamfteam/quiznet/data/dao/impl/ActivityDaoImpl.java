@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.Constants;
 import net.dreamfteam.quiznet.configs.constants.SqlConstants;
@@ -27,13 +28,13 @@ public class ActivityDaoImpl implements ActivityDao {
 	}
 
 	@Override
-	public List<FriendsActivity> getFriendsActivitiesList(String userId) {
+	public List<FriendsActivity> getFriendsActivitiesListByPage(String userId, int startIndex, int amount) {
 		try{
 			return jdbcTemplate
-					.query(SqlConstants.ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST,
-					new Object[]{userId, Constants.SETTING_LANG_ID, userId, userId, userId},
+					.query(SqlConstants.ACTIVITY_GET_FRIENDS_ACTIVITIES_LIST_PAGE,
+					new Object[]{userId, Constants.SETTING_LANG_ID, userId, userId, userId, startIndex, amount},
 					new FriendsActivityMapper());
-		}catch (EmptyResultDataAccessException | NullPointerException e){
+		}catch (DataAccessException | NullPointerException e){
 			log.error("Couldn't get friends activities list.\n Exception: " + e.getMessage());
 			return null;
 		}
@@ -48,6 +49,18 @@ public class ActivityDaoImpl implements ActivityDao {
 					activity.getLinkInfo());
 		}catch (DataAccessException | NullPointerException e){
 			log.error("Couldn't add new activity for the given user.\n Exception: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public int getFriendsActivitiesTotalSize(String userId) {
+		try{
+			return jdbcTemplate.queryForObject(SqlConstants.ACTIVITY_GET_FRIENDS_ACTIVITIES_TOTAL_SIZE,
+					new Object[]{userId, userId, userId},
+					Integer.class);
+		} catch (DataAccessException | NullPointerException e){
+			log.error("Couldn't get activities' total size. \nException: " + e.getMessage());
+			return 0;
 		}
 	}
 }

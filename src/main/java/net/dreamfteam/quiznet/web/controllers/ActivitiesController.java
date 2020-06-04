@@ -26,10 +26,17 @@ public class ActivitiesController {
 
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping
-	public ResponseEntity<?> getFriendsActivities() {
-		return new ResponseEntity<>(activitiesService.getFriendsActivities(authenticationFacade.getUserId())
-				,HttpStatus.OK);
+	public ResponseEntity<?> getFriendsActivities(@RequestParam int startIndex, @RequestParam int amount) {
+		return new ResponseEntity<>(activitiesService
+				.getFriendsActivitiesPage(authenticationFacade.getUserId(), startIndex, amount),
+				HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/totalsize")
+	public ResponseEntity<?> getFriendsActivitiesTotalSize(){
+		return new ResponseEntity<>(activitiesService.getFriendsActivitiesTotalSize(authenticationFacade.getUserId())
+				,HttpStatus.OK);
+	}
 
 }
