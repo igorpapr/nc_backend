@@ -1,5 +1,6 @@
 package net.dreamfteam.quiznet.data.dao.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dreamfteam.quiznet.configs.constants.SqlConstants;
 import net.dreamfteam.quiznet.data.dao.UserDao;
 import net.dreamfteam.quiznet.data.entities.User;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 
 @Repository
+@Slf4j
 public class UserDaoImpl implements UserDao {
 
     final private JdbcTemplate jdbcTemplate;
@@ -161,6 +163,7 @@ public class UserDaoImpl implements UserDao {
                     new Object[]{userId, userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Couldn't getFriendsTotalSize.\nException: " + e.getMessage());
             return 0;
         }
     }
@@ -172,6 +175,7 @@ public class UserDaoImpl implements UserDao {
                     new Object[]{userId, amount, startIndex},
                     new UserFriendInvitationMapper());
         } catch (EmptyResultDataAccessException e) {
+            log.error("Couldn't getFriendInvitationIncomingByUserId.\nException: " + e.getMessage());
             return null;
         }
     }
@@ -183,6 +187,7 @@ public class UserDaoImpl implements UserDao {
                     new Object[]{userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Couldn't getFriendInvitationsIncomingTotalSize.\nException: " + e.getMessage());
             return 0;
         }
     }
@@ -194,6 +199,7 @@ public class UserDaoImpl implements UserDao {
                     new Object[]{userId, amount, startIndex},
                     new UserFriendInvitationMapper());
         } catch (EmptyResultDataAccessException e) {
+            log.error("Couldn't getFriendInvitationsOutgoingByUserId.\nException: " + e.getMessage());
             return null;
         }
     }
@@ -205,6 +211,7 @@ public class UserDaoImpl implements UserDao {
                     new Object[]{userId},
                     Integer.class);
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Couldn't getFriendInvitationsOutgoingTotalSize.\nException: " + e.getMessage());
             return 0;
         }
     }
