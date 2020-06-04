@@ -25,7 +25,7 @@ public interface GameDao {
 
     Question getQuestion(String gameId);
 
-    UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId);
+    List<UserCategoryAchievementInfo> getUserGamesInCategoryInfo(String userId, String gameId);
 
     QuizCreatorFullStatistics getAmountOfPlayedGamesCreatedByCreatorOfGame(String gameId);
 

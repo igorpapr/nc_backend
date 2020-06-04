@@ -12,6 +12,7 @@ import net.dreamfteam.quiznet.web.dto.DtoGameCount;
 import net.dreamfteam.quiznet.web.dto.DtoGameWinner;
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -127,17 +128,17 @@ public class GameDaoImpl implements GameDao {
 
     //Get info about the number of games played by user of some category by given game id
     @Override
-    public UserCategoryAchievementInfo getUserGamesInCategoryInfo(String userId, String gameId) {
+    public List<UserCategoryAchievementInfo> getUserGamesInCategoryInfo(String userId, String gameId) {
         try {
-            UserCategoryAchievementInfo info = jdbcTemplate.queryForObject(
+            return jdbcTemplate.query(
                     SqlConstants.GAMES_GET_USER_GAMES_IN_CATEGORY_INFO, new Object[]{gameId, userId},
                     (rs, i) -> UserCategoryAchievementInfo.builder()
                             .amountPlayed(rs.getInt("amount"))
                             .categoryId(rs.getString("category_id"))
-                            .categoryTitle(rs.getString("title"))
+                            .achievementId(rs.getInt("achievement_id"))
                             .build());
-            return info;
-        } catch (EmptyResultDataAccessException | NullPointerException e) {
+        } catch (DataAccessException | NullPointerException e) {
+            log.error("Couldn't getUserGamesInCategoryInfo. GameId: " + gameId + ".\n Exception: "+e.getMessage());
             return null;
         }
     }
@@ -154,6 +155,8 @@ public class GameDaoImpl implements GameDao {
                                     .amountGamesPlayedAllQuizzes(rs.getInt("amount"))
                                     .build());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
+            log.error("Couldn't getAmountOfPlayedGamesCreatedByCreatorOfGame. GameId: " + gameId
+                    + ".\n Exception: "+e.getMessage());
             return null;
         }
     }

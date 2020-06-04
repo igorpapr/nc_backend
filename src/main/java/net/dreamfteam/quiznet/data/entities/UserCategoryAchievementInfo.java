@@ -11,7 +11,7 @@ public class UserCategoryAchievementInfo {
 
 	private String categoryId;
 
-	String categoryTitle;
+	private int achievementId;
 
 	private int amountPlayed;
 

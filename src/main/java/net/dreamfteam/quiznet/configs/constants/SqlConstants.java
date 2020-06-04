@@ -821,18 +821,22 @@ public class SqlConstants {
             "offset (select count(*) from answers where users_game_id=uuid(?)) rows limit 1;";
 
     //Get info about the number of games played by user of some category by given game id
+    //Also achievement_id, connected with this category is selected
+    //  Params:
+    //  1) game id
+    //  2) user id
     public static final String GAMES_GET_USER_GAMES_IN_CATEGORY_INFO =
-            "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, c.title AS title " +
+            "SELECT COUNT(DISTINCT g1.game_id) AS amount, cq1.category_id, a.achievement_id " +
             "FROM users_games ug INNER JOIN games g1 ON ug.game_id = g1.game_id " +
-            "    INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
-            "INNER JOIN categories c ON cq1.category_id = c.category_id " +
-            "WHERE cq1.category_id = " +
-            "                  (SELECT category_id " +
-            "                  FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
-            "                  WHERE game_id = uuid(?)" +
-            "LIMIT 1) " +
-            "      AND ug.user_id = uuid(?) " +
-            "GROUP BY cq1.category_id, c.title; ";
+                                "INNER JOIN categs_quizzes cq1 ON g1.quiz_id = cq1.quiz_id " +
+                                "INNER JOIN achievements a ON cq1.category_id = a.category_id " +
+            "WHERE cq1.category_id IN " +
+                                    "(SELECT category_id " +
+                                     "FROM games g INNER JOIN categs_quizzes cq ON g.quiz_id = cq.quiz_id " +
+                                     "WHERE game_id = uuid(?)" +
+                                    ") " +
+            "AND ug.user_id = uuid(?) " +
+            "GROUP BY cq1.category_id, a.achievement_id;";
 
     //For achievements: returns the number of all games with quizzes that created the creator of given gameId
     public static final String GAMES_GET_AMOUNT_OF_PLAYED_GAMES_CREATED_BY_CREATOR_OF_GAME =
