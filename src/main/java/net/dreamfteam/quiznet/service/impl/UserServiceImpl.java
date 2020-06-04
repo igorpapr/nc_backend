@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
     public void checkCorrectPassword(User user, String password) {
         boolean matches = bCryptPasswordEncoder.matches(password, user.getPassword());
         if (!matches) {
-            throw new ValidationException("Not correct password");
+            throw new ValidationException(Constants.PASSWORD_NOT_CORRECT);
         }
     }
 

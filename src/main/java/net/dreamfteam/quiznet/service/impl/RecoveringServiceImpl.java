@@ -94,7 +94,7 @@ public class RecoveringServiceImpl implements RecoveringService {
             throw new ValidationException(Constants.RECOVER_LINK_EXPIRED);
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
         user.setRecoveryUrl(null);
         user.setRecoverySentTime(null);
         userService.update(user);
