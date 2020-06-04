@@ -13,10 +13,13 @@ import net.dreamfteam.quiznet.web.validators.GameValidator;
 import net.dreamfteam.quiznet.web.validators.UserQuizRatingValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @CrossOrigin
@@ -123,5 +126,9 @@ public class GameController {
         return new ResponseEntity<>(gameService.getGamesAmountForDay(), HttpStatus.OK);
     }
 
+    @GetMapping(path = "/subscribe/{gameId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent> sseFlux(@PathVariable String gameId) {
+        return sseService.subscribe(gameId);
+    }
 
 }

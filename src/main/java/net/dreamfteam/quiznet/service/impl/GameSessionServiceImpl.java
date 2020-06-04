@@ -78,7 +78,7 @@ public class GameSessionServiceImpl implements GameSessionService {
 
         gameSession = gameSessionDao.createSession(gameSession);
 
-        sseService.send(game.getId(), "join", name);
+        sseService.send(game.getId(), "join", gameSession.getId());
 
         return gameSession;
 
@@ -110,6 +110,7 @@ public class GameSessionServiceImpl implements GameSessionService {
         String gameId = gameSessionDao.getGameId(sessionId);
         gameSessionDao.removePlayer(sessionId);
         checkForGameOver(gameId);
+        sseService.send(gameId, "remove", sessionId);
     }
 
     @Override

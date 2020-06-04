@@ -7,9 +7,12 @@ import net.dreamfteam.quiznet.service.NotificationService;
 import net.dreamfteam.quiznet.service.SseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @CrossOrigin
@@ -22,7 +25,8 @@ public class NotificationController {
 
 
     @Autowired
-    public NotificationController(NotificationService notificationService, SseService sseService,
+    public NotificationController(NotificationService notificationService,
+                                  SseService sseService,
                                   IAuthenticationFacade authenticationFacade) {
         this.notificationService = notificationService;
         this.sseService = sseService;
@@ -48,5 +52,11 @@ public class NotificationController {
     @GetMapping("notification/{notifId}")
     public ResponseEntity<?> get(@PathVariable String notifId) {
         return new ResponseEntity<>(notificationService.getById(notifId), HttpStatus.OK);
+    }
+
+
+    @GetMapping(path = "/subscribe/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent> sseFlux(@PathVariable String userId) {
+        return sseService.subscribe(userId);
     }
 }
